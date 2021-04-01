@@ -22,9 +22,8 @@ class JointState(State):
         Raises:
             ValueError: Raises error if value keys do not match the standard keys
         """
-        possible_keys = 'x#y#z#alpha#beta#gamma'
         for key in values.keys():
-            if possible_keys.find(key) == -1:
+            if 'x#y#z#q0#q1#q2#q3'.find(key) == -1:
                 raise ValueError("Invalid key.")
 
         super().__init__(values, adjustable)
