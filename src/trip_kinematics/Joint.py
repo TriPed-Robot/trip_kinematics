@@ -1,57 +1,82 @@
 
 from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
 from typing import Union
-
-
-class Constants:
-    """[summary]
-    """
-
-    def __init__(self, x=0, y=0, z=0, alpha=0, beta=0, gamma=0) -> None:
-        """[summary]
-
-        Args:
-            x (int, optional): [description]. Defaults to 0.
-            y (int, optional): [description]. Defaults to 0.
-            z (int, optional): [description]. Defaults to 0.
-            alpha (int, optional): [description]. Defaults to 0.
-            beta (int, optional): [description]. Defaults to 0.
-            gamma (int, optional): [description]. Defaults to 0.
-        """
-        self.x: Union[float, object] = x
-        self.y: Union[float, object] = y
-        self.z: Union[float, object] = z
-        self.alpha: Union[float, object] = alpha
-        self.beta: Union[float, object] = beta
-        self.gamma: Union[float, object] = gamma
+from typing import Dict, List
 
 
 class State:
-    """[summary]
+    """Representation of the state of a group of kinematic joints
+
+    Attributes:
+        __constants (Dict[str, float]): All the constants values inside the group of joints
+        variables (Dict[str, float]): All the variables (DOF) of a group of joints
     """
 
-    def __init__(self, x=None, y=None, z=None, alpha=None, beta=None, gamma=None) -> None:
-        self.state = dict()
+    def __init__(self, values: Dict[str, float], adjustable: List[str]) -> None:
+        """Sorts values into either constants or variables
 
-        if(x):
-            self.state.update({"x": x})
-        if(y):
-            self.state.update({"y": y})
-        if(z):
-            self.state.update({"z": z})
-        if(alpha):
-            self.state.update({"alpha": alpha})
-        if(beta):
-            self.state.update({"beta": beta})
-        if(x):
-            self.state.update({"gamma": gamma})
+        Args:
+            values (Dict[str, float]): Dictionary of all values both constants and variables
+            adjustable (List[str]): List of all the variables inside values
+
+        Raises:
+            ValueError: An error is raised if there is a key in adjustable that doesn't match any from values
+        """
+        if not set(adjustable) <= set(values.keys()):
+            raise ValueError(
+                "Key(s) from adjustable not present inside values")
+
+        self.__constants = {}
+        self.variables = {}
+
+        adjust = '#'.join(adjustable)
+
+        for key in values.keys():
+            if adjust.find(key) != -1:
+                self.variables.setdefault(key, values.get(key))
+            else:
+                self.__constants.setdefault(key, values.get(key))
+
+    def get_constants(self) -> Dict[str, float]:
+        """Getter for constants
+
+        Returns:
+            Dict[str, float]: All the constants inside a dict
+        """
+        return self.__constants
+
+
+class JointState(State):
+    """Representation of the state of a single joint
+
+    Attributes:
+        __constants (Dict[str, float]): All the constant values of a joint
+        variables (Dict[str, float]): All the variables (DOF) of a joint
+    """
+
+    def __init__(self, values: Dict[str, float], adjustable: List[str]) -> None:
+        """Checks if the given keys of the values match the standard keys
+
+        Args:
+            values (Dict[str, float]): Dictionary of all values both constants and variables
+            adjustable (List[str]): List of all the variables inside values
+
+        Raises:
+            ValueError: Raises error if value keys do not match the standard keys
+        """
+        possible_keys = 'x#y#z#alpha#beta#gamma'
+        for key in values.keys():
+            if possible_keys.find(key) == -1:
+                raise ValueError("Invalid key.")
+
+        super().__init__(values, adjustable)
 
 
 class Joint:
     """[summary]
     """
 
-    def __init__(self, name: str, constants: Constants, state: State, parents: [] = []) -> None:
+    def __init__(self, name: str, state: JointState, parents: [] = []) -> None:
         """[summary]
 
         Args:
@@ -67,7 +92,6 @@ class Joint:
                 parent.__add_child(self)
 
         self.__children: [] = []
-        self.__constants: Constants = constants
         self.__state = state
 
     def get_transformation(self) -> Homogenous_transformation_matrix:
@@ -76,23 +100,15 @@ class Joint:
         Returns:
             Homogenous_transformation_matrix: [description]
         """
-        tx = self.__constants.x
-        ty = self.__constants.y
-        tz = self.__constants.z
+        pass
 
-        rx = self.__constants.alpha
-        ry = self.__constants.beta
-        rz = self.__constants.gamma
-
-        return Homogenous_transformation_matrix(tx=tx, ty=ty, tz=tz, rx=rx, ry=ry, rz=rz, conv='xyz')
-
-    def change_value(self, state: State) -> None:
+    def change_value(self, state: JointState) -> None:
         """[summary]
 
         Args:
             state (State): [description]
         """
-        self.__state = State
+        self.__state = state
 
     def get_name(self) -> str:
         """Returns name of joint
