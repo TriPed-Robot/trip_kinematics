@@ -100,17 +100,17 @@ class Homogenous_transformation_matrix:
         """
         return MX(self.matrix)
 
-    def times(self, second):
+    def __mul__(self, other):
         """[summary]
 
         Args:
-            second ([type]): [description]
+            other ([type]): [description]
 
         Returns:
             [type]: [description]
         """
         new = Homogenous_transformation_matrix()
-        new.matrix = self.matrix @ second.matrix
+        new.matrix = self.matrix @ other.matrix
         return new
 
     def __str__(self):
