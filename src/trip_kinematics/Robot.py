@@ -31,5 +31,5 @@ class Robot:
 def forward_kinematic(robot: Robot):
     transformation = Homogenous_transformation_matrix()
     for part in robot.get_parts():
-        transformation * part
+        transformation = transformation * part.get_transformation()
     return transformation.get_translation()
