@@ -1,49 +1,48 @@
 from typing import Dict, List, Callable
+from trip_kinematics.KinematicChainPart import KinematicChainPart
 
 
-class Group:
-    """[summary]
-    """
+class KinematicGroup(KinematicChainPart):
 
-    def __init__(self, name: str, params: ParameterSpecification, set_state: Callable, get_state: Callable, parents: List = []) -> None:
-        """[summary]
+    def __init__(self, name: str, open_chain: List[KinematicChainPart], initial_state: Dict[str, float], f_mapping: Callable, g_mapping: Callable, parent: KinematicChainPart = None) -> None:
+        super().__init__(name, parent)
+        self.__open_chain = open_chain
+        self.__state = initial_state
+        self.virtual_state = []
 
-        Args:
-            name (str): [description]
-            state (State): [description]
-            set_state (Callable): [description]
-            get_state (Callable): [description]
-            parents (List[Group], optional): [description]. Defaults to [].
-        """        """[summary]
+        # Sort
+        sorted_open_chain = []
 
-        Args:
-            name (str): [description]
-            state (State): [description]
-            parents (List[Group], optional): [description]. Defaults to [].
-        """
-        self.__name: str = name
-        self.__parents: List[Group] = parents
-        if len(parents) != 0:
-            for parent in parents:
-                parent.__add_child(self)
+        for part in open_chain:
+            if part.get_parent() == None:
+                sorted_open_chain.append(part)
 
-        self.__children: List[Group] = []
-        self.__state: ParameterSpecification = params
-        self.set_state: Callable = set_state
-        self.get_state: Callable = get_state
+        if len(sorted_open_chain) > 1:
+            raise RuntimeError("To many loose ends inside group.")
 
-    def get_name(self) -> str:
-        """[summary]
+        buffer = sorted_open_chain[0]
 
-        Returns:
-            str: [description]
-        """
-        return self.__name
+        while buffer.get_child() != None:
+            sorted_open_chain.append(buffer)
+            buffer = buffer.get_child()
 
-    def __add_child(self, child) -> None:
-        """[summary]
+        for part in sorted_open_chain:
+            self.virtual_state.append(part.get_state())
 
-        Args:
-            child (Group): [description]
-        """
-        self.__children.append(child)
+        self.__f_mapping = f_mapping
+        self.__g_mapping = g_mapping
+
+        # ToDo: Check mapping
+
+    def set_state(self, dir, state: Dict[str, float]) -> None:
+
+        if self.__state.keys() == state.keys():
+            self.__state = state
+            self.__virtual_state = self.__f_mapping(self.__state)
+
+        elif map(lambda obj: obj.keys(), self.__virtual_state) == map(lambda obj: obj.keys(), state):
+            self.__virtual_state = state
+            self.__state = self.__g_mapping(self.__virtual_state)
+
+    def get_state(self) -> List[Dict[str, float]]:
+        return self.__virtual_state
