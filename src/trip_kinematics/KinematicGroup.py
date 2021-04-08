@@ -1,5 +1,6 @@
 from typing import Dict, List, Callable
 from trip_kinematics.KinematicChainPart import KinematicChainPart
+from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
 
 
 class KinematicGroup(KinematicChainPart):
@@ -10,7 +11,7 @@ class KinematicGroup(KinematicChainPart):
         self.__state = initial_state
         self.virtual_state = []
 
-        # Sort
+        # Sort maybe refactor as  helper function
         sorted_open_chain = []
 
         for part in open_chain:
@@ -29,6 +30,8 @@ class KinematicGroup(KinematicChainPart):
         for part in sorted_open_chain:
             self.virtual_state.append(part.get_state())
 
+        self.__open_chain = sorted_open_chain
+
         self.__f_mapping = f_mapping
         self.__g_mapping = g_mapping
 
@@ -46,3 +49,9 @@ class KinematicGroup(KinematicChainPart):
 
     def get_state(self) -> List[Dict[str, float]]:
         return self.__virtual_state
+
+    def get_transformation(self) -> Homogenous_transformation_matrix:
+        transformation = Homogenous_transformation_matrix()
+        for part in self.__open_chain:
+            transformation * part.get_transformation()
+        return transformation
