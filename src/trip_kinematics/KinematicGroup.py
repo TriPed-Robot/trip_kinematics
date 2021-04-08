@@ -35,7 +35,7 @@ class KinematicGroup(KinematicChainPart):
         self.__f_mapping = f_mapping
         self.__g_mapping = g_mapping
 
-        # ToDo: Check mapping
+        # ToDo: Check mapping and init virtual state
 
     def set_state(self, dir, state: Dict[str, float]) -> None:
 
@@ -53,5 +53,5 @@ class KinematicGroup(KinematicChainPart):
     def get_transformation(self) -> Homogenous_transformation_matrix:
         transformation = Homogenous_transformation_matrix()
         for part in self.__open_chain:
-            transformation * part.get_transformation()
+            transformation = transformation * part.get_transformation()
         return transformation
