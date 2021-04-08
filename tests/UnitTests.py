@@ -23,8 +23,11 @@ class TestStates(unittest.TestCase):
                           kinematic_chain.get_transformation)
 
     def test_KinematicObject(self):
-        #self.assertRaises(ValueError, KinematicObject, {})
-        pass
+        self.assertRaises(ValueError, KinematicObject,
+                          name='test', values={'h': 1})
+
+        self.assertRaises(ValueError, KinematicObject, name='test', values={
+                          'x': 0, 'y': 0}, stateVariables=['q1'])
 
 
 if __name__ == '__main__':
