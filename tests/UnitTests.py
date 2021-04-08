@@ -1,19 +1,11 @@
 import unittest
-from trip_kinematics.Joint import JointState
 from trip_kinematics.KinematicChainPart import KinematicChainPart
+from trip_kinematics.KinematicObject import KinematicObject
 
 
 class TestStates(unittest.TestCase):
 
-    def test_JointState_Constructor(self):
-
-        self.assertRaises(ValueError, JointState, {"b": 0})
-
-        joint_state = JointState({'q0': 1})
-
-        self.assertEqual(joint_state.get_state(), {'q0': 1})
-
-    def test_KinematicChain_constructor(self):
+    def test_KinematicChainPart(self):
         parent = KinematicChainPart("test")
         kinematic_chain = KinematicChainPart("test", parent)
 
@@ -29,6 +21,10 @@ class TestStates(unittest.TestCase):
 
         self.assertRaises(NotImplementedError,
                           kinematic_chain.get_transformation)
+
+    def test_KinematicObject(self):
+        #self.assertRaises(ValueError, KinematicObject, {})
+        pass
 
 
 if __name__ == '__main__':
