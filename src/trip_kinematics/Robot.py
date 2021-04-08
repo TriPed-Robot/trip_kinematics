@@ -1,5 +1,6 @@
 from trip_kinematics.KinematicChainPart import KinematicChainPart
 from typing import Union, List
+from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
 
 
 class Robot:
@@ -25,3 +26,10 @@ class Robot:
             [type]: [description]
         """
         return self.__kinematic_chain
+
+
+def forward_kinematic(robot: Robot):
+    transformation = Homogenous_transformation_matrix()
+    for part in robot.get_parts():
+        transformation * part
+    return transformation.get_translation()
