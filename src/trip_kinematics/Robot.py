@@ -1,42 +1,27 @@
-from trip_kinematics.Joint import Joint
-from typing import Union
-
-   def forward(self):
-        """[summary]
-        """
-        pass
-
-    def inverse(self):
-        """[summary]
-        """
-        pass
-
-
-def dummy_function():
-    pass
+from trip_kinematics.KinematicChainPart import KinematicChainPart
+from typing import Union, List
 
 
 class Robot:
     """[summary]
+
+    Returns:
+        [type]: [description]
+    """    """[summary]
     """
 
-    def __init__(self, joints, mapping) -> None:
+    def __init__(self, kinematic_chain: List[KinematicChainPart]) -> None:
         """[summary]
 
         Args:
-            joints ([type]): [description]
-            mapping ([type]): [description]
+            kinematic_chain (List[KinematicChainPart]): [description]
         """
-        self.__joints = []
-        self.__mapping = {'test': dummy_function}
-        pass
+        self.__kinematic_chain = kinematic_chain
 
-    def get_actuated_joints(self):
+    def get_parts(self):
         """[summary]
-        """
-        pass
 
-    def get_joints(self):
-        """[summary]
+        Returns:
+            [type]: [description]
         """
-        pass
+        return self.__kinematic_chain
