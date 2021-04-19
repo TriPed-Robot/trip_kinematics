@@ -1,6 +1,8 @@
 from typing import Dict, List, Callable
 from trip_kinematics.KinematicChainPart import KinematicChainPart
 from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
+from copy import deepcopy
+from trip_kinematics.KinematicChainPart import sort_kinematic_chain_parts
 
 
 class KinematicGroup(KinematicChainPart):
@@ -12,20 +14,7 @@ class KinematicGroup(KinematicChainPart):
         self.virtual_state = []
 
         # Sort maybe refactor as  helper function
-        sorted_open_chain = []
-
-        for part in open_chain:
-            if part.get_parent() == None:
-                sorted_open_chain.append(part)
-
-        if len(sorted_open_chain) > 1:
-            raise RuntimeError("To many loose ends inside group.")
-
-        buffer = sorted_open_chain[0]
-
-        while buffer.get_child() != None:
-            sorted_open_chain.append(buffer)
-            buffer = buffer.get_child()
+        sorted_open_chain = sort_kinematic_chain_parts(open_chain)
 
         for part in sorted_open_chain:
             self.virtual_state.append(part.get_state())
@@ -48,7 +37,7 @@ class KinematicGroup(KinematicChainPart):
             self.__state = self.__g_mapping(self.__virtual_state)
 
     def get_state(self) -> List[Dict[str, float]]:
-        return self.__virtual_state
+        return deepcopy(self.__virtual_state)
 
     def get_transformation(self) -> Homogenous_transformation_matrix:
         transformation = Homogenous_transformation_matrix()
