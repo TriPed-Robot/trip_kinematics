@@ -97,4 +97,4 @@ class KinematicObject(KinematicChainPart):
             if key == 'z':
                 z = self.__state.get(key)
 
-        return Homogenous_transformation_matrix(a=q0, b=q1, c=q2, d=q3, conv='quad', tx=x, ty=y, tz=z)
+        return Homogenous_transformation_matrix(q0=q0, q1=q1, q2=q2, q3=q3, conv='quat', tx=x, ty=y, tz=z)

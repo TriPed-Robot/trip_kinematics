@@ -2,7 +2,7 @@ import numpy as np
 from casadi import MX, cos, sin
 
 
-def quad_rotation_matrix(a, b, c, d) -> np.matrix:
+def quat_rotation_matrix(q0, q1, q2, q3) -> np.matrix:
     """[summary]
 
     Args:
@@ -14,7 +14,7 @@ def quad_rotation_matrix(a, b, c, d) -> np.matrix:
     Returns:
         np.matrix: [description]
     """
-    return np.matrix([[1-2*(c**2+d**2), 2*(b*c-d*a), 2*(b*d + c*a)], [2*(b*c + d*a), 1-2*(b**2+d**2), 2*(c*d - b*a)], [2*(b*d-c*a), 2*(c*d+b*a), 1-2*(b**2+c**2)]], dtype=object)
+    return np.array([[1-2*(q2**2+q3**2), 2*(q1*q2-q3*q0), 2*(q1*q3 + q2*q0)], [2*(q1*q2 + q3*q0), 1-2*(q1**2+q3**2), 2*(q2*q3 - q1*q0)], [2*(q1*q3-q2*q0), 2*(q2*q3+q1*q0), 1-2*(q1**2+q2**2)]], dtype=object)
 
 
 def x_axis_rotation_matrix(theta):
@@ -26,7 +26,7 @@ def x_axis_rotation_matrix(theta):
     Returns:
         [type]: [description]
     """
-    return np.matrix([[1, 0, 0], [0, cos(theta), -sin(theta)], [0, sin(theta), cos(theta)]], dtype=object)
+    return np.array([[1, 0, 0], [0, cos(theta), -sin(theta)], [0, sin(theta), cos(theta)]], dtype=object)
 
 
 def y_axis_rotation_matrix(theta):
@@ -38,7 +38,7 @@ def y_axis_rotation_matrix(theta):
     Returns:
         [type]: [description]
     """
-    return np.matrix([[cos(theta), 0, sin(theta)], [0, 1, 0], [-sin(theta), 0, cos(theta)]], dtype=object)
+    return np.array([[cos(theta), 0, sin(theta)], [0, 1, 0], [-sin(theta), 0, cos(theta)]], dtype=object)
 
 
 def z_axis_rotation_matrix(theta):
@@ -50,14 +50,14 @@ def z_axis_rotation_matrix(theta):
     Returns:
         [type]: [description]
     """
-    return np.matrix([[cos(theta), -sin(theta), 0], [sin(theta), cos(theta), 0], [0, 0, 1]], dtype=object)
+    return np.array([[cos(theta), -sin(theta), 0], [sin(theta), cos(theta), 0], [0, 0, 1]], dtype=object)
 
 
 class Homogenous_transformation_matrix:
     """[summary]
     """
 
-    def __init__(self, a=0, b=0, c=0, d=0, tx=0, ty=0, tz=0, conv='quad', rx=0, ry=0, rz=0):
+    def __init__(self, q0=0, q1=0, q2=0, q3=0, tx=0, ty=0, tz=0, conv='quat', rx=0, ry=0, rz=0):
         """[summary]
 
         Args:
@@ -65,16 +65,13 @@ class Homogenous_transformation_matrix:
             b (int, optional): [description]. Defaults to 0.
             c (int, optional): [description]. Defaults to [summary] 0.
         """
-        self.matrix: np.matrix = np.matrix(
+        self.matrix: np.array = np.array(
             [[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0., 0., 0., 1.]], dtype=object)
-        if conv == 'quad':
-            self.matrix[:3, :3] = quad_rotation_matrix(a, b, c, d)
+        if conv == 'quat':
+            self.matrix[:3, :3] = quat_rotation_matrix(q0, q1, q2, q3)
         if conv == 'xyz':
             self.matrix[:3, :3] = x_axis_rotation_matrix(
                 rx) @ y_axis_rotation_matrix(ry) @ z_axis_rotation_matrix(rz)
-        if conv == 'zyx':
-            self.matrix[:3, :3] = z_axis_rotation_matrix(
-                rz) @ y_axis_rotation_matrix(ry) @ x_axis_rotation_matrix(rx)
 
     def get_translation(self):
         """[summary]
