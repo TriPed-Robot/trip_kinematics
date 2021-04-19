@@ -3,6 +3,7 @@ from trip_kinematics.HomogenTransformationMartix import Homogenous_transformatio
 from typing import Dict, List, Union
 from trip_kinematics.KinematicChainPart import KinematicChainPart
 from typing import Dict, List, Union
+from copy import deepcopy
 
 
 class KinematicObject(KinematicChainPart):
@@ -51,10 +52,10 @@ class KinematicObject(KinematicChainPart):
         if set(state.keys) != set(self.__state.keys()):
             raise ValueError("State does not match initilized state.")
 
-        self.__state = state
+        self.__state = deepcopy(state)
 
     def get_state(self):
-        return self.__state
+        return deepcopy(self.__state)
 
     def get_transformation(self) -> Homogenous_transformation_matrix:
         q0 = 0
