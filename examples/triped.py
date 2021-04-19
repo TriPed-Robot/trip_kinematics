@@ -1,13 +1,12 @@
 from trip_kinematics.KinematicObject import KinematicObject
 from trip_kinematics.KinematicGroup import KinematicGroup
-from trip_kinematics.Robot import Robot
+from trip_kinematics.Robot import Robot, forward_kinematic
 from casadi import Opti
 from typing import Dict
 from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
 import numpy as np
 from math import radians
 from tf.transformations import quaternion_from_euler
-from trip_kinematics.Robot import forward_kinematic
 
 
 def c(rx, ry, rz, opti):
@@ -31,14 +30,14 @@ def c(rx, ry, rz, opti):
     c2 = A_c2.get_translation()
 
     c1_mx = opti.variable(3, 1)
-    c1_mx[0, 0] = c1[0, 0]
-    c1_mx[1, 0] = c1[1, 0]
-    c1_mx[2, 0] = c1[2, 0]
+    c1_mx[0, 0] = c1[0]
+    c1_mx[1, 0] = c1[1]
+    c1_mx[2, 0] = c1[2]
 
     c2_mx = opti.variable(3, 1)
-    c2_mx[0, 0] = c2[0, 0]
-    c2_mx[1, 0] = c2[1, 0]
-    c2_mx[2, 0] = c2[2, 0]
+    c2_mx[0, 0] = c2[0]
+    c2_mx[1, 0] = c2[1]
+    c2_mx[2, 0] = c2[2]
 
     c1 = c1_mx
     c2 = c2_mx
@@ -64,9 +63,9 @@ def p1(theta, opti):
 
     p1 = A_CCS_SP11.get_translation()
     p1_mx = opti.variable(3, 1)
-    p1_mx[0, 0] = p1[0, 0]
-    p1_mx[1, 0] = p1[1, 0]
-    p1_mx[2, 0] = p1[2, 0]
+    p1_mx[0, 0] = p1[0]
+    p1_mx[1, 0] = p1[1]
+    p1_mx[2, 0] = p1[2]
     return p1_mx
 
 
@@ -89,9 +88,9 @@ def p2(theta, opti):
 
     p2 = A_CSS_SP21.get_translation()
     p2_mx = opti.variable(3, 1)
-    p2_mx[0, 0] = p2[0, 0]
-    p2_mx[1, 0] = p2[1, 0]
-    p2_mx[2, 0] = p2[2, 0]
+    p2_mx[0, 0] = p2[0]
+    p2_mx[1, 0] = p2[1]
+    p2_mx[2, 0] = p2[2]
     return p2_mx
 
 
