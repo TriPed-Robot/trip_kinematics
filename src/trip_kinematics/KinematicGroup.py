@@ -15,12 +15,12 @@ class KinematicGroup(KinematicChainPart):
         super().__init__(name, parent)
         self.__open_chain = open_chain
         self.__state = deepcopy(initial_state)
-        self.virtual_state = []
+        self.__virtual_state = []
 
         sorted_open_chain = sort_kinematic_chain_parts(open_chain)
 
         for part in sorted_open_chain:
-            self.virtual_state.append(part.get_state())
+            self.__virtual_state.append(part.get_state())
 
         self.__open_chain = sorted_open_chain
 
@@ -29,20 +29,23 @@ class KinematicGroup(KinematicChainPart):
 
         state_to_check = self.__f_mapping(initial_state)
 
-        if virtual_state_to_keys(state_to_check) != virtual_state_to_keys(self.virtual_state):
+        if virtual_state_to_keys(state_to_check) != virtual_state_to_keys(self.__virtual_state):
             raise RuntimeError("f_mapping doesn't fit virtual state")
 
-        self.virtual_state = state_to_check
+        self.__virtual_state = state_to_check
 
-    def set_state(self, dir, state: Dict[str, float]) -> None:
+    def set_state(self, state: Dict[str, float]) -> None:
 
-        if self.__state.keys() == state.keys():
+        if virtual_state_to_keys(self.__virtual_state) == virtual_state_to_keys(state):
+            self.__virtual_state = deepcopy(state)
+            self.__state = self.__g_mapping(self.__virtual_state)
+            for i in range(len(self.__open_chain)):
+                self.__open_chain[i].set_state(state[i])
+
+        elif self.__state.keys() == state.keys():
             self.__state = deepcopy(state)
             self.__virtual_state = self.__f_mapping(self.__state)
 
-        elif virtual_state_to_keys(self.__virtual_state) == virtual_state_to_keys(state):
-            self.__virtual_state = deepcopy(state)
-            self.__state = self.__g_mapping(self.__virtual_state)
         else:
             raise ValueError("State does not match!")
 
