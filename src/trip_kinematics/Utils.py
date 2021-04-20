@@ -11,9 +11,12 @@ def sort_kinematic_chain_parts(lst_of_parts: List[KinematicChainPart]):
     if len(sorted_chain) > 1:
         raise RuntimeError("To many loose ends inside chain.")
 
-    buffer = sorted_chain[0]
+    buffer = sorted_chain.pop(0)
 
     while buffer.get_child() != None:
         sorted_chain.append(buffer)
         buffer = buffer.get_child()
+
+    sorted_chain.append(buffer)
+
     return sorted_chain
