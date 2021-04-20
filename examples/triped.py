@@ -1,6 +1,6 @@
 from trip_kinematics.KinematicObject import KinematicObject
 from trip_kinematics.KinematicGroup import KinematicGroup
-from trip_kinematics.Robot import Robot, forward_kinematic
+from trip_kinematics.Robot import Robot, forward_kinematic, inverse_kinematics
 from casadi import Opti
 from typing import Dict
 from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
@@ -135,3 +135,4 @@ if __name__ == '__main__':
     robot = Robot([gimbal_joint, A_P_LL_joint, A_LL_Joint_FCS])
 
     print(forward_kinematic(robot))
+    print(inverse_kinematics(robot, [0, 0, 0]))
