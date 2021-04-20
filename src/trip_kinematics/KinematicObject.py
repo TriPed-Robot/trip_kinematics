@@ -49,7 +49,7 @@ class KinematicObject(KinematicChainPart):
         self.__constants = constants
 
     def set_state(self, state):
-        if set(state.keys) != set(self.__state.keys()):
+        if set(state.keys()) != set(self.__state.keys()):
             raise ValueError("State does not match initilized state.")
 
         self.__state = deepcopy(state)
