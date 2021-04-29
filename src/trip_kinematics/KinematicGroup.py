@@ -203,7 +203,7 @@ class KinematicGroup():
 
     def __update_chain(self):
         for i in range(len(self.__virtual_state)):
-            self.__virtual_transformations[i] = self.__virtualstate[i]
+            self.__virtual_transformations[i].state = self.__virtualstate[i]
 
     def __add_child(self, child):
         self.__child = child
