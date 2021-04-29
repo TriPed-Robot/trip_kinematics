@@ -7,7 +7,7 @@ def virtual_state_to_keys(virtual_state):
     return list(map(lambda obj: obj.keys(), virtual_state))
 
 
-def valid_keys_and_get_convention(state: Dict[str, float]):
+def validate_keys_and_get_convention(state: Dict[str, float]):
 
     got_quaternion = False
     got_euler = False
@@ -43,7 +43,7 @@ class TransformationParameters():
 
         adjust = '#'.join(state_variables)
 
-        self.convention = valid_keys_and_get_convention(values)
+        self.convention = validate_keys_and_get_convention(values)
 
         for key in values.keys():
             if adjust.find(key) != -1:
