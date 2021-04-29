@@ -57,7 +57,7 @@ class Homogenous_transformation_matrix:
     """[summary]
     """
 
-    def __init__(self, q0=0, q1=0, q2=0, q3=0, tx=0, ty=0, tz=0, conv='quat', rx=0, ry=0, rz=0):
+    def __init__(self, q0=0, q1=0, q2=0, q3=0, tx=0, ty=0, tz=0, conv='quat', alpha=0, beta=0, gamma=0):
         """[summary]
 
         Args:
@@ -71,7 +71,7 @@ class Homogenous_transformation_matrix:
             self.matrix[:3, :3] = quat_rotation_matrix(q0, q1, q2, q3)
         if conv == 'xyz':
             self.matrix[:3, :3] = x_axis_rotation_matrix(
-                rx) @ y_axis_rotation_matrix(ry) @ z_axis_rotation_matrix(rz)
+                alpha) @ y_axis_rotation_matrix(beta) @ z_axis_rotation_matrix(gamma)
 
     def get_translation(self):
         """[summary]
@@ -89,14 +89,6 @@ class Homogenous_transformation_matrix:
         """
         return self.matrix[: 3, : 3]
 
-    def get_MX(self):
-        """[summary]
-
-        Returns:
-            [type]: [description]
-        """
-        return MX(self.matrix)
-
     def __mul__(self, other):
         """[summary]
 
@@ -108,6 +100,7 @@ class Homogenous_transformation_matrix:
         """
         new = Homogenous_transformation_matrix()
         new.matrix = self.matrix @ other.matrix
+        #new.matrix = np.matmul(self.matrix, other.matrix)
         return new
 
     def __str__(self):
