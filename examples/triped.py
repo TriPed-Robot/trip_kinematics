@@ -122,7 +122,7 @@ if __name__ == '__main__':
     A_CSS_P = TransformationParameters(
         values={'x': 0.265, 'z': 0.014, 'alpha': 0, 'beta': 0, 'gamma': 0}, state_variables=['alpha', 'beta', 'gamma'])
 
-    gimbal_joint = KinematicGroup(name='gimbal_joint', virtual_transformations=[
+    gimbal_joint = KinematicGroup(virtual_transformations=[
         A_CSS_P], actuated_state={'t1': 0, 't2': 0}, f_mapping=mapping_f, g_mapping=lambda x: {'t1': len(x), 't2': len(x)})
 
     A_P_LL_joint = TransformationParameters(
@@ -130,8 +130,8 @@ if __name__ == '__main__':
 
     A_LL_Joint_FCS = TransformationParameters(values={'x': -1.5})
 
-    extend_motor = KinematicGroup(name='extend_motor', virtual_transformations=[
-                                  A_P_LL_joint, A_LL_Joint_FCS], parent=gimbal_joint)
+    extend_motor = KinematicGroup(virtual_transformations=[
+        A_P_LL_joint, A_LL_Joint_FCS], parent=gimbal_joint)
 
     robot = Robot([gimbal_joint, extend_motor])
 

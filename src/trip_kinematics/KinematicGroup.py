@@ -122,10 +122,8 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
 
 class KinematicGroup():
 
-    def __init__(self, name: str, virtual_transformations: List[TransformationParameters], actuated_state: Dict[str, float] = None, f_mapping: Callable = None, g_mapping: Callable = None, parent=None):
+    def __init__(self, virtual_transformations: List[TransformationParameters], actuated_state: Dict[str, float] = None, f_mapping: Callable = None, g_mapping: Callable = None, parent=None):
 
-        # set name
-        self.__name = name
         # Adds itself as child to parent
         if parent != None:
             self.__parent = parent
