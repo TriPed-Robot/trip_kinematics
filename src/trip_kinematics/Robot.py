@@ -41,44 +41,22 @@ def forward_kinematic(robot: Robot):
 def inverse_kinematics(robot: Robot, end_effector_position):
     opti = Opti()
 
-    sorted_chain = sort_kinematic_chain_parts(robot.get_parts())
+    matrix = Homogenous_transformation_matrix()
 
-    sub_states_solved_for = []
+    states_to_solve_for = []
 
-    matrix = Homogenous_transformation_matrix()   # Identity matrix
+    parts = robot.get_parts()
 
-    for part in sorted_chain:
-        if isinstance(part, KinematicObject):
-            if len(part.get_state().keys()) == 0:    # No state present --> link
+    for part in parts:
 
-                matrix = matrix * part.get_transformation()
+        state = part.get_virtual_state()
+        for sub_state in state:
+            for key in sub_state.keys():
+                sub_state[key] = opti.variable()
 
-            else:   # state present --> joint
-
-                state = part.get_state()
-
-                for key in part.get_state().keys():
-                    state[key] = opti.variable()
-
-                part.set_state(state)
-
-                matrix = matrix * part.get_transformation()
-
-                sub_states_solved_for.append(state)
-
-        elif isinstance(part, KinematicGroup):
-
-            state = part.get_state()
-
-            for sub_state in state:
-                for key in sub_state.keys():
-                    sub_state[key] = opti.variable()
-
-            part.set_state(state)
-
-            matrix = matrix * part.get_transformation()
-
-            sub_states_solved_for.append(state)
+        part.set_state(state)
+        matrix = matrix * part.get_transformation()
+        states_to_solve_for.append(state)
 
     translation = matrix.get_translation()
 
@@ -88,30 +66,35 @@ def inverse_kinematics(robot: Robot, end_effector_position):
     opti.minimize(equation)
 
     p_opts = {"print_time": False}
-    s_opts = {"print_level": 5, "print_timing_statistics": "no"}
+    s_opts = {"print_level": 0, "print_timing_statistics": "no"}
 
     opti.solver('ipopt', p_opts, s_opts)
 
     sol = opti.solve()
 
-    out = []
+    before_g_mapping = []
 
-    for state in sub_states_solved_for:
-        if isinstance(state, list):
-            solved = []
-            for sub_state in state:
-                stt = {}
-                for key in sub_state.keys():
-                    stt.setdefault(key, sol.value(sub_state[key]))
-                solved.append(stt)
-            out.append(solved)
-
-        elif isinstance(state, dict):
+    for state in states_to_solve_for:
+        solved = []
+        for sub_state in state:
             stt = {}
-            for key in state.keys():
-                stt.setdefault(key, sol.value(state[key]))
-            out.append(stt)
-        else:
-            raise RuntimeError("Well shit!")
+            for key in sub_state.keys():
+                stt.setdefault(key, sol.value(sub_state[key]))
+            solved.append(stt)
+        before_g_mapping.append(solved)
 
-    return out
+    after_g_mapping = []
+
+    for i in range(len(before_g_mapping)):
+        if len(before_g_mapping) != len(parts):
+            raise RuntimeError("States non match!")
+        state = before_g_mapping[i]
+        herp = parts[i]
+
+        herp.set_state(state)
+        act_state = herp.get_actuated_state()
+        if act_state != None:
+            after_g_mapping.append([act_state])
+        else:
+            after_g_mapping.append(state)
+    return after_g_mapping

@@ -108,7 +108,6 @@ def mapping_f(state: Dict[str, float]):
     c1, c2 = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z, opti=opti)
     closing_equation = ((c1-p1(theta_right, opti)).T @ (c1-p1(theta_right, opti)) -
                         r**2)**2+((c2-p2(theta_left, opti)).T @ (c2-p2(theta_left, opti)) - r**2)**2
-    print(c1, c2)
     opti.minimize(closing_equation)
     p_opts = {"print_time": False}
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
@@ -136,4 +135,4 @@ if __name__ == '__main__':
     robot = Robot([gimbal_joint, extend_motor])
 
     print(forward_kinematic(robot))
-    # print(inverse_kinematics(robot, [0, 0, 0]))
+    print(inverse_kinematics(robot, [0, 0, 0]))

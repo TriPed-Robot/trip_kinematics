@@ -139,7 +139,8 @@ class KinematicGroup():
 
         if actuated_state:
             self.__actuated_state = deepcopy(actuated_state)
-
+        else:
+            self.__actuated_state = None
         # check if states are valid
 
         virtual_state = []
@@ -180,7 +181,9 @@ class KinematicGroup():
             if virtual_state_to_keys(self.__virtual_state) == virtual_state_to_keys(state):
                 self.__virtual_state = deepcopy(state)
                 self.__update_chain()
-                self.__actuated_state = self.__g_mapping(self.__virtual_state)
+                if self.__actuated_state != None:   # for the trivialcase there is no actuated state
+                    self.__actuated_state = self.__g_mapping(
+                        self.__virtual_state)
 
         else:
             raise ValueError("State does not match!")
@@ -190,6 +193,12 @@ class KinematicGroup():
         for trans_para in self.__virtual_transformations:
             out.append(deepcopy(trans_para.state))
         return out
+
+    def get_actuated_state(self):
+        if self.__actuated_state:
+            return deepcopy(self.__actuated_state)
+        else:
+            return None
 
     def get_transformation(self) -> Homogenous_transformation_matrix:
 
@@ -203,7 +212,7 @@ class KinematicGroup():
 
     def __update_chain(self):
         for i in range(len(self.__virtual_state)):
-            self.__virtual_transformations[i].state = self.__virtualstate[i]
+            self.__virtual_transformations[i].state = self.__virtual_state[i]
 
     def __add_child(self, child):
         self.__child = child
