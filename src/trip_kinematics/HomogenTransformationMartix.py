@@ -69,9 +69,24 @@ class Homogenous_transformation_matrix:
             [[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0., 0., 0., 1.]], dtype=object)
         if conv == 'quat':
             self.matrix[:3, :3] = quat_rotation_matrix(q0, q1, q2, q3)
-        if conv == 'xyz':
-            self.matrix[:3, :3] = x_axis_rotation_matrix(
-                alpha) @ y_axis_rotation_matrix(beta) @ z_axis_rotation_matrix(gamma)
+        else:
+            a = x_axis_rotation_matrix(alpha)
+            b = y_axis_rotation_matrix(beta)
+            g = y_axis_rotation_matrix(gamma)
+
+            conventions = list(conv)
+            matrix_components = []
+            for convention in conventions:
+                if convention == 'x':
+                    matrix_components.append(a)
+                elif convention == 'y':
+                    matrix_components.append(b)
+                elif convention == 'z':
+                    matrix_components.append(g)
+                else:
+                    raise ValueError(
+                        "ConventionError: Expect x,y,z got: ", convention)
+            self.matrix[:3, :3] = matrix_components[0] @ matrix_components[1] @ matrix_components[2]
 
     def get_translation(self):
         """[summary]
