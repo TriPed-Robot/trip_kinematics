@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" scale="1" border="10">
     <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
-        <mxGraphModel dx="1729" dy="517" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#F1FAEE" math="0" shadow="1">
+        <mxGraphModel dx="689" dy="542" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#F1FAEE" math="0" shadow="1">
             <root>
                 <mxCell id="WIyWlLk6GJQsqaUBKTNV-0"/>
                 <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0"/>
@@ -33,60 +33,60 @@
                     <mxGeometry y="60" width="210" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="57" value="KinematicGroup" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;shadow=0;strokeWidth=1;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-                    <mxGeometry x="14" y="380" width="800" height="450" as="geometry">
+                    <mxGeometry x="14" y="380" width="896" height="450" as="geometry">
                         <mxRectangle x="230" y="140" width="160" height="26" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="58" value="name:str" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="26" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="26" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="66" value="actuated_state:Dict[]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="52" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="52" width="896" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="109" value="virtual_state:Dict[]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" vertex="1" parent="57">
-                    <mxGeometry y="78" width="800" height="26" as="geometry"/>
+                <mxCell id="109" value="virtual_state:Dict[]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
+                    <mxGeometry y="78" width="896" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="110" value="f_mapping(Dict[str,float])" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" vertex="1" parent="57">
-                    <mxGeometry y="104" width="800" height="26" as="geometry"/>
+                <mxCell id="110" value="f_mapping(Dict[str,float])" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
+                    <mxGeometry y="104" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="80" value="g_mapping(Dict[str,float])" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="130" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="130" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="65" value="parent:KinematicChainPart" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="156" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="156" width="896" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="111" value="child:KinematicChainPart" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" vertex="1" parent="57">
-                    <mxGeometry y="182" width="800" height="26" as="geometry"/>
+                <mxCell id="111" value="child:KinematicChainPart" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
+                    <mxGeometry y="182" width="896" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="107" value="open chain:List[HomogeniousTransformationMatrix]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" vertex="1" parent="57">
-                    <mxGeometry y="208" width="800" height="26" as="geometry"/>
+                <mxCell id="107" value="open chain:List[TransformationParameters]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
+                    <mxGeometry y="208" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="59" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;labelBackgroundColor=#F1FAEE;" parent="57" vertex="1">
-                    <mxGeometry y="234" width="800" height="8" as="geometry"/>
+                    <mxGeometry y="234" width="896" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="108" value="KinematicGroup(name, open_chain, actuated_state:Dict[str, float], virtual_state:List[Dict[str,float]], f_mapping=None, g_mapping=None, parent=None)" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" vertex="1" parent="57">
-                    <mxGeometry y="242" width="800" height="26" as="geometry"/>
+                <mxCell id="108" value="KinematicGroup(name, virtual_transformations:List[TransformationParameters], actuated_state:Dict[str, float], f_mapping=None, g_mapping=None, parent=None)" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
+                    <mxGeometry y="242" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="60" value="get_name() -&gt; str" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="268" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="268" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="91" value="__add_Child(KinematicChainPart)" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="294" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="294" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="67" value="set_state(state:Dict[])" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="320" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="320" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="68" value="get_state() -&gt; List[Dict[str,float]]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="346" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="346" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="69" value="get_transformation() -&gt; HomogeniousTransformationMatrix" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="372" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="372" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="105" value="get_child() -&gt; KinematicGroup" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="398" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="398" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="106" value="get_parent() -&gt; KinematicGroup" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="57" vertex="1">
-                    <mxGeometry y="424" width="800" height="26" as="geometry"/>
+                    <mxGeometry y="424" width="896" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="92" value="HomogeniousTransformationMatrix" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;shadow=0;strokeWidth=1;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
                     <mxGeometry x="14" y="160" width="400" height="190" as="geometry">
@@ -113,6 +113,26 @@
                 </mxCell>
                 <mxCell id="102" value="__str__() -&gt; str" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="92" vertex="1">
                     <mxGeometry y="164" width="400" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="112" value="TransformationParameters" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;shadow=0;strokeWidth=1;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+                    <mxGeometry x="430" y="160" width="360" height="138" as="geometry">
+                        <mxRectangle x="230" y="140" width="160" height="26" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="113" value="constants:Dict[str,float]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="112" vertex="1">
+                    <mxGeometry y="26" width="360" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="120" value="states:Dict[str,float]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="112" vertex="1">
+                    <mxGeometry y="52" width="360" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="122" value="convention: 'euler' | 'quaternion'" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" vertex="1" parent="112">
+                    <mxGeometry y="78" width="360" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="114" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;labelBackgroundColor=#F1FAEE;" parent="112" vertex="1">
+                    <mxGeometry y="104" width="360" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="121" value="TransformationParameters(values:Dict[str,float],states:List[str])" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#1D3557;" parent="112" vertex="1">
+                    <mxGeometry y="112" width="360" height="26" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

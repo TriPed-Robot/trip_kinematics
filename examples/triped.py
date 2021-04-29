@@ -1,5 +1,4 @@
-from trip_kinematics.KinematicObject import KinematicObject
-from trip_kinematics.KinematicGroup import KinematicGroup
+from trip_kinematics.KinematicGroup import KinematicGroup, TransformationParameters
 from trip_kinematics.Robot import Robot, forward_kinematic, inverse_kinematics
 from casadi import Opti
 from typing import Dict
@@ -13,7 +12,7 @@ def mapping_f(state: Dict[str, float]):
 
     def c(rx, ry, rz, opti):
         A_CSS_P = Homogenous_transformation_matrix(
-            tx=0.265, ty=0, tz=0.014, rx=rx, ry=ry, rz=rz, conv='xyz')
+            tx=0.265, ty=0, tz=0.014, alpha=rx, beta=ry, gamma=rz, conv='xyz')
 
         T_P_SPH1_2 = np.array([-0.015, -0.029, 0.0965]) * -1
         T_P_SPH2_2 = np.array([-0.015, 0.029, 0.0965]) * -1
@@ -50,11 +49,12 @@ def mapping_f(state: Dict[str, float]):
             tx=0.139807669447128, ty=0.0549998406976098, tz=-0.051)
 
         A_CCS_lsm_rot = Homogenous_transformation_matrix(
-            rz=radians(-338.5255), conv='xyz')
+            gamma=radians(-338.5255), conv='xyz')
 
         A_CCS_lsm = A_CCS_lsm_tran * A_CCS_lsm_rot
 
-        A_MCS1_JOINT = Homogenous_transformation_matrix(rz=theta, conv='xyz')
+        A_MCS1_JOINT = Homogenous_transformation_matrix(
+            gamma=theta, conv='xyz')
 
         A_CSS_MCS1 = A_CCS_lsm * A_MCS1_JOINT
 
@@ -75,11 +75,12 @@ def mapping_f(state: Dict[str, float]):
             tx=0.139807669447128, ty=-0.0549998406976098, tz=-0.051)
 
         A_CCS_rsm_rot = Homogenous_transformation_matrix(
-            rz=radians(-21.4745), conv='xyz')
+            gamma=radians(-21.4745), conv='xyz')
 
         A_CCS_rsm = A_CCS_rsm_tran*A_CCS_rsm_rot
 
-        A_MCS2_JOINT = Homogenous_transformation_matrix(rz=theta, conv='xyz')
+        A_MCS2_JOINT = Homogenous_transformation_matrix(
+            gamma=theta, conv='xyz')
 
         A_CSS_MCS2 = A_CCS_rsm * A_MCS2_JOINT
 
@@ -107,32 +108,32 @@ def mapping_f(state: Dict[str, float]):
     c1, c2 = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z, opti=opti)
     closing_equation = ((c1-p1(theta_right, opti)).T @ (c1-p1(theta_right, opti)) -
                         r**2)**2+((c2-p2(theta_left, opti)).T @ (c2-p2(theta_left, opti)) - r**2)**2
-
+    print(c1, c2)
     opti.minimize(closing_equation)
     p_opts = {"print_time": False}
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
-    quat = quaternion_from_euler(
-        sol.value(gimbal_x), sol.value(gimbal_y), sol.value(gimbal_z))
-    return [{'q0': quat[3], 'q1':quat[0], 'q2':quat[1], 'q3':quat[2]}]
+    return [{'alpha': sol.value(gimbal_x), 'beta': sol.value(gimbal_y), 'gamma': sol.value(gimbal_z)}]
 
 
 if __name__ == '__main__':
 
-    A_CSS_P = KinematicObject(name='A_CSS_P', values={
-        'x': 0.265, 'z': 0.014, 'q0': 1, 'q1': 0, 'q2': 0, 'q3': 0}, stateVariables=['q0', 'q1', 'q2', 'q3'])
+    A_CSS_P = TransformationParameters(
+        values={'x': 0.265, 'z': 0.014, 'alpha': 0, 'beta': 0, 'gamma': 0}, state_variables=['alpha', 'beta', 'gamma'])
 
-    gimbal_joint = KinematicGroup(name='gimbal_joint', open_chain=[
-        A_CSS_P], initial_state={'t1': 0, 't2': 0}, f_mapping=mapping_f, g_mapping=lambda x: len(x))
+    gimbal_joint = KinematicGroup(name='gimbal_joint', virtual_transformations=[
+        A_CSS_P], actuated_state={'t1': 0, 't2': 0}, f_mapping=mapping_f, g_mapping=lambda x: {'t1': len(x), 't2': len(x)})
 
-    A_P_LL_joint = KinematicObject(name='A_P_LL_joint',
-                                   values={'x': 1.640, 'z': -0.037, 'q0': 1, 'q1': 0, 'q2': 0, 'q3': 0}, stateVariables=['q0', 'q1', 'q2', 'q3'], parent=gimbal_joint)
+    A_P_LL_joint = TransformationParameters(
+        values={'x': 1.640, 'z': -0.037, 'beta': 0}, state_variables=['beta'])
 
-    A_LL_Joint_FCS = KinematicObject(name='A_LL_Joint_FCS', values={
-        'x': -1.5}, parent=A_P_LL_joint)
+    A_LL_Joint_FCS = TransformationParameters(values={'x': -1.5})
 
-    robot = Robot([gimbal_joint, A_P_LL_joint, A_LL_Joint_FCS])
+    extend_motor = KinematicGroup(name='extend_motor', virtual_transformations=[
+                                  A_P_LL_joint, A_LL_Joint_FCS], parent=gimbal_joint)
+
+    robot = Robot([gimbal_joint, extend_motor])
 
     print(forward_kinematic(robot))
-    print(inverse_kinematics(robot, [0, 0, 0]))
+    # print(inverse_kinematics(robot, [0, 0, 0]))

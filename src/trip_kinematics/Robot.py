@@ -1,9 +1,7 @@
-from trip_kinematics.KinematicChainPart import KinematicChainPart
+
 from typing import Union, List
 from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
-from trip_kinematics.Utils import sort_kinematic_chain_parts
 from casadi import Opti
-from trip_kinematics.KinematicObject import KinematicObject
 from trip_kinematics.KinematicGroup import KinematicGroup
 
 
@@ -15,7 +13,7 @@ class Robot:
     """    """[summary]
     """
 
-    def __init__(self, kinematic_chain: List[KinematicChainPart]) -> None:
+    def __init__(self, kinematic_chain: List[KinematicGroup]) -> None:
         """[summary]
 
         Args:
@@ -35,7 +33,8 @@ class Robot:
 def forward_kinematic(robot: Robot):
     transformation = Homogenous_transformation_matrix()
     for part in robot.get_parts():
-        transformation = transformation * part.get_transformation()
+        hmt = part.get_transformation()
+        transformation = transformation * hmt
     return transformation.get_translation()
 
 
