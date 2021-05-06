@@ -2,7 +2,7 @@
 from typing import Union, List
 from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
 from casadi import Opti
-from trip_kinematics.KinematicGroup import KinematicGroup
+from trip_kinematics.KinematicGroup import KinematicGroup, make_homogenious_transformation_matrix
 
 
 class Robot:
@@ -21,7 +21,7 @@ class Robot:
         """
         self.__kinematic_chain = kinematic_chain
 
-    def get_parts(self):
+    def get_groups(self):
         """[summary]
 
         Returns:
@@ -32,7 +32,7 @@ class Robot:
 
 def forward_kinematic(robot: Robot):
     transformation = Homogenous_transformation_matrix()
-    for part in robot.get_parts():
+    for part in robot.get_groups():
         hmt = part.get_transformation()
         transformation = transformation * hmt
     return transformation.get_translation()
@@ -45,20 +45,24 @@ def inverse_kinematics(robot: Robot, end_effector_position):
 
     states_to_solve_for = []
 
-    parts = robot.get_parts()
+    groups = robot.get_groups()
 
-    for part in parts:
+    for group in groups:
+        virtual_transformations = group.get_virtual_transformations()
+        group_states = []
+        for v_trans in virtual_transformations:
+            state = v_trans.state
+            for key in state.keys():
+                #start_value = state[key]
+                state[key] = opti.variable()
+                # opti.set_initial(state[key],start_value)
+            hmt = make_homogenious_transformation_matrix(v_trans)
+            matrix = matrix * hmt
+            group_states.append(state)
 
-        state = part.get_virtual_state()
-        for sub_state in state:
-            for key in sub_state.keys():
-                sub_state[key] = opti.variable()
+        translation = matrix.get_translation()
 
-        part.set_state(state)
-        matrix = matrix * part.get_transformation()
-        states_to_solve_for.append(state)
-
-    translation = matrix.get_translation()
+        states_to_solve_for.append(group_states)
 
     equation = (translation[0] - end_effector_position[0])**2 + (translation[1] -
                                                                  end_effector_position[1])**2 + (translation[2] - end_effector_position[2])**2
@@ -86,10 +90,10 @@ def inverse_kinematics(robot: Robot, end_effector_position):
     after_g_mapping = []
 
     for i in range(len(before_g_mapping)):
-        if len(before_g_mapping) != len(parts):
+        if len(before_g_mapping) != len(groups):
             raise RuntimeError("States non match!")
         state = before_g_mapping[i]
-        herp = parts[i]
+        herp = groups[i]
 
         herp.set_state(state)
         act_state = herp.get_actuated_state()

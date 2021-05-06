@@ -210,6 +210,9 @@ class KinematicGroup():
 
         return transformation
 
+    def get_virtual_transformations(self):
+        return deepcopy(self.__virtual_transformations)
+
     def __update_chain(self):
         for i in range(len(self.__virtual_state)):
             self.__virtual_transformations[i].state = self.__virtual_state[i]
