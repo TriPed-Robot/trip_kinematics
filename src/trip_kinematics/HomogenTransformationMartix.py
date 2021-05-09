@@ -2,7 +2,7 @@ import numpy as np
 from casadi import MX, cos, sin
 
 
-def quat_rotation_matrix(q0, q1, q2, q3) -> np.matrix:
+def quat_rotation_matrix(qw, qx, qy, qz) -> np.matrix:
     """[summary]
 
     Args:
@@ -14,7 +14,7 @@ def quat_rotation_matrix(q0, q1, q2, q3) -> np.matrix:
     Returns:
         np.matrix: [description]
     """
-    return np.array([[1-2*(q2**2+q3**2), 2*(q1*q2-q3*q0), 2*(q1*q3 + q2*q0)], [2*(q1*q2 + q3*q0), 1-2*(q1**2+q3**2), 2*(q2*q3 - q1*q0)], [2*(q1*q3-q2*q0), 2*(q2*q3+q1*q0), 1-2*(q1**2+q2**2)]], dtype=object)
+    return np.array([[1-2*(qy**2+qz**2), 2*(qx*qy-qz*qw), 2*(qx*qz + qy*qw)], [2*(qx*qy + qz*qw), 1-2*(qx**2+qz**2), 2*(qy*qz - qx*qw)], [2*(qx*qz-qy*qw), 2*(qy*qz+qx*qw), 1-2*(qx**2+qy**2)]], dtype=object)
 
 
 def x_axis_rotation_matrix(theta):
@@ -57,7 +57,7 @@ class Homogenous_transformation_matrix:
     """[summary]
     """
 
-    def __init__(self, q0=0, q1=0, q2=0, q3=0, tx=0, ty=0, tz=0, conv='quat', alpha=0, beta=0, gamma=0):
+    def __init__(self, qw=0, qx=0, qy=0, qz=0, tx=0, ty=0, tz=0, conv='quat', alpha=0, beta=0, gamma=0):
         """[summary]
 
         Args:
@@ -68,7 +68,7 @@ class Homogenous_transformation_matrix:
         self.matrix: np.array = np.array(
             [[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0., 0., 0., 1.]], dtype=object)
         if conv == 'quat':
-            self.matrix[:3, :3] = quat_rotation_matrix(q0, q1, q2, q3)
+            self.matrix[:3, :3] = quat_rotation_matrix(qw, qx, qy, qz)
         else:
             a = x_axis_rotation_matrix(alpha)
             b = y_axis_rotation_matrix(beta)
