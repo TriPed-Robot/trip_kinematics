@@ -167,6 +167,15 @@ class KinematicGroup():
 
             # check if initalvalues fit f_mapping and g_mapping
 
+            for i in range(len(f_mapping_to_check)):
+                state = f_mapping_to_check[i]
+                init_values_do_not_match = False
+                for key in state.keys():
+                    if state[key] != virtual_state[i][key]:
+                        init_values_do_not_match = True
+            if init_values_do_not_match:
+                print("Calculated state values do not match given values! Using set_state() before forward_kinematics() or inverse_kinematics() is recommended")
+
     def set_state(self, state: Union[Dict[str, float], List[Dict[str, float]]]) -> None:
 
         # forward

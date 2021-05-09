@@ -166,5 +166,3 @@ if __name__ == '__main__':
     print(forward_kinematic(robot))
     print(inverse_kinematics(
         robot, [0.8088109425170019, 0.2977066987301952, -0.5786756226727237]))
-
-    print(degrees(-0.5786756226727237))
