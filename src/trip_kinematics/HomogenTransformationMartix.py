@@ -115,7 +115,6 @@ class Homogenous_transformation_matrix:
         """
         new = Homogenous_transformation_matrix()
         new.matrix = self.matrix @ other.matrix
-        #new.matrix = np.matmul(self.matrix, other.matrix)
         return new
 
     def __str__(self):
