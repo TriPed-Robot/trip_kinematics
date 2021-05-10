@@ -18,15 +18,20 @@ def virtual_state_to_keys(virtual_state):
 
 def validate_keys_and_get_convention(state: Dict[str, float]):
 
+    valid_keys = ['x', 'y', 'z', 'qw', 'qx',
+                  'qy', 'qz', 'alpha', 'beta', 'gamma']
+
+    quaternion_keys = valid_keys[3:7]
+    euler_keys = valid_keys[7:]
     got_quaternion = False
     got_euler = False
 
     for key in state.keys():
-        if 'x#y#z#q0#q1#q2#q3#alpha#beta#gamma'.find(key) == -1:
+        if array_find(valid_keys, key) == -1:
             raise ValueError("Invalid key.")
-        if 'q0#q1#q2#q3'.find(key) >= 0:
+        if array_find(quaternion_keys, key) >= 0:
             got_quaternion = True
-        if'alpha#beta#gamma'.find(key) >= 0:
+        if array_find(euler_keys, key) >= 0:
             got_euler = True
 
     if got_euler and got_quaternion:
@@ -34,8 +39,6 @@ def validate_keys_and_get_convention(state: Dict[str, float]):
 
     if got_euler:
         return "euler"
-    elif got_quaternion:
-        return "quaternion"
     else:
         return "quaternion"
 
@@ -50,12 +53,10 @@ class TransformationParameters():
         constants = {}
         state = {}
 
-        adjust = '#'.join(state_variables)
-
         self.convention = validate_keys_and_get_convention(values)
 
         for key in values.keys():
-            if adjust.find(key) != -1:
+            if array_find(state_variables, key) != -1:
                 state.setdefault(key, values.get(key))
             else:
                 constants.setdefault(key, values.get(key))
@@ -70,10 +71,10 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
         beta = 0
         gamma = 0
     if para.convention == 'quaternion':
-        q0 = 0
-        q1 = 0
-        q2 = 0
-        q3 = 0
+        qw = 0
+        qx = 0
+        qy = 0
+        qz = 0
 
     x = 0
     y = 0
@@ -87,13 +88,13 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
         if key == 'gamma':
             gamma = para.constants.get(key)
         if key == 'qw':
-            q0 = para.constants.get(key)
+            qw = para.constants.get(key)
         if key == 'qx':
-            q1 = para.constants.get(key)
+            qx = para.constants.get(key)
         if key == 'qy':
-            q2 = para.constants.get(key)
+            qy = para.constants.get(key)
         if key == 'qz':
-            q3 = para.constants.get(key)
+            qz = para.constants.get(key)
         if key == 'x':
             x = para.constants.get(key)
         if key == 'y':
@@ -109,13 +110,13 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
         if key == 'gamma':
             gamma = para.state.get(key)
         if key == 'qw':
-            q0 = para.state.get(key)
+            qw = para.state.get(key)
         if key == 'qx':
-            q1 = para.state.get(key)
+            qx = para.state.get(key)
         if key == 'qy':
-            q2 = para.state.get(key)
+            qy = para.state.get(key)
         if key == 'qz':
-            q3 = para.state.get(key)
+            qz = para.state.get(key)
         if key == 'x':
             x = para.state.get(key)
         if key == 'y':
@@ -125,7 +126,7 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
     if para.convention == 'euler':
         return Homogenous_transformation_matrix(alpha=alpha, beta=beta, gamma=gamma, conv='xyz', tx=x, ty=y, tz=z)
     if para.convention == 'quaternion':
-        return Homogenous_transformation_matrix(q0=q0, q1=q1, q2=q2, q3=q3, conv='quat', tx=x, ty=y, tz=z)
+        return Homogenous_transformation_matrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=x, ty=y, tz=z)
     raise RuntimeError("No Convention.")
 
 
