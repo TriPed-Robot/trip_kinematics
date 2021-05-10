@@ -41,6 +41,7 @@ class TransformationParameters():
         constants = {}
         state = {}
 
+        # '#' are used to prevent the use of invalid key's that are a combination of valid keys like xq or yalpha
         adjust = '#'.join(state_variables)
 
         self.convention = validate_keys_and_get_convention(values)
@@ -77,13 +78,13 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
             beta = para.constants.get(key)
         if key == 'gamma':
             gamma = para.constants.get(key)
-        if key == 'q0':
+        if key == 'qw':
             q0 = para.constants.get(key)
-        if key == 'q1':
+        if key == 'qx':
             q1 = para.constants.get(key)
-        if key == 'q2':
+        if key == 'qy':
             q2 = para.constants.get(key)
-        if key == 'q3':
+        if key == 'qz':
             q3 = para.constants.get(key)
         if key == 'x':
             x = para.constants.get(key)
@@ -99,13 +100,13 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
             beta = para.state.get(key)
         if key == 'gamma':
             gamma = para.state.get(key)
-        if key == 'q0':
+        if key == 'qw':
             q0 = para.state.get(key)
-        if key == 'q1':
+        if key == 'qx':
             q1 = para.state.get(key)
-        if key == 'q2':
+        if key == 'qy':
             q2 = para.state.get(key)
-        if key == 'q3':
+        if key == 'qz':
             q3 = para.state.get(key)
         if key == 'x':
             x = para.state.get(key)

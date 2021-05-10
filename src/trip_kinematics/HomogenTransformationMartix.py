@@ -2,7 +2,7 @@ import numpy as np
 from casadi import MX, cos, sin
 
 
-def quat_rotation_matrix(qw, qx, qy, qz) -> np.matrix:
+def quat_rotation_matrix(qw, qx, qy, qz) -> np.array:
     """[summary]
 
     Args:
