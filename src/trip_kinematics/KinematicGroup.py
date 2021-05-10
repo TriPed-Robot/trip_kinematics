@@ -3,6 +3,15 @@ from trip_kinematics.HomogenTransformationMartix import Homogenous_transformatio
 from copy import deepcopy
 
 
+def array_find(arr, obj) -> int:
+    index = -1
+    try:
+        index = arr.index(obj)
+        return index
+    except:
+        return -1
+
+
 def virtual_state_to_keys(virtual_state):
     return list(map(lambda obj: obj.keys(), virtual_state))
 
@@ -41,7 +50,6 @@ class TransformationParameters():
         constants = {}
         state = {}
 
-        # '#' are used to prevent the use of invalid key's that are a combination of valid keys like xq or yalpha
         adjust = '#'.join(state_variables)
 
         self.convention = validate_keys_and_get_convention(values)
