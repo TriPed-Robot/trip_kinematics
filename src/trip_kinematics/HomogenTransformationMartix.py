@@ -53,7 +53,7 @@ def z_axis_rotation_matrix(theta):
     return np.array([[cos(theta), -sin(theta), 0], [sin(theta), cos(theta), 0], [0, 0, 1]], dtype=object)
 
 
-class Homogenous_transformation_matrix:
+class HomogenousTransformationMatrix:
     """[summary]
     """
 
@@ -113,7 +113,7 @@ class Homogenous_transformation_matrix:
         Returns:
             [type]: [description]
         """
-        new = Homogenous_transformation_matrix()
+        new = HomogenousTransformationMatrix()
         new.matrix = self.matrix @ other.matrix
         return new
 

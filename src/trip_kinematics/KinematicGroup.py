@@ -1,5 +1,5 @@
 from typing import Dict, List, Callable, Union
-from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
+from trip_kinematics.HomogenTransformationMartix import HomogenousTransformationMatrix
 from copy import deepcopy
 
 
@@ -18,8 +18,8 @@ def virtual_state_to_keys(virtual_state):
 
 def validate_keys_and_get_convention(state: Dict[str, float]):
 
-    valid_keys = ['x', 'y', 'z', 'qw', 'qx',
-                  'qy', 'qz', 'alpha', 'beta', 'gamma']
+    valid_keys = ['tx', 'ty', 'tz', 'qw', 'qx',
+                  'qy', 'qz', 'rx', 'rz', 'ry']
 
     quaternion_keys = valid_keys[3:7]
     euler_keys = valid_keys[7:]
@@ -67,26 +67,26 @@ class TransformationParameters():
 
 def make_homogenious_transformation_matrix(para: TransformationParameters):
     if para.convention == 'euler':
-        alpha = 0
-        beta = 0
-        gamma = 0
+        rx = 0
+        ry = 0
+        rz = 0
     if para.convention == 'quaternion':
         qw = 0
         qx = 0
         qy = 0
         qz = 0
 
-    x = 0
-    y = 0
-    z = 0
+    tx = 0
+    ty = 0
+    tz = 0
 
     for key in para.constants.keys():
-        if key == 'alpha':
-            alpha = para.constants.get(key)
-        if key == 'beta':
-            beta = para.constants.get(key)
-        if key == 'gamma':
-            gamma = para.constants.get(key)
+        if key == 'rx':
+            rx = para.constants.get(key)
+        if key == 'ry':
+            ry = para.constants.get(key)
+        if key == 'rz':
+            rz = para.constants.get(key)
         if key == 'qw':
             qw = para.constants.get(key)
         if key == 'qx':
@@ -95,20 +95,20 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
             qy = para.constants.get(key)
         if key == 'qz':
             qz = para.constants.get(key)
-        if key == 'x':
-            x = para.constants.get(key)
-        if key == 'y':
-            y = para.constants.get(key)
-        if key == 'z':
-            z = para.constants.get(key)
+        if key == 'tx':
+            tx = para.constants.get(key)
+        if key == 'ty':
+            ty = para.constants.get(key)
+        if key == 'tz':
+            tz = para.constants.get(key)
 
     for key in para.state.keys():
-        if key == 'alpha':
-            alpha = para.state.get(key)
-        if key == 'beta':
-            beta = para.state.get(key)
-        if key == 'gamma':
-            gamma = para.state.get(key)
+        if key == 'rx':
+            rx = para.state.get(key)
+        if key == 'ry':
+            ry = para.state.get(key)
+        if key == 'rz':
+            rz = para.state.get(key)
         if key == 'qw':
             qw = para.state.get(key)
         if key == 'qx':
@@ -117,16 +117,16 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
             qy = para.state.get(key)
         if key == 'qz':
             qz = para.state.get(key)
-        if key == 'x':
-            x = para.state.get(key)
-        if key == 'y':
-            y = para.state.get(key)
-        if key == 'z':
-            z = para.state.get(key)
+        if key == 'tx':
+            tx = para.state.get(key)
+        if key == 'ty':
+            ty = para.state.get(key)
+        if key == 'tz':
+            tz = para.state.get(key)
     if para.convention == 'euler':
-        return Homogenous_transformation_matrix(alpha=alpha, beta=beta, gamma=gamma, conv='xyz', tx=x, ty=y, tz=z)
+        return HomogenousTransformationMatrix(rx=rx, ry=ry, rz=rz, conv='xyz', tx=tx, ty=ty, tz=tz)
     if para.convention == 'quaternion':
-        return Homogenous_transformation_matrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=x, ty=y, tz=z)
+        return HomogenousTransformationMatrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=tx, ty=ty, tz=tz)
     raise RuntimeError("No Convention.")
 
 
@@ -219,10 +219,10 @@ class KinematicGroup():
         else:
             return None
 
-    def get_transformation(self) -> Homogenous_transformation_matrix:
+    def get_transformation(self) -> HomogenousTransformationMatrix:
 
         # Identity matrix
-        transformation = Homogenous_transformation_matrix()
+        transformation = HomogenousTransformationMatrix()
         for part in self.__virtual_transformations:
             hmt = make_homogenious_transformation_matrix(part)
             transformation = transformation * hmt
