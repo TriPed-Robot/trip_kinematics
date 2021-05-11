@@ -6,12 +6,12 @@ from trip_kinematics.HomogenTransformationMartix import Homogenous_transformatio
 import numpy as np
 from math import radians
 from tf.transformations import quaternion_from_euler
-from math import radians, degrees
+from math import radians, degrees, pi
 
 
 def c(rx, ry, rz, opti):
     A_CSS_P = Homogenous_transformation_matrix(
-        tx=0.265, ty=0, tz=0.014, alpha=rx, beta=ry, gamma=rz, conv='xyz')
+        tx=0.265, ty=0, tz=0.014, rx=rx, ry=ry, rz=rz, conv='xyz')
 
     T_P_SPH1_2 = np.array([-0.015, -0.029, 0.0965]) * -1
     T_P_SPH2_2 = np.array([-0.015, 0.029, 0.0965]) * -1
@@ -49,12 +49,12 @@ def p1(theta, opti):
         tx=0.139807669447128, ty=0.0549998406976098, tz=-0.051)
 
     A_CCS_lsm_rot = Homogenous_transformation_matrix(
-        gamma=radians(-338.5255), conv='xyz')
+        rz=radians(-338.5255), conv='xyz')
 
     A_CCS_lsm = A_CCS_lsm_tran * A_CCS_lsm_rot
 
     A_MCS1_JOINT = Homogenous_transformation_matrix(
-        gamma=theta, conv='xyz')
+        rz=theta, conv='xyz')
 
     A_CSS_MCS1 = A_CCS_lsm * A_MCS1_JOINT
 
@@ -76,12 +76,12 @@ def p2(theta, opti):
         tx=0.139807669447128, ty=-0.0549998406976098, tz=-0.051)
 
     A_CCS_rsm_rot = Homogenous_transformation_matrix(
-        gamma=radians(-21.4745), conv='xyz')
+        rz=radians(-21.4745), conv='xyz')
 
     A_CCS_rsm = A_CCS_rsm_tran*A_CCS_rsm_rot
 
     A_MCS2_JOINT = Homogenous_transformation_matrix(
-        gamma=theta, conv='xyz')
+        rz=theta, conv='xyz')
 
     A_CSS_MCS2 = A_CCS_rsm * A_MCS2_JOINT
 
@@ -143,6 +143,17 @@ def mapping_g(state: List[Dict[str, float]]):
     return {'t1': sol.value(theta_right), 't2': sol.value(theta_left)}
 
 
+def f_map_gear_ratio(state: Dict[str, float]):
+    startingvalue = radians(-30)  # -30
+    theta_LL = -1 * state['theta0'] * 0.07/(2*pi*1.5) + startingvalue
+    return [{'beta': theta_LL}, {}]
+
+
+def g_map_gear_ratio(states: List[Dict[str, float]]):
+    theta0 = -1*(states[0]['beta'] - radians(-30)) * 0.07/(2*pi*1.5)
+    return {'theta0': theta0}
+
+
 if __name__ == '__main__':
 
     A_CSS_P = TransformationParameters(
@@ -157,7 +168,7 @@ if __name__ == '__main__':
     A_LL_Joint_FCS = TransformationParameters(values={'x': -1.5})
 
     extend_motor = KinematicGroup(virtual_transformations=[
-        A_P_LL_joint, A_LL_Joint_FCS], parent=gimbal_joint)
+        A_P_LL_joint, A_LL_Joint_FCS], actuated_state={'theta0': 0}, f_mapping=f_map_gear_ratio, g_mapping=g_map_gear_ratio, parent=gimbal_joint)
 
     robot = Robot([gimbal_joint, extend_motor])
 
