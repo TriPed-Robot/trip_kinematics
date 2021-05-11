@@ -3,6 +3,7 @@ from typing import Union, List
 from trip_kinematics.HomogenTransformationMartix import Homogenous_transformation_matrix
 from casadi import Opti
 from trip_kinematics.KinematicGroup import KinematicGroup, make_homogenious_transformation_matrix
+import numpy as np
 
 
 class Robot:

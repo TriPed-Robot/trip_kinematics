@@ -2,7 +2,7 @@ import numpy as np
 from casadi import MX, cos, sin
 
 
-def quat_rotation_matrix(qw, qx, qy, qz) -> np.array:
+def quat_rotation_matrix(qw, qx, qy, qz) -> np.ndarray:
     """[summary]
 
     Args:
@@ -57,7 +57,7 @@ class Homogenous_transformation_matrix:
     """[summary]
     """
 
-    def __init__(self, qw=0, qx=0, qy=0, qz=0, tx=0, ty=0, tz=0, conv='quat', alpha=0, beta=0, gamma=0):
+    def __init__(self, qw=0, qx=0, qy=0, qz=0, tx=0, ty=0, tz=0, conv='quat', rx=0, ry=0, rz=0):
         """[summary]
 
         Args:
@@ -70,9 +70,9 @@ class Homogenous_transformation_matrix:
         if conv == 'quat':
             self.matrix[:3, :3] = quat_rotation_matrix(qw, qx, qy, qz)
         else:
-            a = x_axis_rotation_matrix(alpha)
-            b = y_axis_rotation_matrix(beta)
-            g = y_axis_rotation_matrix(gamma)
+            a = x_axis_rotation_matrix(rx)
+            b = y_axis_rotation_matrix(ry)
+            g = y_axis_rotation_matrix(rz)
 
             conventions = list(conv)
             matrix_components = []

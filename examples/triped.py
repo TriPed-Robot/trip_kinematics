@@ -118,7 +118,7 @@ def mapping_f(state: Dict[str, float]):
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
-    return [{'alpha': sol.value(gimbal_x), 'beta': sol.value(gimbal_y), 'gamma': sol.value(gimbal_z)}]
+    return [{'rx': sol.value(gimbal_x), 'ry': sol.value(gimbal_y), 'rz': sol.value(gimbal_z)}]
 
 
 def mapping_g(state: List[Dict[str, float]]):
@@ -129,9 +129,9 @@ def mapping_g(state: List[Dict[str, float]]):
     theta_right = opti.variable()
     theta_left = opti.variable()
 
-    gimbal_x = state[0]['alpha']
-    gimbal_y = state[0]['beta']
-    gimbal_z = state[0]['gamma']
+    gimbal_x = state[0]['rx']
+    gimbal_y = state[0]['ry']
+    gimbal_z = state[0]['rz']
     c1, c2 = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z, opti=opti)
     closing_equation = ((c1-p1(theta_right, opti)).T @ (c1-p1(theta_right, opti)) -
                         r**2)**2+((c2-p2(theta_left, opti)).T @ (c2-p2(theta_left, opti)) - r**2)**2
@@ -146,26 +146,26 @@ def mapping_g(state: List[Dict[str, float]]):
 def f_map_gear_ratio(state: Dict[str, float]):
     startingvalue = radians(-30)  # -30
     theta_LL = -1 * state['theta0'] * 0.07/(2*pi*1.5) + startingvalue
-    return [{'beta': theta_LL}, {}]
+    return [{'ry': theta_LL}, {}]
 
 
 def g_map_gear_ratio(states: List[Dict[str, float]]):
-    theta0 = -1*(states[0]['beta'] - radians(-30)) * 0.07/(2*pi*1.5)
+    theta0 = -1*(states[0]['ry'] - radians(-30)) * 0.07/(2*pi*1.5)
     return {'theta0': theta0}
 
 
 if __name__ == '__main__':
 
     A_CSS_P = TransformationParameters(
-        values={'x': 0.265, 'z': 0.014, 'alpha': 0, 'beta': 0, 'gamma': 0}, state_variables=['alpha', 'beta', 'gamma'])
+        values={'tx': 0.265, 'tz': 0.014, 'rx': 0, 'ry': 0, 'rz': 0}, state_variables=['rx', 'ry', 'rz'])
 
     gimbal_joint = KinematicGroup(virtual_transformations=[
         A_CSS_P], actuated_state={'t1': 0, 't2': 0}, f_mapping=mapping_f, g_mapping=mapping_g)
 
     A_P_LL_joint = TransformationParameters(
-        values={'x': 1.640, 'z': -0.037, 'beta': 0}, state_variables=['beta'])
+        values={'tx': 1.640, 'tz': -0.037, 'ry': 0}, state_variables=['ry'])
 
-    A_LL_Joint_FCS = TransformationParameters(values={'x': -1.5})
+    A_LL_Joint_FCS = TransformationParameters(values={'tx': -1.5})
 
     extend_motor = KinematicGroup(virtual_transformations=[
         A_P_LL_joint, A_LL_Joint_FCS], actuated_state={'theta0': 0}, f_mapping=f_map_gear_ratio, g_mapping=g_map_gear_ratio, parent=gimbal_joint)
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     robot = Robot([gimbal_joint, extend_motor])
 
     gimbal_joint.set_state({'t1': 0, 't2': 0})
-    extend_motor.set_state([{'beta': radians(-30)}, {}])
+    extend_motor.set_state([{'ry': radians(-30)}, {}])
     print(forward_kinematic(robot))
     print(inverse_kinematics(
         robot, [0.8088109425170019, 0.2977066987301952, -0.5786756226727237]))
