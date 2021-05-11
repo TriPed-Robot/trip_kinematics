@@ -53,9 +53,9 @@ def inverse_kinematics(robot: Robot, end_effector_position):
         for v_trans in virtual_transformations:
             state = v_trans.state
             for key in state.keys():
-                #start_value = state[key]
+                start_value = state[key]
                 state[key] = opti.variable()
-                # opti.set_initial(state[key],start_value)
+                opti.set_initial(state[key], start_value)
             hmt = make_homogenious_transformation_matrix(v_trans)
             matrix = matrix * hmt
             group_states.append(state)
