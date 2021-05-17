@@ -98,7 +98,7 @@ def p2(theta, opti):
     return p2_mx
 
 
-def mapping_f(state: Dict[str, float]):
+def mapping_f(state: Dict[str, float], tips: Dict[str, float] = None):
 
     opti = Opti()
     r = 0.11
@@ -109,6 +109,11 @@ def mapping_f(state: Dict[str, float]):
     gimbal_x = opti.variable()
     gimbal_y = opti.variable()
     gimbal_z = opti.variable()
+
+    if tips:
+        opti.set_initial(gimbal_x, tips['rx'])
+        opti.set_initial(gimbal_y, tips['ry'])
+        opti.set_initial(gimbal_z, tips['rz'])
 
     c1, c2 = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z, opti=opti)
     closing_equation = ((c1-p1(theta_right, opti)).T @ (c1-p1(theta_right, opti)) -
@@ -121,13 +126,17 @@ def mapping_f(state: Dict[str, float]):
     return [{'rx': sol.value(gimbal_x), 'ry': sol.value(gimbal_y), 'rz': sol.value(gimbal_z)}]
 
 
-def mapping_g(state: List[Dict[str, float]]):
+def mapping_g(state: List[Dict[str, float]], tips: Dict[str, float] = None):
 
     opti = Opti()
     r = 0.11
 
     theta_right = opti.variable()
     theta_left = opti.variable()
+
+    if tips:
+        opti.set_initial(theta_right, tips['t1'])
+        opti.set_initial(theta_left, tips['t2'])
 
     gimbal_x = state[0]['rx']
     gimbal_y = state[0]['ry']
@@ -175,5 +184,6 @@ if __name__ == '__main__':
     gimbal_joint.set_state({'t1': 0, 't2': 0})
     extend_motor.set_state([{'ry': radians(-30)}, {}])
     print(forward_kinematic(robot))
+    gimbal_joint.pass_arguments_g([{'t1': 0, 't2': 0}])
     print(inverse_kinematics(
         robot, [0.8088109425170019, 0.2977066987301952, -0.5786756226727237]))

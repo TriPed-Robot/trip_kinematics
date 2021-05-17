@@ -167,6 +167,7 @@ class KinematicGroup():
                 raise RuntimeError("f_mapping does not fit virtual state")
 
             self.__f_mapping = f_mapping
+            self.___orginal_f_mapping = f_mapping
 
             g_mapping_to_check = g_mapping(virtual_state)
 
@@ -174,6 +175,7 @@ class KinematicGroup():
                 raise RuntimeError("g_mapping does not fit actuated state")
 
             self.__g_mapping = g_mapping
+            self.___orginal_g_mapping = g_mapping
 
             # check if initalvalues fit f_mapping and g_mapping
 
@@ -238,3 +240,11 @@ class KinematicGroup():
 
     def __add_child(self, child):
         self.__child = child
+
+    def pass_arguments_g(self, argv):
+        g_map = self.___orginal_g_mapping
+        self.__g_mapping = lambda state: g_map(state, *argv)
+
+    def pass_arguments_f(self, argv):
+        f_map = self.___orginal_f_mapping
+        self.__f_mapping = lambda state: f_map(state, *argv)
