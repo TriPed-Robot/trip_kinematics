@@ -40,6 +40,8 @@ def forward_kinematic(robot: Robot):
 
 
 def inverse_kinematics(robot: Robot, end_effector_position):
+    ''' Creating numeric equation '''
+
     opti = Opti()
 
     matrix = HomogenousTransformationMatrix()
@@ -49,15 +51,21 @@ def inverse_kinematics(robot: Robot, end_effector_position):
     groups = robot.get_groups()
 
     for group in groups:
+
         virtual_transformations = group.get_virtual_transformations()
         group_states = []
-        for v_trans in virtual_transformations:
-            state = v_trans.state
+
+        for virtual_transformation in virtual_transformations:
+
+            state = virtual_transformation.state
+
             for key in state.keys():
+
                 start_value = state[key]
                 state[key] = opti.variable()
                 opti.set_initial(state[key], start_value)
-            hmt = make_homogenious_transformation_matrix(v_trans)
+            hmt = make_homogenious_transformation_matrix(
+                virtual_transformation)
             matrix = matrix * hmt
             group_states.append(state)
 
@@ -68,38 +76,54 @@ def inverse_kinematics(robot: Robot, end_effector_position):
     equation = (translation[0] - end_effector_position[0])**2 + (translation[1] -
                                                                  end_effector_position[1])**2 + (translation[2] - end_effector_position[2])**2
 
+    ''' Setup solver '''
+
     opti.minimize(equation)
 
     p_opts = {"print_time": False}
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
 
+    ''' Solve '''
+
     opti.solver('ipopt', p_opts, s_opts)
 
     sol = opti.solve()
 
-    before_g_mapping = []
+    ''' Build virtual states from solved values '''
+
+    solved_states = []
 
     for state in states_to_solve_for:
-        solved = []
+        solved_state = []
+
         for sub_state in state:
-            stt = {}
+            solved_sub_state = {}
+
             for key in sub_state.keys():
-                stt.setdefault(key, sol.value(sub_state[key]))
-            solved.append(stt)
-        before_g_mapping.append(solved)
+                solved_sub_state.setdefault(key, sol.value(sub_state[key]))
 
-    after_g_mapping = []
+            solved_state.append(solved_sub_state)
 
-    for i in range(len(before_g_mapping)):
-        if len(before_g_mapping) != len(groups):
+        solved_states.append(solved_state)
+
+    ''' Apply g mapping '''
+
+    final_states = []       # Final states consist of actuated states and trivial states
+
+    for i in range(len(solved_states)):
+
+        if len(solved_states) != len(groups):
             raise RuntimeError("States non match!")
-        state = before_g_mapping[i]
-        herp = groups[i]
 
-        herp.set_state(state)
-        act_state = herp.get_actuated_state()
+        state = solved_states[i]
+        group = groups[i]
+
+        group.set_state(state)
+        act_state = group.get_actuated_state()
+
         if act_state != None:
-            after_g_mapping.append([act_state])
+            final_states.append([act_state])
         else:
-            after_g_mapping.append(state)
-    return after_g_mapping
+            final_states.append(state)
+
+    return final_states

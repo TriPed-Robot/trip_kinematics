@@ -12,38 +12,34 @@ def array_find(arr, obj) -> int:
         return -1
 
 
-def virtual_state_to_keys(virtual_state):
-    return list(map(lambda obj: obj.keys(), virtual_state))
-
-
-def validate_keys_and_get_convention(state: Dict[str, float]):
-
-    valid_keys = ['tx', 'ty', 'tz', 'qw', 'qx',
-                  'qy', 'qz', 'rx', 'rz', 'ry']
-
-    quaternion_keys = valid_keys[3:7]
-    euler_keys = valid_keys[7:]
-    got_quaternion = False
-    got_euler = False
-
-    for key in state.keys():
-        if array_find(valid_keys, key) == -1:
-            raise ValueError("Invalid key.")
-        if array_find(quaternion_keys, key) >= 0:
-            got_quaternion = True
-        if array_find(euler_keys, key) >= 0:
-            got_euler = True
-
-    if got_euler and got_quaternion:
-        raise ValueError("State can't have euler angles and quaternions!")
-
-    if got_euler:
-        return "euler"
-    else:
-        return "quaternion"
-
-
 class TransformationParameters():
+
+    @staticmethod
+    def get_convention(state: Dict[str, float]):
+
+        valid_keys = ['tx', 'ty', 'tz', 'qw', 'qx',
+                      'qy', 'qz', 'rx', 'rz', 'ry']
+
+        quaternion_keys = valid_keys[3:7]
+        euler_keys = valid_keys[7:]
+        got_quaternion = False
+        got_euler = False
+
+        for key in state.keys():
+            if array_find(valid_keys, key) == -1:
+                raise ValueError("Invalid key.")
+            if array_find(quaternion_keys, key) >= 0:
+                got_quaternion = True
+            if array_find(euler_keys, key) >= 0:
+                got_euler = True
+
+        if got_euler and got_quaternion:
+            raise ValueError("State can't have euler angles and quaternions!")
+
+        if got_euler:
+            return "euler"
+        else:
+            return "quaternion"
 
     def __init__(self, values: Dict[str, float], state_variables: List[str] = []):
         if not set(state_variables) <= set(values.keys()):
@@ -53,7 +49,7 @@ class TransformationParameters():
         constants = {}
         state = {}
 
-        self.convention = validate_keys_and_get_convention(values)
+        self.convention = TransformationParameters.get_convention(values)
 
         for key in values.keys():
             if array_find(state_variables, key) != -1:
@@ -132,6 +128,10 @@ def make_homogenious_transformation_matrix(para: TransformationParameters):
 
 class KinematicGroup():
 
+    @staticmethod
+    def virtual_state_to_keys(virtual_state):
+        return list(map(lambda obj: obj.keys(), virtual_state))
+
     def __init__(self, virtual_transformations: List[TransformationParameters], actuated_state: Dict[str, float] = None, f_mapping: Callable = None, g_mapping: Callable = None, parent=None):
 
         # Adds itself as child to parent
@@ -163,7 +163,7 @@ class KinematicGroup():
         if f_mapping:
             f_mapping_to_check = f_mapping(actuated_state)
 
-            if virtual_state_to_keys(f_mapping_to_check) != virtual_state_to_keys(virtual_state):
+            if KinematicGroup.virtual_state_to_keys(f_mapping_to_check) != KinematicGroup.virtual_state_to_keys(virtual_state):
                 raise RuntimeError("f_mapping does not fit virtual state")
 
             self.__f_mapping = f_mapping
@@ -199,7 +199,7 @@ class KinematicGroup():
 
         # inverse
         elif isinstance(state, list):
-            if virtual_state_to_keys(self.__virtual_state) == virtual_state_to_keys(state):
+            if KinematicGroup.virtual_state_to_keys(self.__virtual_state) == KinematicGroup.virtual_state_to_keys(state):
                 self.__virtual_state = deepcopy(state)
                 self.__update_chain()
                 if self.__actuated_state != None:   # for the trivialcase there is no actuated state
@@ -226,7 +226,8 @@ class KinematicGroup():
         # Identity matrix
         transformation = HomogenousTransformationMatrix()
         for part in self.__virtual_transformations:
-            hmt = make_homogenious_transformation_matrix(part)
+            hmt = make_homogenious_transformation_matrix(
+                part)
             transformation = transformation * hmt
 
         return transformation
