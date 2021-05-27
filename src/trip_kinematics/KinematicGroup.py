@@ -132,7 +132,7 @@ class KinematicGroup():
     def virtual_state_to_keys(virtual_state):
         return list(map(lambda obj: obj.keys(), virtual_state))
 
-    def __init__(self, virtual_transformations: List[TransformationParameters], actuated_state: Dict[str, float] = None, f_mapping: Callable = None, g_mapping: Callable = None, parent=None):
+    def __init__(self, virtual_transformations: List[TransformationParameters], actuated_state: Dict[str, float] = None, f_mapping: Callable = None, g_mapping: Callable = None, f_args=None, g_args=None, parent=None):
 
         # Adds itself as child to parent
         if parent != None:
@@ -161,21 +161,25 @@ class KinematicGroup():
 
         # check mappings
         if f_mapping:
-            f_mapping_to_check = f_mapping(actuated_state)
+            self.___original_f_mapping = f_mapping
+            if f_args:
+                self.__f_mapping = lambda state: f_mapping(state, *f_args)
+            self.__f_mapping = f_mapping
+
+            f_mapping_to_check = self.__f_mapping(actuated_state)
 
             if KinematicGroup.virtual_state_to_keys(f_mapping_to_check) != KinematicGroup.virtual_state_to_keys(virtual_state):
                 raise RuntimeError("f_mapping does not fit virtual state")
 
-            self.__f_mapping = f_mapping
-            self.___original_f_mapping = f_mapping
+            self.___original_g_mapping = g_mapping
+            if g_args:
+                self.__g_mapping = lambda state: g_mapping(state, *g_args)
+            self.__g_mapping = g_mapping
 
             g_mapping_to_check = g_mapping(virtual_state)
 
             if g_mapping_to_check.keys() != actuated_state.keys():
                 raise RuntimeError("g_mapping does not fit actuated state")
-
-            self.__g_mapping = g_mapping
-            self.___original_g_mapping = g_mapping
 
             # check if initalvalues fit f_mapping and g_mapping
 
