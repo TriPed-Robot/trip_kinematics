@@ -1,5 +1,5 @@
 from typing import Dict, List, Callable, Union
-from trip_kinematics.HomogenTransformationMartix import HomogenousTransformationMatrix
+from trip_kinematics.HomogenTransformationMatrix import HomogenousTransformationMatrix
 from copy import deepcopy
 
 
@@ -61,7 +61,7 @@ class TransformationParameters():
         self.constants = constants
 
 
-def make_homogenious_transformation_matrix(para: TransformationParameters):
+def make_homogenous_transformation_matrix(para: TransformationParameters):
     if para.convention == 'euler':
         rx = 0
         ry = 0
@@ -167,7 +167,7 @@ class KinematicGroup():
                 raise RuntimeError("f_mapping does not fit virtual state")
 
             self.__f_mapping = f_mapping
-            self.___orginal_f_mapping = f_mapping
+            self.___original_f_mapping = f_mapping
 
             g_mapping_to_check = g_mapping(virtual_state)
 
@@ -175,7 +175,7 @@ class KinematicGroup():
                 raise RuntimeError("g_mapping does not fit actuated state")
 
             self.__g_mapping = g_mapping
-            self.___orginal_g_mapping = g_mapping
+            self.___original_g_mapping = g_mapping
 
             # check if initalvalues fit f_mapping and g_mapping
 
@@ -226,7 +226,7 @@ class KinematicGroup():
         # Identity matrix
         transformation = HomogenousTransformationMatrix()
         for part in self.__virtual_transformations:
-            hmt = make_homogenious_transformation_matrix(
+            hmt = make_homogenous_transformation_matrix(
                 part)
             transformation = transformation * hmt
 
@@ -243,9 +243,9 @@ class KinematicGroup():
         self.__child = child
 
     def pass_arguments_g(self, argv):
-        g_map = self.___orginal_g_mapping
+        g_map = self.___original_g_mapping
         self.__g_mapping = lambda state: g_map(state, *argv)
 
     def pass_arguments_f(self, argv):
-        f_map = self.___orginal_f_mapping
+        f_map = self.___original_f_mapping
         self.__f_mapping = lambda state: f_map(state, *argv)

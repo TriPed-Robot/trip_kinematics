@@ -2,7 +2,7 @@ from trip_kinematics.KinematicGroup import KinematicGroup, TransformationParamet
 from trip_kinematics.Robot import Robot, forward_kinematic, inverse_kinematics
 from casadi import Opti
 from typing import Dict, List
-from trip_kinematics.HomogenTransformationMartix import HomogenousTransformationMatrix
+from trip_kinematics.HomogenTransformationMatrix import HomogenousTransformationMatrix
 import numpy as np
 from math import radians
 from tf.transformations import quaternion_from_euler

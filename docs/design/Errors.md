@@ -28,7 +28,7 @@
 
         Class: HomogenousTransformationMatrix
 
-        Description: For the convention parmeter there is something other specified than quat or any permutation of xyz
+        Description: For the convention parameter there is something other specified than quat or any permutation of xyz
         Msg: "ConventionError: Expect x,y,z got: "
 
 Warnings:
