@@ -5,8 +5,6 @@ from typing import Dict, List
 from trip_kinematics.HomogenTransformationMatrix import HomogenousTransformationMatrix
 import numpy as np
 from math import radians
-from tf.transformations import quaternion_from_euler
-from math import radians, degrees, pi
 
 
 def c(rx, ry, rz, opti):
@@ -152,17 +150,6 @@ def mapping_g(state: List[Dict[str, float]], tips: Dict[str, float] = None):
     return {'t1': sol.value(theta_right), 't2': sol.value(theta_left)}
 
 
-def f_map_gear_ratio(state: Dict[str, float]):
-    startingvalue = radians(-30)  # -30
-    theta_LL = -1 * state['theta0'] * 0.07/(2*pi*1.5) + startingvalue
-    return [{'ry': theta_LL}, {}]
-
-
-def g_map_gear_ratio(states: List[Dict[str, float]]):
-    theta0 = -1*(states[0]['ry'] - radians(-30)) * 0.07/(2*pi*1.5)
-    return {'theta0': theta0}
-
-
 if __name__ == '__main__':
 
     A_CSS_P = TransformationParameters(
@@ -177,13 +164,11 @@ if __name__ == '__main__':
     A_LL_Joint_FCS = TransformationParameters(values={'tx': -1.5})
 
     extend_motor = KinematicGroup(virtual_transformations=[
-        A_P_LL_joint, A_LL_Joint_FCS], actuated_state={'theta0': 0}, f_mapping=f_map_gear_ratio, g_mapping=g_map_gear_ratio, parent=gimbal_joint)
+        A_P_LL_joint, A_LL_Joint_FCS], parent=gimbal_joint)
 
     robot = Robot([gimbal_joint, extend_motor])
 
-    gimbal_joint.set_state({'t1': 0, 't2': 0})
-    extend_motor.set_state([{'ry': radians(-30)}, {}])
+    gimbal_joint.set_state({'t1': -0, 't2': 0})
+    extend_motor.set_state([{'ry': 0}, {}])
+
     print(forward_kinematic(robot))
-    gimbal_joint.pass_arguments_g([{'t1': 0, 't2': 0}])
-    print(inverse_kinematics(
-        robot, [0.8088109425170019, 0.2977066987301952, -0.5786756226727237]))
