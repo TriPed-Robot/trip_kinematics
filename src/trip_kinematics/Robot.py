@@ -31,7 +31,7 @@ class Robot:
         return self.__kinematic_chain
 
 
-def forward_kinematic(robot: Robot):
+def forward_kinematics(robot: Robot):
     transformation = HomogenousTransformationMatrix()
     for part in robot.get_groups():
         hmt = part.get_transformation()

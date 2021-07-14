@@ -1,5 +1,5 @@
 from trip_kinematics.KinematicGroup import KinematicGroup, TransformationParameters
-from trip_kinematics.Robot import Robot, forward_kinematic, inverse_kinematics
+from trip_kinematics.Robot import Robot, forward_kinematics, inverse_kinematics
 from casadi import Opti
 from typing import Dict, List
 from trip_kinematics.HomogenTransformationMatrix import HomogenousTransformationMatrix
@@ -171,4 +171,4 @@ if __name__ == '__main__':
     gimbal_joint.set_state({'t1': -0, 't2': 0})
     extend_motor.set_state([{'ry': 0}, {}])
 
-    print(forward_kinematic(robot))
+    print(forward_kinematics(robot))
