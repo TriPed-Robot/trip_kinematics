@@ -12,7 +12,7 @@ def array_find(arr, obj) -> int:
         return -1
 
 
-class TransformationParameters():
+class Transformation():
 
     @staticmethod
     def get_convention(state: Dict[str, float]):
@@ -49,7 +49,7 @@ class TransformationParameters():
         constants = {}
         state = {}
 
-        self.convention = TransformationParameters.get_convention(values)
+        self.convention = Transformation.get_convention(values)
 
         for key in values.keys():
             if array_find(state_variables, key) != -1:
@@ -61,7 +61,7 @@ class TransformationParameters():
         self.constants = constants
 
 
-def make_homogenous_transformation_matrix(para: TransformationParameters):
+def make_homogenous_transformation_matrix(para: Transformation):
     if para.convention == 'euler':
         rx = 0
         ry = 0
@@ -132,7 +132,7 @@ class KinematicGroup():
     def virtual_state_to_keys(virtual_state):
         return list(map(lambda obj: obj.keys(), virtual_state))
 
-    def __init__(self, virtual_transformations: List[TransformationParameters], actuated_state: Dict[str, float] = None, f_mapping: Callable = None, g_mapping: Callable = None, f_args=None, g_args=None, parent=None):
+    def __init__(self, virtual_transformations: List[Transformation], actuated_state: Dict[str, float] = None, f_mapping: Callable = None, g_mapping: Callable = None, f_args=None, g_args=None, parent=None):
 
         # Adds itself as child to parent
         if parent != None:
