@@ -1,4 +1,4 @@
-from trip_kinematics.KinematicGroup import KinematicGroup, TransformationParameters
+from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
 from trip_kinematics.Robot import Robot, forward_kinematics, inverse_kinematics
 from casadi import Opti
 from typing import Dict, List
@@ -152,16 +152,16 @@ def mapping_g(state: List[Dict[str, float]], tips: Dict[str, float] = None):
 
 if __name__ == '__main__':
 
-    A_CSS_P = TransformationParameters(
+    A_CSS_P = Transformation(
         values={'tx': 0.265, 'tz': 0.014, 'rx': 0, 'ry': 0, 'rz': 0}, state_variables=['rx', 'ry', 'rz'])
 
     gimbal_joint = KinematicGroup(virtual_transformations=[
         A_CSS_P], actuated_state={'t1': 0, 't2': 0}, f_mapping=mapping_f, g_mapping=mapping_g)
 
-    A_P_LL_joint = TransformationParameters(
+    A_P_LL_joint = Transformation(
         values={'tx': 1.640, 'tz': -0.037, 'ry': 0}, state_variables=['ry'])
 
-    A_LL_Joint_FCS = TransformationParameters(values={'tx': -1.5})
+    A_LL_Joint_FCS = Transformation(values={'tx': -1.5})
 
     extend_motor = KinematicGroup(virtual_transformations=[
         A_P_LL_joint, A_LL_Joint_FCS], parent=gimbal_joint)
