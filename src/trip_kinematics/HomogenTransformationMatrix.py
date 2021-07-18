@@ -57,7 +57,7 @@ class HomogenousTransformationMatrix:
     """[summary]
     """
 
-    def __init__(self, qw=0, qx=0, qy=0, qz=0, tx=0, ty=0, tz=0, conv='quat', rx=0, ry=0, rz=0):
+    def __init__(self, qw=1, qx=0, qy=0, qz=0, tx=0, ty=0, tz=0, conv='quat', rx=0, ry=0, rz=0):
         """[summary]
 
         Args:
