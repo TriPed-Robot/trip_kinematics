@@ -69,9 +69,9 @@ def inverse_kinematics(robot: Robot, end_effector_position):
             matrix = matrix * hmt
             group_states.append(state)
 
-        translation = matrix.get_translation()
-
         states_to_solve_for.append(group_states)
+
+    translation = matrix.get_translation()
 
     equation = (translation[0] - end_effector_position[0])**2 + (translation[1] -
                                                                  end_effector_position[1])**2 + (translation[2] - end_effector_position[2])**2
