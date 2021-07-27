@@ -207,8 +207,8 @@ class KinematicGroup():
             self.__virtual_state = deepcopy(state)
             self.__update_chain()
             self.__actuated_state = self.__g_mapping(self.__virtual_state)
-
-        print("Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations.")
+        else:
+            print("Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations.")
 
     def set_actuated_state(self, state: List[Dict[str, float]]):
 
@@ -216,8 +216,8 @@ class KinematicGroup():
             self.__actuated_state = deepcopy(state)
             self.__virtual_state = self.__f_mapping(self.__actuated_state)
             self.__update_chain()
-
-        print("Error: State not set! Keys do not match! Make sure that your state includes the same keys as the intial actuated state.")
+        else:
+            print("Error: State not set! Keys do not match! Make sure that your state includes the same keys as the intial actuated state.")
 
     def get_virtual_state(self) -> List[Dict[str, float]]:
         out = []
