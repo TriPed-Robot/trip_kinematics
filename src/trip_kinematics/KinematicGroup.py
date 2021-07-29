@@ -41,7 +41,10 @@ class Transformation():
         else:
             return "quaternion"
 
-    def __init__(self, values: Dict[str, float], state_variables: List[str] = []):
+    def __init__(self, name: str, values: Dict[str, float], state_variables: List[str] = []):
+
+        self.__name = name
+
         if not set(state_variables) <= set(values.keys()):
             raise ValueError(
                 "Key(s) from stateVariables not present inside values")
@@ -59,6 +62,9 @@ class Transformation():
 
         self.state = state
         self.constants = constants
+
+    def __str__(self):
+        return self.__name
 
 
 def make_homogenous_transformation_matrix(para: Transformation):
@@ -132,7 +138,9 @@ class KinematicGroup():
     def object_list_to_key_lists(object_lst):
         return list(map(lambda obj: list(obj.keys()), object_lst))
 
-    def __init__(self, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, f_mapping: Callable = None, g_mapping: Callable = None, f_args=None, g_args=None, parent=None):
+    def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, f_mapping: Callable = None, g_mapping: Callable = None, f_args=None, g_args=None, parent=None):
+
+        self.__name = name
 
         # Adds itself as child to parent
         if parent != None:
@@ -218,6 +226,9 @@ class KinematicGroup():
             self.__update_chain()
         else:
             print("Error: State not set! Keys do not match! Make sure that your state includes the same keys as the intial actuated state.")
+
+    def __str__(self):
+        return self.__name
 
     def get_virtual_state(self) -> List[Dict[str, float]]:
         out = []
