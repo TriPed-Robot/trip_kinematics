@@ -118,11 +118,11 @@ def inverse_kinematics(robot: Robot, end_effector_position):
         state = solved_states[i]
         group = groups[i]
 
-        group.set_state(state)
-        act_state = group.get_actuated_state()
+        group.set_virtual_state(state)
+        actuated_state = group.get_actuated_state()
 
-        if act_state != None:
-            final_states.append([act_state])
+        if actuated_state != None:   # TODO: check new state logic could throw with static group
+            final_states.append([actuated_state])
         else:
             final_states.append(state)
 

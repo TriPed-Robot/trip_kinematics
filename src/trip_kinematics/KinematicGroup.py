@@ -66,6 +66,9 @@ class Transformation():
     def __str__(self):
         return self.__name
 
+    def get_name(self):
+        return deepcopy(self.__name)
+
 
 def make_homogenous_transformation_matrix(para: Transformation):
     if para.convention == 'euler':
@@ -155,20 +158,10 @@ class KinematicGroup():
                 'Error: Actuated state is missing. You provided a mapping to actuate the group but no state to be actuated.')
         if (f_mapping and not g_mapping) or (not f_mapping and g_mapping):
             raise ValueError(
-                'Error: Only one mapping provided. You need mappings for both ways. Consider to pass a trival mapping.')
-
-        if actuated_state:
-            self.__actuated_state = deepcopy(actuated_state)
-        else:
-            self.__actuated_state = None
-        # check if states are valid
-
-        if not f_mapping:
-            # trivial mapping
-            pass
-        if not g_mapping:
-            # trivial mapping
-            pass
+                'Error: Only one mapping provided. You need mappings for both ways. Consider to pass a trivial mapping.')
+        if actuated_state and not (f_mapping or g_mapping):
+            raise ValueError(
+                'Error: Mappings missing. You provided an actuated state but no mappings. If you want a trivial mapping you don\'t need to pass an actuated state. Trip will generate one for you.')
 
         virtual_state = []
         for transformation in virtual_transformations:
@@ -176,9 +169,9 @@ class KinematicGroup():
 
         self.__virtual_state = virtual_state
 
-        # check mappings
-        if f_mapping:
-            self.___original_f_mapping = f_mapping
+        if actuated_state:      # if there is an actuated state there has to be an f_mapping and an g_mapping
+            self.__actuated_state = deepcopy(actuated_state)
+            self.__original_f_mapping = f_mapping
             if f_args:
                 self.__f_mapping = lambda state: f_mapping(state, *f_args)
             self.__f_mapping = f_mapping
@@ -198,7 +191,7 @@ class KinematicGroup():
             if KinematicGroup.object_list_to_key_lists(g_mapping_to_check) != KinematicGroup.object_list_to_key_lists(actuated_state):
                 raise RuntimeError("g_mapping does not fit actuated state")
 
-            # check if initalvalues fit f_mapping and g_mapping
+            # Check if inital values fit f_mapping's and g_mapping's calculated values. Only if actuated_state, f_mapping and g_mapping are passed
 
             for i in range(len(f_mapping_to_check)):
                 state = f_mapping_to_check[i]
@@ -208,27 +201,88 @@ class KinematicGroup():
                         init_values_do_not_match = True
             if init_values_do_not_match:
                 print("Calculated state values do not match given values! Using set_state() before forward_kinematics() or inverse_kinematics() is recommended.")
+        else:
+            # Virtual state contains keys
+            if any(virtual_state):
+                # trivial mappings
+                actuated_state_dummy = {}
+                f_map = {}
+                g_map = {}
+
+                for index, transformation in enumerate(virtual_transformations):
+
+                    state = transformation.state
+
+                    for key, value in state.items():
+                        concat_key = transformation.get_name() + '_' + key
+                        actuated_state_dummy.setdefault(concat_key, value)
+
+                        f_map.setdefault(concat_key, (key, index))
+                        g_map.setdefault((key, index), concat_key)
+
+                    # create trivial mappings
+                def trivial_f_mapping(state):
+                    # Generate array
+                    out = [{}] * len(virtual_transformations)
+
+                    for concat_key, value in state[0].items():
+                        key, index = f_map[concat_key]
+                        out[index].setdefault(key, value)
+
+                    return out
+
+                def trivial_g_mapping(states):
+                    out = [{}]
+                    for index, state in enumerate(states):
+                        for key, value in state.items():
+                            combined_key = (key, index)
+                            key = g_map[combined_key]
+                            out[0].setdefault(key, value)
+
+                    return out
+
+                self.__f_mapping = trivial_f_mapping
+                self.__g_mapping = trivial_g_mapping
+                self.__actuated_state = [actuated_state_dummy]
+
+            else:   # This is a static group
+                self.__actuated_state = None
+                self.__f_mapping = None
+                self.__g_mapping = None
 
     def set_virtual_state(self, state: List[Dict[str, float]]):
+
+        if self.__actuated_state == None:
+            raise RuntimeError(
+                "This is a static group! There is no state to be set")
 
         if KinematicGroup.object_list_to_key_lists(self.__virtual_state) == KinematicGroup.object_list_to_key_lists(state):
             self.__virtual_state = deepcopy(state)
             self.__update_chain()
             self.__actuated_state = self.__g_mapping(self.__virtual_state)
         else:
-            print("Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations.")
+            raise ValueError(
+                "Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations.")
 
     def set_actuated_state(self, state: List[Dict[str, float]]):
+
+        if self.__actuated_state == None:
+            raise RuntimeError(
+                "This is a static group! There is no state to be set.")
 
         if KinematicGroup.object_list_to_key_lists(self.__actuated_state) == KinematicGroup.object_list_to_key_lists(state):
             self.__actuated_state = deepcopy(state)
             self.__virtual_state = self.__f_mapping(self.__actuated_state)
             self.__update_chain()
         else:
-            print("Error: State not set! Keys do not match! Make sure that your state includes the same keys as the intial actuated state.")
+            raise ValueError(
+                "Error: State not set! Keys do not match! Make sure that your state includes the same keys as the intial actuated state.")
 
     def __str__(self):
         return self.__name
+
+    def get_name(self):
+        return deepcopy(self.__name)
 
     def get_virtual_state(self) -> List[Dict[str, float]]:
         out = []
@@ -268,5 +322,5 @@ class KinematicGroup():
         self.__g_mapping = lambda state: g_map(state, *argv)
 
     def pass_arguments_f(self, argv):
-        f_map = self.___original_f_mapping
+        f_map = self.__original_f_mapping
         self.__f_mapping = lambda state: f_map(state, *argv)
