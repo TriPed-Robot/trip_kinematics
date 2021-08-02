@@ -223,7 +223,7 @@ class KinematicGroup():
                     # create trivial mappings
                 def trivial_f_mapping(state):
                     # Generate array
-                    out = [{}] * len(virtual_transformations)
+                    out = [dict() for x in range(len(virtual_transformations))]
 
                     for concat_key, value in state[0].items():
                         key, index = f_map[concat_key]
