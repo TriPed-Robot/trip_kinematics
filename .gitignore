@@ -3,3 +3,4 @@ docs/build/
 src/trip_kinematics/__pycache__
 **/development_venv
 workspace.code-workspace
+src/trip_kinematics/scratch_pad.py
