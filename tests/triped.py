@@ -168,7 +168,7 @@ gimbal_joint = KinematicGroup(name='gimbal_joint', virtual_transformations=[A_CS
 A_P_LL = Transformation(name='A_P_LL', values={'tx': 1.640, 'tz': -0.037, })
 
 zero_angle_convention = Transformation(name='zero_angle_convention',
-                                       values={'ry': radians(3)})
+                                       values={'ry': radians(-3)})
 
 LL_revolute_joint = Transformation(name='LL_revolute_joint',
                                    values={'ry': 0}, state_variables=['ry'])
