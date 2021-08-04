@@ -118,15 +118,30 @@ def mapping_f(state: List[Dict[str, float]], tips: Dict[str, float] = None):
         opti.set_initial(gimbal_y, tips['ry'])
         opti.set_initial(gimbal_z, tips['rz'])
 
+    
+    #constrain gimbal joint range:
+    '''
+    opti.subject_to(gimbal_x<=radians(30))
+    opti.subject_to(gimbal_x>=radians(-30))
+    opti.subject_to(gimbal_y<=radians(30))
+    opti.subject_to(gimbal_y>=radians(-30))
+    '''
+    #opti.subject_to(gimbal_z<=radians(30))
+    #opti.subject_to(gimbal_z>=radians(-30))
+    
+    opti.subject_to(gimbal_x**2+gimbal_y**2+gimbal_z**2 <= radians(60)**2)
+    #opti.subject_to(gimbal_x+gimbal_y+gimbal_z >= radians(-30))
+
     c1, c2 = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z, opti=opti)
     closing_equation = ((c1-p1(theta_right, opti)).T @ (c1-p1(theta_right, opti)) -
-                        r**2)**2+((c2-p2(theta_left, opti)).T @ (c2-p2(theta_left, opti)) - r**2)**2
+                        r**2)**2+((c2-p2(theta_left, opti)).T @ (c2-p2(theta_left, opti)) - r**2)**2#+ 0.001*(gimbal_x**2+gimbal_y**2+1000*gimbal_z**2)
     # print(p1(theta_left, opti))
     opti.minimize(closing_equation)
     p_opts = {"print_time": False}
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
+    print(sol.value(closing_equation))
     return [{}, {'rx': sol.value(gimbal_x), 'ry': sol.value(gimbal_y), 'rz': sol.value(gimbal_z)}]
 
 
@@ -153,6 +168,7 @@ def mapping_g(state: List[Dict[str, float]], tips: Dict[str, float] = None):
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
+    print(sol.value(closing_equation))
     return [{'t1': sol.value(theta_left), 't2': sol.value(theta_right)}]
 
 
