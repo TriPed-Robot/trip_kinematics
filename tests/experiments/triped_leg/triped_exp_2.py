@@ -4,8 +4,8 @@ import csv
 
 if __name__ == '__main__':
 
-    filename_input = 'tests/experiments/triped_leg/input_data/matlab_foot_coordinates.csv'
-    filename_tip = 'tests/experiments/triped_leg/matlab_output/left_extend_right.csv'
+    filename_input = 'tests/experiments/triped_leg/matlab/foot_coordinates.csv'
+    filename_tip = 'tests/experiments/triped_leg/matlab/left_extend_right.csv'
 
     inverse_output = 'tests/experiments/triped_leg/output_data/left_right_extend.csv'
     forward_output = 'tests/experiments/triped_leg/output_data/foot_coordinates.csv'
@@ -55,13 +55,13 @@ if __name__ == '__main__':
         forward_pass = forward_kinematics(triped_leg)
         forward_rows.append(forward_pass)
 
-    with open(filename_output, 'w') as f:
+    with open(inverse_output, 'w') as f:
         writer = csv.writer(f)
         for row in inverse_rows:
             writer.writerow(row)
 
     with open(forward_output, 'w') as f:
         writer = csv.writer(f)
-        for row forward_rows:
+        for row in forward_rows:
             writer.writerow(row)
 
