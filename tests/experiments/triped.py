@@ -101,7 +101,7 @@ def p2(theta, opti):
     return p2_mx
 
 
-def mapping_f(state: List[Dict[str, float]], tips: Dict[str, float] = None):
+def swing_to_gimbal(state: List[Dict[str, float]], tips: Dict[str, float] = None):
 
     opti = Opti()
     r = 0.11
@@ -130,7 +130,7 @@ def mapping_f(state: List[Dict[str, float]], tips: Dict[str, float] = None):
     return [{}, {'rx': sol.value(gimbal_x), 'ry': sol.value(gimbal_y), 'rz': sol.value(gimbal_z)}]
 
 
-def mapping_g(state: List[Dict[str, float]], tips: Dict[str, float] = None):
+def gimbal_to_swing(state: List[Dict[str, float]], tips: Dict[str, float] = None):
 
     opti = Opti()
     r = 0.11
@@ -164,7 +164,7 @@ A_CSS_P_rot = Transformation(name='A_CSS_P_rot',
                              values={'rx': 0, 'ry': 0, 'rz': 0}, state_variables=['rx', 'ry', 'rz'])
 
 closed_chain = KinematicGroup(name='closed_chain', virtual_transformations=[A_CSS_P_trans,
-                                                                            A_CSS_P_rot], actuated_state=[{'swing_left': 0, 'swing_right': 0}], f_mapping=mapping_f, g_mapping=mapping_g)
+                                                                            A_CSS_P_rot], actuated_state=[{'swing_left': 0, 'swing_right': 0}], actuated_to_virtual=swing_to_gimbal, virtual_to_actuated=gimbal_to_swing)
 
 A_P_LL = Transformation(name='A_P_LL', values={'tx': 1.640, 'tz': -0.037, })
 

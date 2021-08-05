@@ -140,7 +140,7 @@ class KinematicGroup():
     def object_list_to_key_lists(object_lst):
         return list(map(lambda obj: list(obj.keys()), object_lst))
 
-    def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, f_mapping: Callable = None, g_mapping: Callable = None, f_args=None, g_args=None, parent=None):
+    def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, actuated_to_virtual: Callable = None, virtual_to_actuated: Callable = None, f_args=None, g_args=None, parent=None):
 
         self.__name = name
 
@@ -151,14 +151,14 @@ class KinematicGroup():
 
         self.__virtual_transformations = deepcopy(virtual_transformations)
 
-        # if there are actuated states a f_mapping and a g_mapping are nessesary
-        if (f_mapping or g_mapping) and not actuated_state:
+        # if there are actuated states a actuated_to_virtual and a virtual_to_actuated are nessesary
+        if (actuated_to_virtual or virtual_to_actuated) and not actuated_state:
             raise ValueError(
                 'Error: Actuated state is missing. You provided a mapping to actuate the group but no state to be actuated.')
-        if (f_mapping and not g_mapping) or (not f_mapping and g_mapping):
+        if (actuated_to_virtual and not virtual_to_actuated) or (not actuated_to_virtual and virtual_to_actuated):
             raise ValueError(
                 'Error: Only one mapping provided. You need mappings for both ways. Consider to pass a trivial mapping.')
-        if actuated_state and not (f_mapping or g_mapping):
+        if actuated_state and not (actuated_to_virtual or virtual_to_actuated):
             raise ValueError(
                 'Error: Mappings missing. You provided an actuated state but no mappings. If you want a trivial mapping you don\'t need to pass an actuated state. Trip will generate one for you.')
 
@@ -168,32 +168,32 @@ class KinematicGroup():
 
         self.__virtual_state = virtual_state
 
-        if actuated_state:      # if there is an actuated state there has to be an f_mapping and an g_mapping
+        if actuated_state:      # if there is an actuated state there has to be an actuated_to_virtual and an virtual_to_actuated
             self.__actuated_state = deepcopy(actuated_state)
-            self.__original_f_mapping = f_mapping
+            self.__original_actuated_to_virtual = actuated_to_virtual
             if f_args:
-                self.__f_mapping = lambda state: f_mapping(state, *f_args)
-            self.__f_mapping = f_mapping
+                self.__actuated_to_virtual = lambda state: actuated_to_virtual(state, *f_args)
+            self.__actuated_to_virtual = actuated_to_virtual
 
-            f_mapping_to_check = self.__f_mapping(actuated_state)
+            actuated_to_virtual_to_check = self.__actuated_to_virtual(actuated_state)
 
-            if KinematicGroup.object_list_to_key_lists(f_mapping_to_check) != KinematicGroup.object_list_to_key_lists(virtual_state):
-                raise RuntimeError("f_mapping does not fit virtual state")
+            if KinematicGroup.object_list_to_key_lists(actuated_to_virtual_to_check) != KinematicGroup.object_list_to_key_lists(virtual_state):
+                raise RuntimeError("actuated_to_virtual does not fit virtual state")
 
-            self.___original_g_mapping = g_mapping
+            self.___original_virtual_to_actuated = virtual_to_actuated
             if g_args:
-                self.__g_mapping = lambda state: g_mapping(state, *g_args)
-            self.__g_mapping = g_mapping
+                self.__virtual_to_actuated = lambda state: virtual_to_actuated(state, *g_args)
+            self.__virtual_to_actuated = virtual_to_actuated
 
-            g_mapping_to_check = g_mapping(virtual_state)
+            virtual_to_actuated_to_check = virtual_to_actuated(virtual_state)
 
-            if KinematicGroup.object_list_to_key_lists(g_mapping_to_check) != KinematicGroup.object_list_to_key_lists(actuated_state):
-                raise RuntimeError("g_mapping does not fit actuated state")
+            if KinematicGroup.object_list_to_key_lists(virtual_to_actuated_to_check) != KinematicGroup.object_list_to_key_lists(actuated_state):
+                raise RuntimeError("virtual_to_actuated does not fit actuated state")
 
-            # Check if inital values fit f_mapping's and g_mapping's calculated values. Only if actuated_state, f_mapping and g_mapping are passed
+            # Check if inital values fit actuated_to_virtual's and virtual_to_actuated's calculated values. Only if actuated_state, actuated_to_virtual and virtual_to_actuated are passed
 
-            for i in range(len(f_mapping_to_check)):
-                state = f_mapping_to_check[i]
+            for i in range(len(actuated_to_virtual_to_check)):
+                state = actuated_to_virtual_to_check[i]
                 init_values_do_not_match = False
                 for key in state.keys():
                     if state[key] != virtual_state[i][key]:
@@ -220,7 +220,7 @@ class KinematicGroup():
                         g_map.setdefault((key, index), concat_key)
 
                     # create trivial mappings
-                def trivial_f_mapping(state):
+                def trivial_actuated_to_virtual(state):
                     # Generate array
                     out = [dict() for x in range(len(virtual_transformations))]
 
@@ -230,7 +230,7 @@ class KinematicGroup():
 
                     return out
 
-                def trivial_g_mapping(states):
+                def trivial_virtual_to_actuated(states):
                     out = [{}]
                     for index, state in enumerate(states):
                         for key, value in state.items():
@@ -240,14 +240,14 @@ class KinematicGroup():
 
                     return out
 
-                self.__f_mapping = trivial_f_mapping
-                self.__g_mapping = trivial_g_mapping
+                self.__actuated_to_virtual = trivial_actuated_to_virtual
+                self.__virtual_to_actuated = trivial_virtual_to_actuated
                 self.__actuated_state = [actuated_state_dummy]
 
             else:   # This is a static group
                 self.__actuated_state = None
-                self.__f_mapping = None
-                self.__g_mapping = None
+                self.__actuated_to_virtual = None
+                self.__virtual_to_actuated = None
 
     def set_virtual_state(self, state: List[Dict[str, float]]):
 
@@ -258,7 +258,7 @@ class KinematicGroup():
         if KinematicGroup.object_list_to_key_lists(self.__virtual_state) == KinematicGroup.object_list_to_key_lists(state):
             self.__virtual_state = deepcopy(state)
             self.__update_chain()
-            self.__actuated_state = self.__g_mapping(self.__virtual_state)
+            self.__actuated_state = self.__virtual_to_actuated(self.__virtual_state)
         else:
             raise ValueError(
                 "Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations.")
@@ -271,7 +271,7 @@ class KinematicGroup():
 
         if KinematicGroup.object_list_to_key_lists(self.__actuated_state) == KinematicGroup.object_list_to_key_lists(state):
             self.__actuated_state = deepcopy(state)
-            self.__virtual_state = self.__f_mapping(self.__actuated_state)
+            self.__virtual_state = self.__actuated_to_virtual(self.__actuated_state)
             self.__update_chain()
         else:
             raise ValueError(
@@ -316,9 +316,9 @@ class KinematicGroup():
         self.__child = child
 
     def pass_arguments_g(self, argv):
-        g_map = self.___original_g_mapping
-        self.__g_mapping = lambda state: g_map(state, *argv)
+        g_map = self.___original_virtual_to_actuated
+        self.__virtual_to_actuated = lambda state: g_map(state, *argv)
 
     def pass_arguments_f(self, argv):
-        f_map = self.__original_f_mapping
-        self.__f_mapping = lambda state: f_map(state, *argv)
+        f_map = self.__original_actuated_to_virtual
+        self.__actuated_to_virtual = lambda state: f_map(state, *argv)

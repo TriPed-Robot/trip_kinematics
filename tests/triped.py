@@ -52,7 +52,7 @@ def p1(theta, opti):
         tx=0.139807669447128, ty=0.0549998406976098, tz=-0.051)
 
     A_CCS_lsm_rot = TransformationMatrix(
-        rz=radians(-338.5255), conv='xyz')  
+        rz=radians(-338.5255), conv='xyz')  # radians()34.875251275010434
 
     A_CCS_lsm = A_CCS_lsm_tran * A_CCS_lsm_rot
 
@@ -79,7 +79,7 @@ def p2(theta, opti):
         tx=0.139807669447128, ty=-0.0549998406976098, tz=-0.051)
 
     A_CCS_rsm_rot = TransformationMatrix(
-        rz=radians(-21.4745), conv='xyz')  
+        rz=radians(-21.4745), conv='xyz')  # radians(-21.4745)-34.875251275010434
 
     A_CCS_rsm = A_CCS_rsm_tran*A_CCS_rsm_rot
 
@@ -101,7 +101,7 @@ def p2(theta, opti):
     return p2_mx
 
 
-def mapping_f(state: List[Dict[str, float]], tips: Dict[str, float] = None):
+def swing_to_gimbal(state: List[Dict[str, float]], tips: Dict[str, float] = None):
 
     opti = Opti()
     r = 0.11
@@ -130,7 +130,7 @@ def mapping_f(state: List[Dict[str, float]], tips: Dict[str, float] = None):
     return [{}, {'rx': sol.value(gimbal_x), 'ry': sol.value(gimbal_y), 'rz': sol.value(gimbal_z)}]
 
 
-def mapping_g(state: List[Dict[str, float]], tips: Dict[str, float] = None):
+def gimbal_to_swing(state: List[Dict[str, float]], tips: Dict[str, float] = None):
 
     opti = Opti()
     r = 0.11
@@ -163,7 +163,7 @@ A_CSS_P_rot = Transformation(name='A_CSS_P_rot',
                              values={'rx': 0, 'ry': 0, 'rz': 0}, state_variables=['rx', 'ry', 'rz'])
 
 closed_chain = KinematicGroup(name='closed_chain', virtual_transformations=[A_CSS_P_trans,
-                                                                            A_CSS_P_rot], actuated_state=[{'swing_left': 0, 'swing_right': 0}], f_mapping=mapping_f, g_mapping=mapping_g)
+                                                                            A_CSS_P_rot], actuated_state=[{'swing_left': 0, 'swing_right': 0}], actuated_to_virtual=swing_to_gimbal, virtual_to_actuated=gimbal_to_swing)
 
 A_P_LL = Transformation(name='A_P_LL', values={'tx': 1.640, 'tz': -0.037, })
 
