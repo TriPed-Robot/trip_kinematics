@@ -2,16 +2,16 @@ from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
 from trip_kinematics.Robot import Robot, inverse_kinematics, forward_kinematics
 from casadi import Opti
 from typing import Dict, List
-from trip_kinematics.HomogenTransformationMatrix import HomogenousTransformationMatrix
+from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
 import numpy as np
 from math import radians, sin, cos
 
 
 def c(rx, ry, rz, opti):
-    A_CSS_P_trans = HomogenousTransformationMatrix(
+    A_CSS_P_trans = TransformationMatrix(
         tx=0.265, ty=0, tz=0.014)
 
-    A_CSS_P_rot = HomogenousTransformationMatrix(
+    A_CSS_P_rot = TransformationMatrix(
         conv='xyz', rx=rx, ry=ry, rz=rz)
 
     A_CSS_P = A_CSS_P_trans * A_CSS_P_rot
@@ -21,9 +21,9 @@ def c(rx, ry, rz, opti):
     x0, y0, z0 = T_P_SPH1_2
     x1, y1, z1 = T_P_SPH2_2
 
-    A_P_SPH1_2 = HomogenousTransformationMatrix(
+    A_P_SPH1_2 = TransformationMatrix(
         tx=x0, ty=y0, tz=z0, conv='xyz')
-    A_P_SPH2_2 = HomogenousTransformationMatrix(
+    A_P_SPH2_2 = TransformationMatrix(
         tx=x1, ty=y1, tz=z1, conv='xyz')
 
     A_c1 = A_CSS_P * A_P_SPH1_2
@@ -48,20 +48,20 @@ def c(rx, ry, rz, opti):
 
 
 def p1(theta, opti):
-    A_CCS_lsm_tran = HomogenousTransformationMatrix(
+    A_CCS_lsm_tran = TransformationMatrix(
         tx=0.139807669447128, ty=0.0549998406976098, tz=-0.051)
 
-    A_CCS_lsm_rot = HomogenousTransformationMatrix(
-        rz=radians(-338.5255), conv='xyz')  # radians()34.875251275010434
+    A_CCS_lsm_rot = TransformationMatrix(
+        rz=radians(-338.5255), conv='xyz')  
 
     A_CCS_lsm = A_CCS_lsm_tran * A_CCS_lsm_rot
 
-    A_MCS1_JOINT = HomogenousTransformationMatrix(
+    A_MCS1_JOINT = TransformationMatrix(
         rz=theta, conv='xyz')
 
     A_CSS_MCS1 = A_CCS_lsm * A_MCS1_JOINT
 
-    A_MCS1_SP11 = HomogenousTransformationMatrix(
+    A_MCS1_SP11 = TransformationMatrix(
         tx=0.085, ty=0, tz=-0.0245)
 
     A_CCS_SP11 = A_CSS_MCS1 * A_MCS1_SP11
@@ -75,20 +75,20 @@ def p1(theta, opti):
 
 
 def p2(theta, opti):
-    A_CCS_rsm_tran = HomogenousTransformationMatrix(
+    A_CCS_rsm_tran = TransformationMatrix(
         tx=0.139807669447128, ty=-0.0549998406976098, tz=-0.051)
 
-    A_CCS_rsm_rot = HomogenousTransformationMatrix(
-        rz=radians(-21.4745), conv='xyz')  # radians(-21.4745)-34.875251275010434
+    A_CCS_rsm_rot = TransformationMatrix(
+        rz=radians(-21.4745), conv='xyz')  
 
     A_CCS_rsm = A_CCS_rsm_tran*A_CCS_rsm_rot
 
-    A_MCS2_JOINT = HomogenousTransformationMatrix(
+    A_MCS2_JOINT = TransformationMatrix(
         rz=theta, conv='xyz')
 
     A_CSS_MCS2 = A_CCS_rsm * A_MCS2_JOINT
 
-    A_MCS2_SP21 = HomogenousTransformationMatrix(
+    A_MCS2_SP21 = TransformationMatrix(
         tx=0.085, ty=0, tz=-0.0245)
 
     A_CSS_SP21 = A_CSS_MCS2 * A_MCS2_SP21

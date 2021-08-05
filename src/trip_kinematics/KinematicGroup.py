@@ -1,5 +1,5 @@
 from typing import Dict, List, Callable, Union
-from trip_kinematics.HomogenTransformationMatrix import HomogenousTransformationMatrix
+from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
 from copy import deepcopy
 
 
@@ -129,9 +129,9 @@ def make_homogenous_transformation_matrix(para: Transformation):
         if key == 'tz':
             tz = para.state.get(key)
     if para.convention == 'euler':
-        return HomogenousTransformationMatrix(rx=rx, ry=ry, rz=rz, conv='xyz', tx=tx, ty=ty, tz=tz)
+        return TransformationMatrix(rx=rx, ry=ry, rz=rz, conv='xyz', tx=tx, ty=ty, tz=tz)
     if para.convention == 'quaternion':
-        return HomogenousTransformationMatrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=tx, ty=ty, tz=tz)
+        return TransformationMatrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=tx, ty=ty, tz=tz)
     raise RuntimeError("No Convention.")
 
 
@@ -296,10 +296,10 @@ class KinematicGroup():
         else:
             return None
 
-    def get_transformation(self) -> HomogenousTransformationMatrix:
+    def get_transformation(self) -> TransformationMatrix:
 
         # Identity matrix
-        transformation = HomogenousTransformationMatrix()
+        transformation = TransformationMatrix()
         for part in self.__virtual_transformations:
             hmt = make_homogenous_transformation_matrix(
                 part)

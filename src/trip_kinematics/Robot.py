@@ -1,6 +1,6 @@
 
 from typing import Union, List
-from trip_kinematics.HomogenTransformationMatrix import HomogenousTransformationMatrix
+from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
 from casadi import Opti
 from trip_kinematics.KinematicGroup import KinematicGroup, make_homogenous_transformation_matrix
 import numpy as np
@@ -32,7 +32,7 @@ class Robot:
 
 
 def forward_kinematics(robot: Robot):
-    transformation = HomogenousTransformationMatrix()
+    transformation = TransformationMatrix()
     for part in robot.get_groups():
         hmt = part.get_transformation()
         transformation = transformation * hmt
@@ -44,7 +44,7 @@ def inverse_kinematics(robot: Robot, end_effector_position):
 
     opti = Opti()
 
-    matrix = HomogenousTransformationMatrix()
+    matrix = TransformationMatrix()
 
     states_to_solve_for = []
 

@@ -26,7 +26,7 @@
         Description the given state has to match either the virtual_state or the actuated_state
         Msg: "State does not match!"
 
-        Class: HomogenousTransformationMatrix
+        Class: TransformationMatrix
 
         Description: For the convention parameter there is something other specified than quat or any permutation of xyz
         Msg: "ConventionError: Expect x,y,z got: "
