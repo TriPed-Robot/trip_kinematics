@@ -69,70 +69,69 @@ class Transformation():
     def get_name(self):
         return deepcopy(self.__name)
 
+    def get_transformation_matrix(self):
+        if self.convention == 'euler':
+            rx = 0
+            ry = 0
+            rz = 0
+        if self.convention == 'quaternion':
+            qw = 0
+            qx = 0
+            qy = 0
+            qz = 0
 
-def make_homogenous_transformation_matrix(para: Transformation):
-    if para.convention == 'euler':
-        rx = 0
-        ry = 0
-        rz = 0
-    if para.convention == 'quaternion':
-        qw = 0
-        qx = 0
-        qy = 0
-        qz = 0
+        tx = 0
+        ty = 0
+        tz = 0
 
-    tx = 0
-    ty = 0
-    tz = 0
+        for key in self.constants.keys():
+            if key == 'rx':
+                rx = self.constants.get(key)
+            if key == 'ry':
+                ry = self.constants.get(key)
+            if key == 'rz':
+                rz = self.constants.get(key)
+            if key == 'qw':
+                qw = self.constants.get(key)
+            if key == 'qx':
+                qx = self.constants.get(key)
+            if key == 'qy':
+                qy = self.constants.get(key)
+            if key == 'qz':
+                qz = self.constants.get(key)
+            if key == 'tx':
+                tx = self.constants.get(key)
+            if key == 'ty':
+                ty = self.constants.get(key)
+            if key == 'tz':
+                tz = self.constants.get(key)
 
-    for key in para.constants.keys():
-        if key == 'rx':
-            rx = para.constants.get(key)
-        if key == 'ry':
-            ry = para.constants.get(key)
-        if key == 'rz':
-            rz = para.constants.get(key)
-        if key == 'qw':
-            qw = para.constants.get(key)
-        if key == 'qx':
-            qx = para.constants.get(key)
-        if key == 'qy':
-            qy = para.constants.get(key)
-        if key == 'qz':
-            qz = para.constants.get(key)
-        if key == 'tx':
-            tx = para.constants.get(key)
-        if key == 'ty':
-            ty = para.constants.get(key)
-        if key == 'tz':
-            tz = para.constants.get(key)
-
-    for key in para.state.keys():
-        if key == 'rx':
-            rx = para.state.get(key)
-        if key == 'ry':
-            ry = para.state.get(key)
-        if key == 'rz':
-            rz = para.state.get(key)
-        if key == 'qw':
-            qw = para.state.get(key)
-        if key == 'qx':
-            qx = para.state.get(key)
-        if key == 'qy':
-            qy = para.state.get(key)
-        if key == 'qz':
-            qz = para.state.get(key)
-        if key == 'tx':
-            tx = para.state.get(key)
-        if key == 'ty':
-            ty = para.state.get(key)
-        if key == 'tz':
-            tz = para.state.get(key)
-    if para.convention == 'euler':
-        return TransformationMatrix(rx=rx, ry=ry, rz=rz, conv='xyz', tx=tx, ty=ty, tz=tz)
-    if para.convention == 'quaternion':
-        return TransformationMatrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=tx, ty=ty, tz=tz)
-    raise RuntimeError("No Convention.")
+        for key in self.state.keys():
+            if key == 'rx':
+                rx = self.state.get(key)
+            if key == 'ry':
+                ry = self.state.get(key)
+            if key == 'rz':
+                rz = self.state.get(key)
+            if key == 'qw':
+                qw = self.state.get(key)
+            if key == 'qx':
+                qx = self.state.get(key)
+            if key == 'qy':
+                qy = self.state.get(key)
+            if key == 'qz':
+                qz = self.state.get(key)
+            if key == 'tx':
+                tx = self.state.get(key)
+            if key == 'ty':
+                ty = self.state.get(key)
+            if key == 'tz':
+                tz = self.state.get(key)
+        if self.convention == 'euler':
+            return TransformationMatrix(rx=rx, ry=ry, rz=rz, conv='xyz', tx=tx, ty=ty, tz=tz)
+        if self.convention == 'quaternion':
+            return TransformationMatrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=tx, ty=ty, tz=tz)
+        raise RuntimeError("No Convention.")
 
 
 class KinematicGroup():
@@ -296,13 +295,12 @@ class KinematicGroup():
         else:
             return None
 
-    def get_transformation(self) -> TransformationMatrix:
+    def get_transformation_matrix(self) -> TransformationMatrix:
 
         # Identity matrix
         transformation = TransformationMatrix()
         for part in self.__virtual_transformations:
-            hmt = make_homogenous_transformation_matrix(
-                part)
+            hmt = part.get_transformation_matrix()
             transformation = transformation * hmt
 
         return transformation
