@@ -7,19 +7,17 @@ from experiments.inverse_kinematic_experiment import test_robot
 
 
 
-robot_type ="triped_leg"
-
-#TODO call experiment script which generates the outputs! 
-#     The script is dependent on the type of kinematic algorithms that are tested!
-
-forward_reference   = os.path.join('tests','experiments',robot_type,'reference_solution','endeffector_coordinates.csv')
-forward_calculated  = os.path.join('tests','experiments',robot_type,'calculated_solution','endeffector_coordinates.csv')
 
 
-inverse_reference   = os.path.join('tests','experiments',robot_type,'reference_solution','joint_values.csv')
+def unit_test_forward_kinematics(robot_type,precision):
+    forward_reference   = os.path.join('tests','experiments',robot_type,'reference_solution','endeffector_coordinates.csv')
+    forward_calculated  = os.path.join('tests','experiments',robot_type,'calculated_solution','endeffector_coordinates.csv')
 
-def unit_test_inverse_kinematics(inverse_kinematic_alg,precision):
+
+
+def unit_test_inverse_kinematics(robot_type,inverse_kinematic_alg,precision):
     test_robot(robot_type,inverse_kinematic_alg)
+    inverse_reference   = os.path.join('tests','experiments',robot_type,'reference_solution','joint_values.csv')
     inverse_calculated  = os.path.join('tests','experiments',robot_type,inverse_kinematic_alg.__name__,'joint_values.csv')
     
     reference  = []
@@ -35,19 +33,17 @@ def unit_test_inverse_kinematics(inverse_kinematic_alg,precision):
         for row in reader:
             calculated.append(np.array([float(row[i]) for i in range(len(row))]))
 
-    print(reference)
-    print(calculated)
     sample_results = [ (np.abs(reference[i]-calculated[i]) < precision).all() for i in range(len(reference))]
-
-    return (sample_results == True).all()
+    return all(sample_results)
 
 class TestStates(unittest.TestCase):
 
 
     def test_trivial_inverse_kinematics(self):
-        unit_test_inverse_kinematics(inverse_kinematics,1)
+        self.assertTrue(unit_test_inverse_kinematics("triped_leg",inverse_kinematics,1))
+
+    def test_forward_kinematics(self):
+        #TODO
         return 0
-
-
 if __name__ == '__main__':
     unittest.main()
