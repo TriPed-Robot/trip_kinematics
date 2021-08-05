@@ -1,4 +1,4 @@
-from triped import triped_leg, closed_chain, leg_linear_part
+from examples.triped import triped_leg, closed_chain, leg_linear_part
 from trip_kinematics.Robot import inverse_kinematics, forward_kinematics
 import csv
 import os
@@ -52,6 +52,7 @@ def test_triped_leg(inverse_kinematic_algorithm):
         tip['swing_left'] = input_t1_tip[i]
         tip['swing_right'] = input_t2_tip[i]
         tip['ry'] = input_e_tip[i]
+
 
         closed_chain.pass_arguments_g([tip])
         leg_linear_part.set_actuated_state([{'extend_joint_ry': tip['ry']}])
