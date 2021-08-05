@@ -56,8 +56,6 @@ def test_triped_leg():
 
 
 
-if __name__=="__main__":
-    test_robot("triped_leg",inverse_kinematics)
 
 
 
