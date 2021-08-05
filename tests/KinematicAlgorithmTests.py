@@ -33,7 +33,6 @@ def unit_test_inverse_kinematics(robot_type,inverse_kinematic_alg,precision):
         for row in reader:
             calculated.append(np.array([float(row[i]) for i in range(len(row))]))
 
-    print( [ np.abs(reference[i]-calculated[i])  for i in range(len(reference))])
     sample_results = [ (np.abs(reference[i]-calculated[i]) < precision).all() for i in range(len(reference))]
     return all(sample_results)
 
@@ -41,7 +40,7 @@ class TestStates(unittest.TestCase):
 
 
     def test_trivial_inverse_kinematics(self):
-        self.assertTrue(unit_test_inverse_kinematics("triped_leg",inverse_kinematics,1))
+        self.assertTrue(unit_test_inverse_kinematics("triped_leg",inverse_kinematics,0.015))
 
     def test_forward_kinematics(self):
         #TODO
