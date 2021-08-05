@@ -106,8 +106,8 @@ def mapping_f(state: List[Dict[str, float]], tips: Dict[str, float] = None):
     opti = Opti()
     r = 0.11
 
-    theta_left = state[0]['t1']
-    theta_right = state[0]['t2']
+    theta_left = state[0]['swing_left']
+    theta_right = state[0]['swing_right']
 
     gimbal_x = opti.variable()
     gimbal_y = opti.variable()
@@ -139,8 +139,8 @@ def mapping_g(state: List[Dict[str, float]], tips: Dict[str, float] = None):
     theta_right = opti.variable()
 
     if tips:
-        opti.set_initial(theta_left, tips['t1'])
-        opti.set_initial(theta_right, tips['t2'])
+        opti.set_initial(theta_left, tips['swing_left'])
+        opti.set_initial(theta_right, tips['swing_right'])
 
     gimbal_x = state[1]['rx']
     gimbal_y = state[1]['ry']
@@ -154,7 +154,7 @@ def mapping_g(state: List[Dict[str, float]], tips: Dict[str, float] = None):
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
     print(sol.value(closing_equation))
-    return [{'t1': sol.value(theta_left), 't2': sol.value(theta_right)}]
+    return [{'swing_left': sol.value(theta_left), 'swing_right': sol.value(theta_right)}]
 
 
 A_CSS_P_trans = Transformation(name='A_CSS_P_trans',
@@ -163,22 +163,22 @@ A_CSS_P_trans = Transformation(name='A_CSS_P_trans',
 A_CSS_P_rot = Transformation(name='A_CSS_P_rot',
                              values={'rx': 0, 'ry': 0, 'rz': 0}, state_variables=['rx', 'ry', 'rz'])
 
-gimbal_joint = KinematicGroup(name='gimbal_joint', virtual_transformations=[A_CSS_P_trans,
-                                                                            A_CSS_P_rot], actuated_state=[{'t1': 0, 't2': 0}], f_mapping=mapping_f, g_mapping=mapping_g)
+closed_chain = KinematicGroup(name='closed_chain', virtual_transformations=[A_CSS_P_trans,
+                                                                            A_CSS_P_rot], actuated_state=[{'swing_left': 0, 'swing_right': 0}], f_mapping=mapping_f, g_mapping=mapping_g)
 
 A_P_LL = Transformation(name='A_P_LL', values={'tx': 1.640, 'tz': -0.037, })
 
 zero_angle_convention = Transformation(name='zero_angle_convention',
                                        values={'ry': radians(-3)})
 
-LL_revolute_joint = Transformation(name='LL_revolute_joint',
+extend_joint = Transformation(name='extend_joint',
                                    values={'ry': 0}, state_variables=['ry'])
 
 A_LL_Joint_FCS = Transformation(name='A_LL_Joint_FCS', values={'tx': -1.5})
 
-extend_motor = KinematicGroup(name='extend_motor', virtual_transformations=[A_P_LL, zero_angle_convention,
-                                                                            LL_revolute_joint, A_LL_Joint_FCS], parent=gimbal_joint)
+leg_linear_part = KinematicGroup(name='leg_linear_part', virtual_transformations=[A_P_LL, zero_angle_convention,
+                                                                            extend_joint, A_LL_Joint_FCS], parent=closed_chain)
 
-triped_leg = Robot([gimbal_joint, extend_motor])
+triped_leg = Robot([closed_chain, leg_linear_part])
 
-gimbal_joint.set_actuated_state([{'t1': 0, 't2': 0}])
+closed_chain.set_actuated_state([{'swing_left': 0, 'swing_right': 0}])

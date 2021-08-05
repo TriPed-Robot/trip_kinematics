@@ -1,4 +1,4 @@
-from triped import triped_leg, gimbal_joint, extend_motor
+from triped import triped_leg, closed_chain, leg_linear_part
 from trip_kinematics.Robot import inverse_kinematics, forward_kinematics
 import csv
 import os
@@ -43,23 +43,23 @@ if __name__ == '__main__':
 
     inverse_rows = []
     forward_rows = []
-    tip = {'t1': 0, 't2': 0, 'ry': 0}
+    tip = {'swing_left': 0, 'swing_right': 0, 'ry': 0}
     for i in range(len(input_x)):
-        tip['t1'] = input_t1_tip[i]
-        tip['t2'] = input_t2_tip[i]
+        tip['swing_left'] = input_t1_tip[i]
+        tip['swing_right'] = input_t2_tip[i]
         tip['ry'] = input_e_tip[i]
 
-        gimbal_joint.pass_arguments_g([tip])
-        extend_motor.set_actuated_state([{'LL_revolute_joint_ry': tip['ry']}])
-        gimbal_joint.set_actuated_state([{'t1': tip['t1'], 't2':tip['t2']}])
+        closed_chain.pass_arguments_g([tip])
+        leg_linear_part.set_actuated_state([{'extend_joint_ry': tip['ry']}])
+        closed_chain.set_actuated_state([{'swing_left': tip['swing_left'], 'swing_right':tip['swing_right']}])
 
         row = inverse_kinematics(
             triped_leg, [input_x[i], input_y[i], input_z[i]])
-        inverse_rows.append([row[0][0][0]['t1'], row[0][0][0]
-                            ['t2'], row[1][0][0]['LL_revolute_joint_ry']])
+        inverse_rows.append([row[0][0][0]['swing_left'], row[0][0][0]
+                            ['swing_right'], row[1][0][0]['extend_joint_ry']])
 
-        gimbal_joint.set_actuated_state(row[0][0])
-        extend_motor.set_actuated_state(row[1][0])
+        closed_chain.set_actuated_state(row[0][0])
+        leg_linear_part.set_actuated_state(row[1][0])
         
         forward_pass = forward_kinematics(triped_leg)
         forward_rows.append(forward_pass)
