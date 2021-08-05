@@ -153,7 +153,6 @@ def mapping_g(state: List[Dict[str, float]], tips: Dict[str, float] = None):
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
-    print(sol.value(closing_equation))
     return [{'t1': sol.value(theta_left), 't2': sol.value(theta_right)}]
 
 

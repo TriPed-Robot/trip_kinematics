@@ -59,8 +59,7 @@ def test_triped_leg(inverse_kinematic_algorithm):
 
         row = inverse_kinematic_algorithm(
             triped_leg, [input_x[i], input_y[i], input_z[i]])
-        inverse_rows.append([row[0][0][0]['t1'], row[0][0][0]
-                            ['t2'], row[1][0][0]['LL_revolute_joint_ry']])
+        inverse_rows.append([row[0][0][0]['t1'], row[1][0][0]['LL_revolute_joint_ry'],row[0][0][0]['t2']])
 
 
     with open(inverse_calculated, 'w') as f:
