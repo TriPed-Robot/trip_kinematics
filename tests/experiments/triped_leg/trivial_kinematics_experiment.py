@@ -30,16 +30,16 @@ if __name__ == '__main__':
     with open(forward_reference, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
-            input_x.append(float(row[1]))
-            input_y.append(float(row[2]))
-            input_z.append(float(row[3]))
+            input_x.append(float(row[0]))
+            input_y.append(float(row[1]))
+            input_z.append(float(row[2]))
 
     with open(inverse_reference, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
-            input_t1_tip.append(float(row[1]))
-            input_t2_tip.append(float(row[3]))
-            input_e_tip.append(float(row[2]))
+            input_t1_tip.append(float(row[0]))
+            input_t2_tip.append(float(row[2]))
+            input_e_tip.append(float(row[1]))
 
     inverse_rows = []
     forward_rows = []
