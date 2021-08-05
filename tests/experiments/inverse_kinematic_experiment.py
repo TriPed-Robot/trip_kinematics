@@ -5,7 +5,7 @@ import os
 
 
 
-def test_robot(robot_name,inverse_kinematic_algorithm):
+def test_inv(robot_name,inverse_kinematic_algorithm):
     available_robots = ["triped_leg"]
     if robot_name == "triped_leg":
         test_triped_leg(inverse_kinematic_algorithm)
