@@ -4,11 +4,11 @@ import csv
 
 if __name__ == '__main__':
 
-    filename_input = 'tests/experiments/triped_leg/matlab/foot_coordinates.csv'
-    filename_tip = 'tests/experiments/triped_leg/matlab/left_extend_right.csv'
+    filename_input = 'tests/experiments/triped_leg/reference_solution/foot_coordinates.csv'
+    filename_tip = 'tests/experiments/triped_leg/reference_solution/left_extend_right.csv'
 
-    inverse_output = 'tests/experiments/triped_leg/output_data/left_right_extend.csv'
-    forward_output = 'tests/experiments/triped_leg/output_data/foot_coordinates.csv'
+    inverse_output = 'tests/experiments/triped_leg/calculated_solution/left_right_extend.csv'
+    forward_output = 'tests/experiments/triped_leg/calculated_solution/foot_coordinates.csv'
 
     input_x = []
     input_y = []
