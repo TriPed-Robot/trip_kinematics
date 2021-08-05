@@ -1,4 +1,4 @@
-from triped import triped_leg, gimbal_joint, extend_motor
+from triped import triped_leg, closed_chain, leg_linear_part
 from trip_kinematics.Robot import inverse_kinematics, forward_kinematics
 import csv
 import os
@@ -28,7 +28,7 @@ def test_triped_leg():
 
 
     forward_rows = []
-    state = {'t1': 0, 't2': 0, 'ry': 0}
+    state = {'swing_left': 0, 'swing_right': 0, 'ry': 0}
 
     with open(inverse_reference, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
@@ -38,12 +38,12 @@ def test_triped_leg():
             input_e.append(float(row[1]))
 
     for i in range(len(input_t1)):
-        state['t1'] = input_t1[i]
-        state['t2'] = input_t2[i]
+        state['swing_left'] = input_t1[i]
+        state['swing_right'] = input_t2[i]
         state['ry'] = input_e[i]
 
-        extend_motor.set_actuated_state([{'LL_revolute_joint_ry': state['ry']}])
-        gimbal_joint.set_actuated_state([{'t1': state['t1'], 't2':state['t2']}])
+        leg_linear_part.set_actuated_state([{'extend_joint_ry': state['ry']}])
+        closed_chain.set_actuated_state([{'swing_left': state['swing_left'], 'swing_right':state['swing_right']}])
 
         row = forward_kinematics(triped_leg)
         forward_rows.append(row)
