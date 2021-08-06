@@ -40,7 +40,7 @@ class Robot:
 
 
         
-        print(self.get_virtual_state())
+
 
     def get_groups(self):
         """[summary]
@@ -52,12 +52,15 @@ class Robot:
 
     def set_virtual_state(self, state: Dict[str,Dict[str, float]]):
         for key in state.keys():
-            self.__group_dict[key].set_virtual_state(state[key])
+            virtual_state = {key:state[key]}
+            self.__group_dict[self.__virtual_group_mapping[key]].set_virtual_state(virtual_state)
     
     def get_actuated_state(self):
-        actuated_state=[]
+        actuated_state={}
         for key in self.__group_dict.keys():
-            actuated_state.append([self.__group_dict[key].get_actuated_state()])
+            actuated_group = self.__group_dict[key].get_actuated_state()
+            for actuated_key in actuated_group:
+                actuated_state[actuated_key]=actuated_group[actuated_key]
         return actuated_state
 
     def get_virtual_state(self):
@@ -81,27 +84,31 @@ class Robot:
         symbolic_state = {}
 
         groups = self.get_groups()
-
+        
         for group_key in groups.keys():
-            group = groups[group_key]
+            group         = groups[group_key]
+            virtual_trafo = group.get_virtual_transformations()
 
-            virtual_transformations = group.get_virtual_transformations()
-            group_states = []
 
-            for virtual_key in virtual_transformations.keys():
-                virtual_transformation = virtual_transformations[virtual_key]
+            for virtual_key in virtual_trafo.keys():
+                virtual_transformation = virtual_trafo[virtual_key]
                 state = virtual_transformation.state
 
+                
                 for key in state.keys():
 
                     start_value = state[key]
                     state[key] = opti_obj.variable()
                     opti_obj.set_initial(state[key], start_value)
+
+                if state != {}:
+                    symbolic_state[virtual_key]=state
+
                 hmt = virtual_transformation.get_transformation_matrix()
                 matrix = matrix * hmt
-                group_states.append(state)
 
-            symbolic_state[group_key]= group_states
+
+
         return matrix, symbolic_state
 
     @staticmethod
@@ -112,9 +119,14 @@ class Robot:
             [type]: [description]
         """
         solved_states = {}
-        print(symbolic_state)
-        for key in symbolic_state.keys():
-            solved_states[key]=sol.value(symbolic_state[key])
+
+        for joint_key in symbolic_state.keys():
+            states = {}
+            virtual_joint = symbolic_state[joint_key]
+            for key in virtual_joint.keys():
+                states[key]=sol.value(symbolic_state[joint_key][key])
+
+            solved_states[joint_key]=states
         
         return solved_states
 
@@ -132,7 +144,6 @@ def forward_kinematics(robot: Robot):
 
 
 def inverse_kinematics(robot: Robot, end_effector_position):
-    ''' Creating numeric equation '''
 
     opti = Opti()
     matrix, states_to_solve_for = robot.get_symbolic_rep(opti,"placeholder_endeffector")
@@ -143,18 +154,18 @@ def inverse_kinematics(robot: Robot, end_effector_position):
                 (translation[1] - end_effector_position[1])**2 + 
                 (translation[2] - end_effector_position[2])**2)
 
-    ''' Setup solver '''
+
     opti.minimize(equation)
     p_opts = {"print_time": False}
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
 
-    ''' Solve '''
+
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
 
-    ''' Build actuated states from solved values '''
+    #print(robot.get_virtual_state())
+
     solved_states = robot.solver_to_virtual_state(sol,states_to_solve_for)
     robot.set_virtual_state(solved_states)
     actuated_state = robot.get_actuated_state()
- 
     return actuated_state

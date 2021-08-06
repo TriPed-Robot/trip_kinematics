@@ -219,8 +219,8 @@ class KinematicGroup():
                     state = transformation.state
                     for key, value in state.items():
                         concat_key = transformation.get_name() + '_' + key
+                        print(concat_key,key,virtual_key)
                         actuated_state_dummy.setdefault(concat_key, value)
-
                         f_map.setdefault(concat_key, (key, virtual_key))
                         g_map.setdefault((key, virtual_key), concat_key)
 
@@ -230,16 +230,19 @@ class KinematicGroup():
                     out = {}
                     for concat_key, value in state.items():
                         key, index = f_map[concat_key]
-                        out[index] = {concat_key:value}
+                        out[index] = {key:value}
                     return out
 
                 def trivial_virtual_to_actuated(states):
                     out = {}
-                    for index, state in enumerate(states):
-                        for key, value in state.items():
-                            combined_key = (key, index)
-                            key = g_map[combined_key]
-                            out[0].setdefault(key, value)
+                    print("trivial_input:",states)
+                    for virtual_key in states.keys():
+                        transformation = states[virtual_key]
+                        for key in transformation.keys():
+                            combined_key = (key, virtual_key)
+                            new_key = g_map[combined_key]
+                            out[new_key]=states[virtual_key][key]
+                    print(out)
                     return out
 
                 self.__actuated_to_virtual = trivial_actuated_to_virtual
@@ -256,11 +259,12 @@ class KinematicGroup():
         if self.__actuated_state == None:
             raise RuntimeError("This is a static group! There is no state to be set")
 
+        #print("states:",self.__virtual_state,state)
         if KinematicGroup.object_list_to_key_lists(self.__virtual_state) == KinematicGroup.object_list_to_key_lists(state):
             for key in state.keys():
                 self.__virtual_state[key] = state[key]
             self.__update_chain()
-            self.__actuated_state = self.__virtual_to_actuated(self.__virtual_state)
+            self.__actuated_state = self.__virtual_to_actuated(self.__virtual_state)  
         else:
             raise ValueError(
                 "Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations.")
