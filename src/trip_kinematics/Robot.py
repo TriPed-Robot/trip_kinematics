@@ -20,7 +20,9 @@ class Robot:
         Args:
             kinematic_chain (List[KinematicChainPart]): [description]
         """
-        self.__kinematic_chain = kinematic_chain
+        self.__group_dict = {}
+        for group in kinematic_chain:
+            self.__group_dict[str(group)]=group
 
     def get_groups(self):
         """[summary]
@@ -28,12 +30,51 @@ class Robot:
         Returns:
             [type]: [description]
         """
-        return self.__kinematic_chain
+        return self.__group_dict
+
+
+
+    def get_symbolic_rep(self,opti_obj,endeffector):
+        """This Function returnes a symbolic representation of the virtual chain.
+
+
+        Returns:
+            [type]: [description]
+        """
+        matrix = TransformationMatrix()
+
+        symbolic_state = {}
+
+        groups = self.get_groups()
+
+        for group_key in groups.keys():
+            group = groups[group_key]
+
+            virtual_transformations = group.get_virtual_transformations()
+            group_states = []
+
+            for virtual_transformation in virtual_transformations:
+
+                state = virtual_transformation.state
+
+                for key in state.keys():
+
+                    start_value = state[key]
+                    state[key] = opti_obj.variable()
+                    opti_obj.set_initial(state[key], start_value)
+                hmt = virtual_transformation.get_transformation_matrix()
+                matrix = matrix * hmt
+                group_states.append(state)
+
+            symbolic_state[group_key]= group_states
+        return matrix, symbolic_state
+
+
 
 
 def forward_kinematics(robot: Robot):
     transformation = TransformationMatrix()
-    for part in robot.get_groups():
+    for part in robot.get_groups().values():
         hmt = part.get_transformation_matrix()
         transformation = transformation * hmt
     return transformation.get_translation()
@@ -44,55 +85,28 @@ def inverse_kinematics(robot: Robot, end_effector_position):
 
     opti = Opti()
 
-    matrix = TransformationMatrix()
-
-    states_to_solve_for = []
-
-    groups = robot.get_groups()
-
-    for group in groups:
-
-        virtual_transformations = group.get_virtual_transformations()
-        group_states = []
-
-        for virtual_transformation in virtual_transformations:
-
-            state = virtual_transformation.state
-
-            for key in state.keys():
-
-                start_value = state[key]
-                state[key] = opti.variable()
-                opti.set_initial(state[key], start_value)
-            hmt = virtual_transformation.get_transformation_matrix()
-            matrix = matrix * hmt
-            group_states.append(state)
-
-        states_to_solve_for.append(group_states)
-
+ 
+    matrix, states_to_solve_for = robot.get_symbolic_rep(opti,"placeholder_endeffector")
     translation = matrix.get_translation()
 
     equation = (translation[0] - end_effector_position[0])**2 + (translation[1] -
                                                                  end_effector_position[1])**2 + (translation[2] - end_effector_position[2])**2
 
     ''' Setup solver '''
-
     opti.minimize(equation)
-
     p_opts = {"print_time": False}
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
 
     ''' Solve '''
-
     opti.solver('ipopt', p_opts, s_opts)
-
     sol = opti.solve()
 
     ''' Build virtual states from solved values '''
 
-    solved_states = []
+    solved_states = {}
 
-    for state in states_to_solve_for:
+    for state_key in states_to_solve_for.keys():
+        state=states_to_solve_for[state_key]
         solved_state = []
 
         for sub_state in state:
@@ -103,19 +117,18 @@ def inverse_kinematics(robot: Robot, end_effector_position):
 
             solved_state.append(solved_sub_state)
 
-        solved_states.append(solved_state)
+        solved_states[state_key] = solved_state 
+
 
     ''' Apply g mapping '''
 
     final_states = []       # Final states consist of actuated states and trivial states
+    groups = robot.get_groups()
+    for key in solved_states.keys():
 
-    for i in range(len(solved_states)):
 
-        if len(solved_states) != len(groups):
-            raise RuntimeError("States non match!")
-
-        state = solved_states[i]
-        group = groups[i]
+        state = solved_states[key]
+        group = groups[key]
 
         group.set_virtual_state(state)
         actuated_state = group.get_actuated_state()
