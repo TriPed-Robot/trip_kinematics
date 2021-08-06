@@ -1,5 +1,4 @@
-
-from typing import Union, List
+from typing import Dict, List, Callable, Union
 from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
 from casadi import Opti
 from trip_kinematics.KinematicGroup import KinematicGroup
@@ -21,6 +20,8 @@ class Robot:
             kinematic_chain (List[KinematicChainPart]): [description]
         """
         self.__group_dict = {}
+        #TODO check actuated keys among groups, they should be unique
+        #TODO same for virtual states
         for group in kinematic_chain:
             self.__group_dict[str(group)]=group
 
@@ -32,9 +33,15 @@ class Robot:
         """
         return self.__group_dict
 
-    def set_virtual_state(self, state: Dict[Dict[str, float]]):
+    def set_virtual_state(self, state: Dict[str,Dict[str, float]]):
         for key in state.keys():
             self.__group_dict[key].set_virtual_state(state[key])
+    
+    def get_actuated_state(self):
+        actuated_state=[]
+        for key in self.__group_dict.keys():
+            actuated_state.append([self.__group_dict[key].get_actuated_state()])
+        return actuated_state
 
     def get_symbolic_rep(self,opti_obj,endeffector):
         """This Function returnes a symbolic representation of the virtual chain.
@@ -126,26 +133,9 @@ def inverse_kinematics(robot: Robot, end_effector_position):
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
 
-    ''' Build virtual states from solved values '''
+    ''' Build actuated states from solved values '''
     solved_states = robot.solver_to_virtual_state(sol,states_to_solve_for)
-
     robot.set_virtual_state(solved_states)
-    ''' Apply g mapping '''
-
-    final_states = []       # Final states consist of actuated states and trivial states
-    groups = robot.get_groups()
-    for key in solved_states.keys():
-
-
-        state = solved_states[key]
-        group = groups[key]
-
-        group.set_virtual_state(state)
-        actuated_state = group.get_actuated_state()
-
-        if actuated_state != None:   # TODO: check new state logic could throw with static group
-            final_states.append([actuated_state])
-        else:
-            final_states.append(state)
-
-    return final_states
+    actuated_state = robot.get_actuated_state()
+ 
+    return actuated_state
