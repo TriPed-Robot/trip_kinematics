@@ -19,11 +19,28 @@ class Robot:
         Args:
             kinematic_chain (List[KinematicChainPart]): [description]
         """
-        self.__group_dict = {}
-        #TODO check actuated keys among groups, they should be unique
-        #TODO same for virtual states
+        self.__group_dict      = {}
+        self.__actuator_group_mapping = {}
+        self.__virtual_group_mapping = {}
+
         for group in kinematic_chain:
             self.__group_dict[str(group)]=group
+
+            group_actuators = group.get_actuated_state()[0].keys()
+            for key in group_actuators:
+                if key in self.__actuator_group_mapping.keys():
+                    raise KeyError("More than one robot actuated state has the same name! Please give each actuated state a unique name")
+                self.__actuator_group_mapping[key]=str(group)
+
+            group_virtuals = []
+            for i in range(len(group.get_virtual_state())):
+                group_virtuals.extend(list(group.get_virtual_state()[i].keys()) )
+            print(group_virtuals)
+            for key in group_virtuals:
+                if key in self.__virtual_group_mapping.keys():
+                    raise KeyError("More than one robot virtual state has the same name! Please give each virtual state a unique name")
+                self.__virtual_group_mapping[key]=str(group)
+
 
     def get_groups(self):
         """[summary]
@@ -33,9 +50,15 @@ class Robot:
         """
         return self.__group_dict
 
-    def set_virtual_state(self, state: Dict[str,Dict[str, float]]):
+    def set_virtual_state(self, state: Dict[str, float]):
         for key in state.keys():
-            self.__group_dict[key].set_virtual_state(state[key])
+            corresponding_group = self.__virtual_group_mapping[key]
+            self.__group_dict[corresponding_group].set_virtual_state(state[key])
+
+    def set_actuated_state(self, state: Dict[str, float]):
+        for key in state.keys():
+            corresponding_group = self.__actuator_group_mapping[key]
+            self.__group_dict[corresponding_group].set_actuated_state(state[key])
     
     def get_actuated_state(self):
         actuated_state=[]
@@ -60,7 +83,7 @@ class Robot:
             group = groups[group_key]
 
             virtual_transformations = group.get_virtual_transformations()
-            group_states = []
+
 
             for virtual_transformation in virtual_transformations:
 
@@ -71,11 +94,11 @@ class Robot:
                     start_value = state[key]
                     state[key] = opti_obj.variable()
                     opti_obj.set_initial(state[key], start_value)
+                    symbolic_state[key]=state[key]
+
                 hmt = virtual_transformation.get_transformation_matrix()
                 matrix = matrix * hmt
-                group_states.append(state)
 
-            symbolic_state[group_key]= group_states
         return matrix, symbolic_state
 
     @staticmethod
@@ -87,7 +110,9 @@ class Robot:
         """
         solved_states = {}
 
-        for state_key in symbolic_state.keys():
+        for key in symbolic_state.keys():
+            solved_states[key]=sol.value(symbolic_state[key])
+            '''
             state=symbolic_state[state_key]
             solved_state = []
 
@@ -100,8 +125,8 @@ class Robot:
                 solved_state.append(solved_sub_state)
 
             solved_states[state_key] = solved_state 
+            '''
         return solved_states
-
 
 
 
@@ -121,8 +146,9 @@ def inverse_kinematics(robot: Robot, end_effector_position):
 
     # position only inverse kinematics
     translation = matrix.get_translation()
-    equation = (translation[0] - end_effector_position[0])**2 + (translation[1] -
-                                                                 end_effector_position[1])**2 + (translation[2] - end_effector_position[2])**2
+    equation = ((translation[0] - end_effector_position[0])**2 + 
+                (translation[1] - end_effector_position[1])**2 + 
+                (translation[2] - end_effector_position[2])**2)
 
     ''' Setup solver '''
     opti.minimize(equation)
