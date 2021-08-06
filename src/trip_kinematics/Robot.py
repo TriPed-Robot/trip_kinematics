@@ -20,10 +20,27 @@ class Robot:
             kinematic_chain (List[KinematicChainPart]): [description]
         """
         self.__group_dict = {}
-        #TODO check actuated keys among groups, they should be unique
-        #TODO same for virtual states
+        self.__actuator_group_mapping = {}
+        self.__virtual_group_mapping = {}
+
         for group in kinematic_chain:
             self.__group_dict[str(group)]=group
+
+            group_actuators = group.get_actuated_state().keys()
+            for key in group_actuators:
+                if key in self.__actuator_group_mapping.keys():
+                    raise KeyError("More than one robot actuator has the same name! Please give each actuator a unique name")
+                self.__actuator_group_mapping[key]=str(group)
+
+            group_virtuals = []
+            for key in group.get_virtual_state().keys():
+                if key in self.__virtual_group_mapping.keys():
+                    raise KeyError("More than one robot virtual transformation has the same name! Please give each virtual transformation a unique name")
+                self.__virtual_group_mapping[key]=str(group)
+
+
+        
+        print(self.get_virtual_state())
 
     def get_groups(self):
         """[summary]
@@ -42,6 +59,15 @@ class Robot:
         for key in self.__group_dict.keys():
             actuated_state.append([self.__group_dict[key].get_actuated_state()])
         return actuated_state
+
+    def get_virtual_state(self):
+        virtual_state={}
+        for group_key in self.__group_dict.keys():
+            group_state = self.__group_dict[group_key].get_virtual_state()
+            for key in group_state.keys():
+                virtual_state[key]=group_state[key]
+        return virtual_state
+
 
     def get_symbolic_rep(self,opti_obj,endeffector):
         """This Function returnes a symbolic representation of the virtual chain.
@@ -62,8 +88,8 @@ class Robot:
             virtual_transformations = group.get_virtual_transformations()
             group_states = []
 
-            for virtual_transformation in virtual_transformations:
-
+            for virtual_key in virtual_transformations.keys():
+                virtual_transformation = virtual_transformations[virtual_key]
                 state = virtual_transformation.state
 
                 for key in state.keys():
@@ -86,20 +112,10 @@ class Robot:
             [type]: [description]
         """
         solved_states = {}
-
-        for state_key in symbolic_state.keys():
-            state=symbolic_state[state_key]
-            solved_state = []
-
-            for sub_state in state:
-                solved_sub_state = {}
-
-                for key in sub_state.keys():
-                    solved_sub_state.setdefault(key, sol.value(sub_state[key]))
-
-                solved_state.append(solved_sub_state)
-
-            solved_states[state_key] = solved_state 
+        print(symbolic_state)
+        for key in symbolic_state.keys():
+            solved_states[key]=sol.value(symbolic_state[key])
+        
         return solved_states
 
 
@@ -107,8 +123,10 @@ class Robot:
 
 def forward_kinematics(robot: Robot):
     transformation = TransformationMatrix()
-    for part in robot.get_groups().values():
-        hmt = part.get_transformation_matrix()
+    groups = robot.get_groups()
+    for group_key in groups.keys():
+        group = groups[group_key]
+        hmt = group.get_transformation_matrix()
         transformation = transformation * hmt
     return transformation.get_translation()
 
@@ -121,8 +139,9 @@ def inverse_kinematics(robot: Robot, end_effector_position):
 
     # position only inverse kinematics
     translation = matrix.get_translation()
-    equation = (translation[0] - end_effector_position[0])**2 + (translation[1] -
-                                                                 end_effector_position[1])**2 + (translation[2] - end_effector_position[2])**2
+    equation = ((translation[0] - end_effector_position[0])**2 + 
+                (translation[1] - end_effector_position[1])**2 + 
+                (translation[2] - end_effector_position[2])**2)
 
     ''' Setup solver '''
     opti.minimize(equation)

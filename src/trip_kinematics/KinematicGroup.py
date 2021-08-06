@@ -168,7 +168,8 @@ class KinematicGroup():
 
         virtual_state = {}
         for transformation in virtual_transformations:
-            virtual_state[str(transformation)]=transformation.state
+            if transformation.state != {}:
+                virtual_state[str(transformation)]=transformation.state
 
         self.__virtual_state = virtual_state
 
@@ -216,10 +217,8 @@ class KinematicGroup():
 
                     transformation = self.__virtual_transformations[virtual_key]
                     state = transformation.state
-                    print(virtual_key)
                     for key, value in state.items():
                         concat_key = transformation.get_name() + '_' + key
-                        joint_key  = transformation.get_name()
                         actuated_state_dummy.setdefault(concat_key, value)
 
                         f_map.setdefault(concat_key, (key, virtual_key))
@@ -228,12 +227,10 @@ class KinematicGroup():
                     # create trivial mappings
                 def trivial_actuated_to_virtual(state):
                     # Generate array
-                    out = [dict() for x in range(len(virtual_transformations))]
-
-                    for concat_key, value in state[0].items():
+                    out = {}
+                    for concat_key, value in state.items():
                         key, index = f_map[concat_key]
-                        out[index].setdefault(key, value)
-
+                        out[index] = {concat_key:value}
                     return out
 
                 def trivial_virtual_to_actuated(states):
@@ -243,7 +240,6 @@ class KinematicGroup():
                             combined_key = (key, index)
                             key = g_map[combined_key]
                             out[0].setdefault(key, value)
-
                     return out
 
                 self.__actuated_to_virtual = trivial_actuated_to_virtual
@@ -255,28 +251,29 @@ class KinematicGroup():
                 self.__actuated_to_virtual = None
                 self.__virtual_to_actuated = None
 
-    def set_virtual_state(self, state: List[Dict[str, float]]):
+    def set_virtual_state(self, state: Dict[str,Dict[str, float]]):
 
         if self.__actuated_state == None:
-            raise RuntimeError(
-                "This is a static group! There is no state to be set")
+            raise RuntimeError("This is a static group! There is no state to be set")
 
         if KinematicGroup.object_list_to_key_lists(self.__virtual_state) == KinematicGroup.object_list_to_key_lists(state):
-            self.__virtual_state = deepcopy(state)
+            for key in state.keys():
+                self.__virtual_state[key] = state[key]
             self.__update_chain()
             self.__actuated_state = self.__virtual_to_actuated(self.__virtual_state)
         else:
             raise ValueError(
                 "Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations.")
 
-    def set_actuated_state(self, state: List[Dict[str, float]]):
+    def set_actuated_state(self, state: Dict[str, float]):
 
         if self.__actuated_state == None:
             raise RuntimeError(
                 "This is a static group! There is no state to be set.")
 
         if KinematicGroup.object_list_to_key_lists(self.__actuated_state) == KinematicGroup.object_list_to_key_lists(state):
-            self.__actuated_state = deepcopy(state)
+            for key in state.keys():
+                self.__actuated_state[key] = state[key]
             new_virtual_state = self.__actuated_to_virtual(self.__actuated_state)
             for key in new_virtual_state.keys():
                 self.__virtual_state[key] = new_virtual_state[key]
@@ -291,11 +288,8 @@ class KinematicGroup():
     def get_name(self):
         return deepcopy(self.__name)
 
-    def get_virtual_state(self) -> List[Dict[str, float]]:
-        out = []
-        for trans_para in self.__virtual_transformations:
-            out.append(deepcopy(trans_para.state))
-        return out
+    def get_virtual_state(self):
+        return deepcopy(self.__virtual_state)
 
     def get_actuated_state(self):
         if self.__actuated_state:
@@ -307,8 +301,10 @@ class KinematicGroup():
 
         # Identity matrix
         transformation = TransformationMatrix()
-        for part in self.__virtual_transformations:
-            hmt = part.get_transformation_matrix()
+        transformations = self.__virtual_transformations
+        for key in transformations:
+            part           = transformations[key]
+            hmt            = part.get_transformation_matrix()
             transformation = transformation * hmt
 
         return transformation
