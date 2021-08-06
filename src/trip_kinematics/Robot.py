@@ -39,6 +39,7 @@ class Robot:
                 self.__virtual_group_mapping[key]=str(group)
 
 
+
         
 
 
@@ -55,6 +56,18 @@ class Robot:
             virtual_state = {key:state[key]}
             self.__group_dict[self.__virtual_group_mapping[key]].set_virtual_state(virtual_state)
     
+    def set_actuated_state(self, state: Dict[str,Dict[str, float]]):
+        #TODO first group them according to their group then send them as packages
+        #TODO detect when grouping is incomplete!!!!!
+        grouping = {}
+        for key in state.keys():
+            if self.__actuator_group_mapping[key] not in grouping.keys():
+                grouping[self.__actuator_group_mapping[key]] = {}
+            grouping[self.__actuator_group_mapping[key]][key]=state[key]
+        for key in grouping.keys():
+            self.__group_dict[key].set_actuated_state(grouping[key])
+
+
     def get_actuated_state(self):
         actuated_state={}
         for key in self.__group_dict.keys():

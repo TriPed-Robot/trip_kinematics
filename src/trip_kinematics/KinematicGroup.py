@@ -138,8 +138,6 @@ class KinematicGroup():
 
     @staticmethod
     def object_list_to_key_lists(object_lst):
-        #print(object_lst)
-        #return list(map(lambda obj: list(obj.keys()), object_lst))
         return list(object_lst.keys())
 
     def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, actuated_to_virtual: Callable = None, virtual_to_actuated: Callable = None, f_args=None, g_args=None, parent=None):
@@ -219,7 +217,6 @@ class KinematicGroup():
                     state = transformation.state
                     for key, value in state.items():
                         concat_key = transformation.get_name() + '_' + key
-                        print(concat_key,key,virtual_key)
                         actuated_state_dummy.setdefault(concat_key, value)
                         f_map.setdefault(concat_key, (key, virtual_key))
                         g_map.setdefault((key, virtual_key), concat_key)
@@ -235,14 +232,12 @@ class KinematicGroup():
 
                 def trivial_virtual_to_actuated(states):
                     out = {}
-                    print("trivial_input:",states)
                     for virtual_key in states.keys():
                         transformation = states[virtual_key]
                         for key in transformation.keys():
                             combined_key = (key, virtual_key)
                             new_key = g_map[combined_key]
                             out[new_key]=states[virtual_key][key]
-                    print(out)
                     return out
 
                 self.__actuated_to_virtual = trivial_actuated_to_virtual
@@ -259,7 +254,6 @@ class KinematicGroup():
         if self.__actuated_state == None:
             raise RuntimeError("This is a static group! There is no state to be set")
 
-        #print("states:",self.__virtual_state,state)
         if KinematicGroup.object_list_to_key_lists(self.__virtual_state) == KinematicGroup.object_list_to_key_lists(state):
             for key in state.keys():
                 self.__virtual_state[key] = state[key]

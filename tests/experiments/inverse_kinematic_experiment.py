@@ -55,8 +55,7 @@ def test_triped_leg(inverse_kinematic_algorithm):
 
 
         closed_chain.pass_arguments_g([tip])
-        leg_linear_part.set_actuated_state({'extend_joint_ry': tip['ry']})
-        closed_chain.set_actuated_state({'swing_left': tip['swing_left'], 'swing_right':tip['swing_right']})
+        triped_leg.set_actuated_state({'extend_joint_ry': tip['ry'],'swing_left': tip['swing_left'], 'swing_right':tip['swing_right']})
 
         row = inverse_kinematic_algorithm(triped_leg, [input_x[i], input_y[i], input_z[i]])
         inverse_rows.append([row['swing_left'], row['extend_joint_ry'],row['swing_right']])
