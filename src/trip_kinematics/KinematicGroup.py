@@ -180,8 +180,8 @@ class KinematicGroup():
 
             actuated_to_virtual_to_check = self.__actuated_to_virtual(actuated_state)
 
-            #if KinematicGroup.object_list_to_key_lists(actuated_to_virtual_to_check) != KinematicGroup.object_list_to_key_lists(virtual_state):
-            #    raise RuntimeError("actuated_to_virtual does not fit virtual state")
+            if KinematicGroup.object_list_to_key_lists(actuated_to_virtual_to_check) != KinematicGroup.object_list_to_key_lists(virtual_state):
+                raise RuntimeError("actuated_to_virtual does not fit virtual state")
 
             self.___original_virtual_to_actuated = virtual_to_actuated
             if g_args:
@@ -190,8 +190,8 @@ class KinematicGroup():
 
             virtual_to_actuated_to_check = virtual_to_actuated(virtual_state)
 
-            #if KinematicGroup.object_list_to_key_lists(virtual_to_actuated_to_check) != KinematicGroup.object_list_to_key_lists(actuated_state):
-            #    raise RuntimeError("virtual_to_actuated does not fit actuated state")
+            if KinematicGroup.object_list_to_key_lists(virtual_to_actuated_to_check) != KinematicGroup.object_list_to_key_lists(actuated_state):
+                raise RuntimeError("virtual_to_actuated does not fit actuated state")
 
             # Check if inital values fit actuated_to_virtual's and virtual_to_actuated's calculated values. Only if actuated_state, actuated_to_virtual and virtual_to_actuated are passed
 
