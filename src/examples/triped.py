@@ -101,13 +101,13 @@ def p2(theta, opti):
     return p2_mx
 
 
-def swing_to_gimbal(state: List[Dict[str, float]], tips: Dict[str, float] = None):
+def swing_to_gimbal(state: Dict[str, float], tips: Dict[str, float] = None):
 
     opti = Opti()
     r = 0.11
 
-    theta_left = state[0]['swing_left']
-    theta_right = state[0]['swing_right']
+    theta_left = state['swing_left']
+    theta_right = state['swing_right']
 
     gimbal_x = opti.variable()
     gimbal_y = opti.variable()
@@ -127,10 +127,10 @@ def swing_to_gimbal(state: List[Dict[str, float]], tips: Dict[str, float] = None
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
-    return [{}, {'rx': sol.value(gimbal_x), 'ry': sol.value(gimbal_y), 'rz': sol.value(gimbal_z)}]
+    return {'gimbal_joint': {'rx': sol.value(gimbal_x), 'ry': sol.value(gimbal_y), 'rz': sol.value(gimbal_z)}}
 
 
-def gimbal_to_swing(state: List[Dict[str, float]], tips: Dict[str, float] = None):
+def gimbal_to_swing(state: Dict[str,Dict[str, float]], tips: Dict[str, float] = None):
 
     opti = Opti()
     r = 0.11
@@ -142,9 +142,9 @@ def gimbal_to_swing(state: List[Dict[str, float]], tips: Dict[str, float] = None
         opti.set_initial(theta_left, tips['swing_left'])
         opti.set_initial(theta_right, tips['swing_right'])
 
-    gimbal_x = state[1]['rx']
-    gimbal_y = state[1]['ry']
-    gimbal_z = state[1]['rz']
+    gimbal_x = state['gimbal_joint']['rx']
+    gimbal_y = state['gimbal_joint']['ry']
+    gimbal_z = state['gimbal_joint']['rz']
     c1, c2 = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z, opti=opti)
     closing_equation = ((c1-p1(theta_right, opti)).T @ (c1-p1(theta_right, opti)) -
                         r**2)**2+((c2-p2(theta_left, opti)).T @ (c2-p2(theta_left, opti)) - r**2)**2
@@ -153,17 +153,18 @@ def gimbal_to_swing(state: List[Dict[str, float]], tips: Dict[str, float] = None
     s_opts = {"print_level": 0, "print_timing_statistics": "no"}
     opti.solver('ipopt', p_opts, s_opts)
     sol = opti.solve()
-    return [{'swing_left': sol.value(theta_left), 'swing_right': sol.value(theta_right)}]
+    return {'swing_left': sol.value(theta_left), 'swing_right': sol.value(theta_right)}
 
 
 A_CSS_P_trans = Transformation(name='A_CSS_P_trans',
                                values={'tx': 0.265, 'tz': 0.014})
 
-A_CSS_P_rot = Transformation(name='A_CSS_P_rot',
+A_CSS_P_rot = Transformation(name='gimbal_joint',
                              values={'rx': 0, 'ry': 0, 'rz': 0}, state_variables=['rx', 'ry', 'rz'])
 
-closed_chain = KinematicGroup(name='closed_chain', virtual_transformations=[A_CSS_P_trans,
-                                                                            A_CSS_P_rot], actuated_state=[{'swing_left': 0, 'swing_right': 0}], actuated_to_virtual=swing_to_gimbal, virtual_to_actuated=gimbal_to_swing)
+closed_chain = KinematicGroup(name='closed_chain', virtual_transformations=[A_CSS_P_trans,A_CSS_P_rot], 
+                              actuated_state={'swing_left': 0, 'swing_right': 0}, 
+                              actuated_to_virtual=swing_to_gimbal, virtual_to_actuated=gimbal_to_swing)
 
 A_P_LL = Transformation(name='A_P_LL', values={'tx': 1.640, 'tz': -0.037, })
 
@@ -175,9 +176,10 @@ extend_joint = Transformation(name='extend_joint',
 
 A_LL_Joint_FCS = Transformation(name='A_LL_Joint_FCS', values={'tx': -1.5})
 
-leg_linear_part = KinematicGroup(name='leg_linear_part', virtual_transformations=[A_P_LL, zero_angle_convention,
-                                                                            extend_joint, A_LL_Joint_FCS], parent=closed_chain)
+leg_linear_part = KinematicGroup(name='leg_linear_part',
+                                 virtual_transformations=[A_P_LL, zero_angle_convention,extend_joint, A_LL_Joint_FCS], 
+                                 parent=closed_chain)
 
 triped_leg = Robot([closed_chain, leg_linear_part])
 
-closed_chain.set_actuated_state([{'swing_left': 0, 'swing_right': 0}])
+closed_chain.set_actuated_state({'swing_left': 0, 'swing_right': 0})

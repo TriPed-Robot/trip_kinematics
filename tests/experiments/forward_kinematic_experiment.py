@@ -42,8 +42,8 @@ def test_triped_leg():
         state['swing_right'] = input_t2[i]
         state['ry'] = input_e[i]
 
-        leg_linear_part.set_actuated_state([{'extend_joint_ry': state['ry']}])
-        closed_chain.set_actuated_state([{'swing_left': state['swing_left'], 'swing_right':state['swing_right']}])
+        leg_linear_part.set_actuated_state({'extend_joint_ry': state['ry']})
+        closed_chain.set_actuated_state({'swing_left': state['swing_left'], 'swing_right':state['swing_right']})
 
         row = forward_kinematics(triped_leg)
         forward_rows.append(row)
