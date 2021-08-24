@@ -16,6 +16,18 @@ class Transformation():
 
     @staticmethod
     def get_convention(state: Dict[str, float]):
+        """Returns the connvention which describes how the matrix  of a :py:class:`Transformation` is build from its state. 
+
+        Args:
+            state (Dict[str, float]): :py:attr:'state'
+
+        Raises:
+            ValueError: "Invalid key." If the dictionary kontains keys that dont correspond to a parameter of the transformation.
+            ValueError: "State can't have euler angles and quaternions!" If the dictionary contains keys correspondig to multiple mutually exclusive conventions.
+
+        Returns:
+            [type]: A string describing the convention 
+        """
 
         valid_keys = ['tx', 'ty', 'tz', 'qw', 'qx',
                       'qy', 'qz', 'rx', 'rz', 'ry']
@@ -27,7 +39,7 @@ class Transformation():
 
         for key in state.keys():
             if array_find(valid_keys, key) == -1:
-                raise ValueError("Invalid key.")
+                raise ValueError("Invalid key, acceptable keys are: "+str(valid_keys))
             if array_find(quaternion_keys, key) >= 0:
                 got_quaternion = True
             if array_find(euler_keys, key) >= 0:
@@ -42,12 +54,23 @@ class Transformation():
             return "quaternion"
 
     def __init__(self, name: str, values: Dict[str, float], state_variables: List[str] = []):
+        """Initializes the :py:class:`Transformation` class. 
+
+        Args:
+            name (str): The unique name identifying the . No two :py:class:`Transformation` objects of a :py:class`Robot` should have the same name
+            values (Dict[str, float]): A parametric description of the transformation. 
+            state_variables (List[str], optional): This list describes which state variables are dynamically changable. 
+                                                   This is the case if the :py:class:`Transformation` represents a joint. Defaults to [].
+
+        Raises:
+            ValueError: A dynamic state was declared that does not correspond to a parameter declared in ``values``.
+        """
 
         self.__name = name
 
         if not set(state_variables) <= set(values.keys()):
             raise ValueError(
-                "Key(s) from stateVariables not present inside values")
+                "Element of state_variables do not correspond to key(s) of values dictionary. This can happen if both follow different conventions")
 
         constants = {}
         state = {}
@@ -70,6 +93,14 @@ class Transformation():
         return deepcopy(self.__name)
 
     def get_transformation_matrix(self):
+        """[summary]
+
+        Raises:
+            RuntimeError: If the convention used in :py:attr:`state` is not supported. Should normally be catched during initialization.
+
+        Returns:
+            [type]: A transformation matrix build using the parameters of the  :py:class:`Transformation` :py:attr:`state`
+        """
         if self.convention == 'euler':
             rx = 0
             ry = 0
@@ -131,7 +162,7 @@ class Transformation():
             return TransformationMatrix(rx=rx, ry=ry, rz=rz, conv='xyz', tx=tx, ty=ty, tz=tz)
         if self.convention == 'quaternion':
             return TransformationMatrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=tx, ty=ty, tz=tz)
-        raise RuntimeError("No Convention.")
+        raise RuntimeError("No Convention. This should normally be catched during initialization. Did you retroactively change the keys of the Transformation state?")
 
 
 class KinematicGroup():
@@ -140,8 +171,27 @@ class KinematicGroup():
     def object_list_to_key_lists(object_lst):
         return list(object_lst.keys())
 
-    def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, actuated_to_virtual: Callable = None, virtual_to_actuated: Callable = None, f_args=None, g_args=None, parent=None):
+    def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, actuated_to_virtual: Callable = None, virtual_to_actuated: Callable = None, act_to_virt_args=None, virt_to_act_args=None, parent=None):
+        """Initializes a :py:class:`KinematicGroup` object.
 
+        Args:
+            name (str): The unique name identifying the group. No two :py:class:`KinematicGroup` objects of a :py:class`Robot` should have the same name
+            virtual_transformations (List[Transformation]): A list of :py:class:`Transformation` objects forming a serial Kinematic chain. 
+            actuated_state (List[Dict[str, float]], optional): The State of the Groups actuated joints. Defaults to None.
+            actuated_to_virtual (Callable, optional): Maps the :py:attr:`actuated_state` to the state of the :py:attr:`virtual_transformations`. Defaults to None.
+            virtual_to_actuated (Callable, optional): Maps the state of the :py:attr:`virtual_transformations` to the :py:attr:`actuated_state`.
+            act_to_virt_args ([type], optional): Arguments that can be passed to :py:attr:`actuated_to_virtual`. Defaults to None.
+            virt_to_act_args ([type], optional): Arguments that can be passed to :py:attr:`virtual_to_actuated`. Defaults to None.
+            parent ([type], optional): [description]. Defaults to None.
+
+        Raises:
+            ValueError: [description]
+            ValueError: [description]
+            ValueError: [description]
+            RuntimeError: [description]
+            RuntimeError: [description]
+
+        """
         self.__name = name
 
         # Adds itself as child to parent
@@ -174,8 +224,8 @@ class KinematicGroup():
         if actuated_state:      # if there is an actuated state there has to be an actuated_to_virtual and an virtual_to_actuated
             self.__actuated_state = deepcopy(actuated_state)
             self.__original_actuated_to_virtual = actuated_to_virtual
-            if f_args:
-                self.__actuated_to_virtual = lambda state: actuated_to_virtual(state, *f_args)
+            if act_to_virt_args:
+                self.__actuated_to_virtual = lambda state: actuated_to_virtual(state, *act_to_virt_args)
             self.__actuated_to_virtual = actuated_to_virtual
 
             actuated_to_virtual_to_check = self.__actuated_to_virtual(actuated_state)
@@ -184,8 +234,8 @@ class KinematicGroup():
                 raise RuntimeError("actuated_to_virtual does not fit virtual state")
 
             self.___original_virtual_to_actuated = virtual_to_actuated
-            if g_args:
-                self.__virtual_to_actuated = lambda state: virtual_to_actuated(state, *g_args)
+            if virt_to_act_args:
+                self.__virtual_to_actuated = lambda state: virtual_to_actuated(state, *virt_to_act_args)
             self.__virtual_to_actuated = virtual_to_actuated
 
             virtual_to_actuated_to_check = virtual_to_actuated(virtual_state)
