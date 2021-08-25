@@ -7,10 +7,12 @@ Welcome to TriP's documentation!
 ================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
 
-
+    what_is_trip
+    how_it_works
+    usage
+    tutorials
+    code_docu
 
 Indices and tables
 ==================

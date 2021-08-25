@@ -13,6 +13,9 @@ def array_find(arr, obj) -> int:
 
 
 class Transformation():
+    """[summary]
+
+    """
 
     @staticmethod
     def get_convention(state: Dict[str, float]):
@@ -166,6 +169,9 @@ class Transformation():
 
 
 class KinematicGroup():
+    """[summary]
+
+    """
 
     @staticmethod
     def object_list_to_key_lists(object_lst):
