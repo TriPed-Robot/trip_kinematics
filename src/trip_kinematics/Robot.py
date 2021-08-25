@@ -6,19 +6,20 @@ from trip_kinematics.KinematicGroup import KinematicGroup
 
 
 class Robot:
-    """[summary]
+    """A class managing multiple :py:class`KinematicGroup` objects pable of building tree like kinematic topologies.
 
-    Returns:
-        [type]: [description]
-    """    """[summary]
+    Args:
+        kinematic_chain (List[KinematicGroup]): A list of Kinematic Groups with make up the robot.
+
+    Raises:
+        KeyError: "More than one robot actuator has the same name! Please give each actuator a unique name" 
+                  if there are actuated states with the same names between the :py:class`KinematicGroup` objects of the :py:class`Robot`
+        KeyError: "More than one robot virtual transformation has the same name! Please give each virtual transformation a unique name"
+                  if there are joints with the same names between the :py:class`KinematicGroup` objects of the :py:class`Robot`
     """
 
     def __init__(self, kinematic_chain: List[KinematicGroup]) -> None:
-        """[summary]
 
-        Args:
-            kinematic_chain (List[KinematicChainPart]): [description]
-        """
         self.__group_dict = {}
         self.__actuator_group_mapping = {}
         self.__virtual_group_mapping = {}
@@ -44,19 +45,30 @@ class Robot:
 
 
     def get_groups(self):
-        """[summary]
+        """Returns a dictionary of the py:class`KinematicGroup` managed by the :py:class`Robot`-
 
         Returns:
-            [type]: [description]
+            Dict[str, KinematicGroup]: The dictionary of py:class`KinematicGroup` objects.
         """
         return self.__group_dict
 
     def set_virtual_state(self, state: Dict[str,Dict[str, float]]):
+        """Sets the virtual state of multiple virtual joints of the robot.
+
+        Args:
+            state (Dict[str,Dict[str, float]]): A dictionary containing the members of :py:attr:`__virtual_state` that should be set. 
+                                                The new values need to be valid state for the state of the joint.
+        """
         for key in state.keys():
             virtual_state = {key:state[key]}
             self.__group_dict[self.__virtual_group_mapping[key]].set_virtual_state(virtual_state)
     
-    def set_actuated_state(self, state: Dict[str,Dict[str, float]]):
+    def set_actuated_state(self, state: Dict[str, float]):
+        """Sets the virtual state of multiple actuated joints of the robot.
+
+        Args:
+            state (Dict[str, float]):  A dictionary containing the members of :py:attr:`__actuated_state` that should be set. 
+        """
         #TODO first group them according to their group then send them as packages
         #TODO detect when grouping is incomplete!!!!!
         grouping = {}
@@ -69,6 +81,11 @@ class Robot:
 
 
     def get_actuated_state(self):
+        """Returns the actuated state of the :py:class`Robot` comprised of the actuated states of the individual :py:class`KinematicGroup`.
+
+        Returns:
+            Dict[str, float]: combined actuated state of all :py:class`KinematicGroup` objects.
+        """
         actuated_state={}
         for key in self.__group_dict.keys():
             actuated_group = self.__group_dict[key].get_actuated_state()
@@ -77,6 +94,11 @@ class Robot:
         return actuated_state
 
     def get_virtual_state(self):
+        """Returns the virtual state of the :py:class`Robot` comprised of the virtual states of the individual :py:class`KinematicGroup`.
+
+        Returns:
+            Dict[str,Dict[str, float]]: combined virtual state of all :py:class`KinematicGroup` objects.
+        """
         virtual_state={}
         for group_key in self.__group_dict.keys():
             group_state = self.__group_dict[group_key].get_virtual_state()
@@ -90,7 +112,7 @@ class Robot:
 
 
         Returns:
-            [type]: [description]
+            TransformationMatrix: The :py:class:`TransformationMatrix` containing symbolic objects
         """
         matrix = TransformationMatrix()
 
@@ -133,7 +155,7 @@ class Robot:
             symbolic_state ([type]): the description of the symbolic state that corresponds to the solver values
 
         Returns:
-            Dict[str,Dict[str, float]: a :py:attr:`virtual_state` of a robot.
+            Dict[str,Dict[str, float]]: a :py:attr:`virtual_state` of a robot.
         """
         solved_states = {}
 
@@ -169,6 +191,15 @@ def forward_kinematics(robot: Robot):
 
 
 def inverse_kinematics(robot: Robot, end_effector_position):
+    """Simple Inverse kinematics algorithm that computes the actuated state necessairy for the endeffector to be at a specified position
+
+    Args:
+        robot (Robot): The robot for which the inverse kinematics should be computed 
+        end_effector_position ([type]): the desrired endeffector position
+
+    Returns:
+        Dict[str, float]: combined actuated state of all :py:class`KinematicGroup` objects.
+    """
 
     opti = Opti()
     matrix, states_to_solve_for = robot.get_symbolic_rep(opti,"placeholder_endeffector")
