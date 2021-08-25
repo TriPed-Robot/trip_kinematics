@@ -13,8 +13,16 @@ def array_find(arr, obj) -> int:
 
 
 class Transformation():
-    """[summary]
+    """Initializes the :py:class:`Transformation` class. 
 
+    Args:
+        name (str): The unique name identifying the . No two :py:class:`Transformation` objects of a :py:class`Robot` should have the same name
+        values (Dict[str, float]): A parametric description of the transformation. 
+        state_variables (List[str], optional): This list describes which state variables are dynamically changable. 
+                                               This is the case if the :py:class:`Transformation` represents a joint. Defaults to [].
+
+    Raises:
+        ValueError: A dynamic state was declared that does not correspond to a parameter declared in ``values``.
     """
 
     @staticmethod
@@ -57,17 +65,6 @@ class Transformation():
             return "quaternion"
 
     def __init__(self, name: str, values: Dict[str, float], state_variables: List[str] = []):
-        """Initializes the :py:class:`Transformation` class. 
-
-        Args:
-            name (str): The unique name identifying the . No two :py:class:`Transformation` objects of a :py:class`Robot` should have the same name
-            values (Dict[str, float]): A parametric description of the transformation. 
-            state_variables (List[str], optional): This list describes which state variables are dynamically changable. 
-                                                   This is the case if the :py:class:`Transformation` represents a joint. Defaults to [].
-
-        Raises:
-            ValueError: A dynamic state was declared that does not correspond to a parameter declared in ``values``.
-        """
 
         self.__name = name
 
@@ -96,7 +93,7 @@ class Transformation():
         return deepcopy(self.__name)
 
     def get_transformation_matrix(self):
-        """[summary]
+        """Returns a homogeneous transformation matrix build from the :py:attr:`state` and :py:attr:`constants`
 
         Raises:
             RuntimeError: If the convention used in :py:attr:`state` is not supported. Should normally be catched during initialization.
@@ -169,7 +166,27 @@ class Transformation():
 
 
 class KinematicGroup():
-    """[summary]
+    """Initializes a :py:class:`KinematicGroup` object.
+
+    Args:
+        name (str): The unique name identifying the group. No two :py:class:`KinematicGroup` objects of a :py:class`Robot` should have the same name
+        virtual_transformations (List[Transformation]): A list of :py:class:`Transformation` objects forming a serial Kinematic chain. 
+        actuated_state (List[Dict[str, float]], optional): The State of the Groups actuated joints. Defaults to None.
+        actuated_to_virtual (Callable, optional): Maps the :py:attr:`actuated_state` to the :py:attr:`virtual_state` of the :py:attr:`virtual_transformations`. Defaults to None.
+        virtual_to_actuated (Callable, optional): Maps the :py:attr:`virtual_state` of the :py:attr:`virtual_transformations` to the :py:attr:`actuated_state`.
+        act_to_virt_args ([type], optional): Arguments that can be passed to :py:attr:`actuated_to_virtual` during the initial testing of the function. Defaults to None.
+        virt_to_act_args ([type], optional): Arguments that can be passed to :py:attr:`virtual_to_actuated` during the initial testing of the function. Defaults to None.
+        parent ([type], optional): [description]. Defaults to None.
+
+    Raises:
+        ValueError: 'Error: Actuated state is missing. You provided a mapping to actuate the group but no state to be actuated.' 
+                    if there is no :py:attr:`actuated_state` despite a mapping being passed
+        ValueError: 'Error: Only one mapping provided. You need mappings for both ways. Consider to pass a trivial mapping.'
+                    if either :py:attr:`actuated_to_virtual` or :py:attr:`virtual_to_actuated` was not set despite providing a :py:attr:`actuated_state`.
+        ValueError: 'Error: Mappings missing. You provided an actuated state but no mappings. If you want a trivial mapping you don\'t need to pass an actuated state. Trip will generate one for you.'
+                    if both :py:attr:`actuated_to_virtual` and :py:attr:`virtual_to_actuated` were not set despite providing a :py:attr:`actuated_state`.
+        RuntimeError: "actuated_to_virtual does not fit virtual state" if the :py:attr:`actuated_to_virtual` function does not return a valid :py:attr:`virtual_state` dictionary
+        RuntimeError: "virtual_to_actuated does not fit actuated state" if the :py:attr:`virtual_to_actuated` function does not return a valid :py:attr:`actuated_state` dictionary
 
     """
 
@@ -178,29 +195,6 @@ class KinematicGroup():
         return list(object_lst.keys())
 
     def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, actuated_to_virtual: Callable = None, virtual_to_actuated: Callable = None, act_to_virt_args=None, virt_to_act_args=None, parent=None):
-        """Initializes a :py:class:`KinematicGroup` object.
-
-        Args:
-            name (str): The unique name identifying the group. No two :py:class:`KinematicGroup` objects of a :py:class`Robot` should have the same name
-            virtual_transformations (List[Transformation]): A list of :py:class:`Transformation` objects forming a serial Kinematic chain. 
-            actuated_state (List[Dict[str, float]], optional): The State of the Groups actuated joints. Defaults to None.
-            actuated_to_virtual (Callable, optional): Maps the :py:attr:`actuated_state` to the :py:attr:`virtual_state` of the :py:attr:`virtual_transformations`. Defaults to None.
-            virtual_to_actuated (Callable, optional): Maps the :py:attr:`virtual_state` of the :py:attr:`virtual_transformations` to the :py:attr:`actuated_state`.
-            act_to_virt_args ([type], optional): Arguments that can be passed to :py:attr:`actuated_to_virtual` during the initial testing of the function. Defaults to None.
-            virt_to_act_args ([type], optional): Arguments that can be passed to :py:attr:`virtual_to_actuated` during the initial testing of the function. Defaults to None.
-            parent ([type], optional): [description]. Defaults to None.
-
-        Raises:
-            ValueError: 'Error: Actuated state is missing. You provided a mapping to actuate the group but no state to be actuated.' 
-                        if there is no :py:attr:`actuated_state` despite a mapping being passed
-            ValueError: 'Error: Only one mapping provided. You need mappings for both ways. Consider to pass a trivial mapping.'
-                        if either :py:attr:`actuated_to_virtual` or :py:attr:`virtual_to_actuated` was not set despite providing a :py:attr:`actuated_state`.
-            ValueError: 'Error: Mappings missing. You provided an actuated state but no mappings. If you want a trivial mapping you don\'t need to pass an actuated state. Trip will generate one for you.'
-                        if both :py:attr:`actuated_to_virtual` and :py:attr:`virtual_to_actuated` were not set despite providing a :py:attr:`actuated_state`.
-            RuntimeError: "actuated_to_virtual does not fit virtual state" if the :py:attr:`actuated_to_virtual` function does not return a valid :py:attr:`virtual_state` dictionary
-            RuntimeError: "virtual_to_actuated does not fit actuated state" if the :py:attr:`virtual_to_actuated` function does not return a valid :py:attr:`actuated_state` dictionary
-
-        """
         self.__name = name
 
         # Adds itself as child to parent

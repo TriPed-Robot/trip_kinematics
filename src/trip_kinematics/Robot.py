@@ -2,7 +2,7 @@ from typing import Dict, List, Callable, Union
 from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
 from casadi import Opti
 from trip_kinematics.KinematicGroup import KinematicGroup
-import numpy as np
+
 
 
 class Robot:
@@ -126,10 +126,14 @@ class Robot:
 
     @staticmethod
     def solver_to_virtual_state(sol,symbolic_state):
-        """This Function maps a opti solver solution to the virtual state of the robot
+        """This Function maps the solution of a opti solver to the virtual state of the robot
+
+        Args:
+            sol ([type]): A opti solver object
+            symbolic_state ([type]): the description of the symbolic state that corresponds to the solver values
 
         Returns:
-            [type]: [description]
+            Dict[str,Dict[str, float]: a :py:attr:`virtual_state` of a robot.
         """
         solved_states = {}
 
@@ -147,13 +151,21 @@ class Robot:
 
 
 def forward_kinematics(robot: Robot):
+    """Calculates a robots transformation from base to endeffector using its current state
+
+    Args:
+        robot (Robot): The robot for which the forward kinematics should be computed
+
+    Returns:
+        numpy.array : The Transformation from base to endeffector 
+    """
     transformation = TransformationMatrix()
     groups = robot.get_groups()
     for group_key in groups.keys():
         group = groups[group_key]
         hmt = group.get_transformation_matrix()
         transformation = transformation * hmt
-    return transformation.get_translation()
+    return transformation.matrix
 
 
 def inverse_kinematics(robot: Robot, end_effector_position):
