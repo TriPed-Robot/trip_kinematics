@@ -89,6 +89,13 @@ class Transformation():
     def __str__(self):
         return self.__name
 
+    def set_state(state: Dict[str, float]):
+        for key in state.keys():
+            if not in self.state.keys():
+                raise KeyError("The specified keys is not part of the Transformations state. Maybe the Transofmration uses a different convention?")
+            self.state[key] = state[key]
+
+            
     def get_name(self):
         return deepcopy(self.__name)
 
