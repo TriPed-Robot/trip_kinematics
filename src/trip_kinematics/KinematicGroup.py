@@ -89,9 +89,9 @@ class Transformation():
     def __str__(self):
         return self.__name
 
-    def set_state(state: Dict[str, float]):
+    def set_state(self, state: Dict[str, float]):
         for key in state.keys():
-            if not in self.state.keys():
+            if not key in self.state.keys():
                 raise KeyError("The specified keys is not part of the Transformations state. Maybe the Transofmration uses a different convention?")
             self.state[key] = state[key]
 
