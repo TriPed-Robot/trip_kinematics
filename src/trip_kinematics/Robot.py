@@ -1,6 +1,6 @@
 from typing import Dict, List, Callable, Union
 from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
-from casadi import Opti, Function, SX, nlpsol, vertcat
+from casadi import Function, SX, nlpsol, vertcat
 import numpy as np
 from trip_kinematics.KinematicGroup import KinematicGroup
 
@@ -164,14 +164,14 @@ class Robot:
             Dict[str,Dict[str, float]]: a :py:attr:`virtual_state` of a robot.
         """
         solved_states = {}
-
-        for i in range(len(np.array(sol))):
+        sol = np.array(sol) #convert casadi DM to usable datatype
+        for i in range(len(sol)):
             outer_key = symbolic_keys[i][0]
             inner_key = symbolic_keys[i][1]
             if outer_key not in solved_states.keys():
                 solved_states[outer_key] = {}
 
-            solved_states[outer_key][inner_key] = sol[i]
+            solved_states[outer_key][inner_key] = sol[i][0] 
         return solved_states
 
 
@@ -209,12 +209,12 @@ def inverse_kinematics(robot: Robot, end_effector_position):
     matrix, symboles, symbolic_keys = robot.get_symbolic_rep()
 
     objective = ((matrix[0,3] - end_effector_position[0])**2 + 
-                (matrix[1,3] - end_effector_position[1])**2 + 
-                (matrix[2,3] - end_effector_position[2])**2)
+                 (matrix[1,3] - end_effector_position[1])**2 + 
+                 (matrix[2,3] - end_effector_position[2])**2)
 
-    nlp = {'x':vertcat(*symboles),'f':objective}
-
-    inv_kin_solver = nlpsol('inv_kin','ipopt',nlp)
+    nlp  = {'x':vertcat(*symboles),'f':objective}
+    opts = {'ipopt.print_level':0, 'print_time':0}
+    inv_kin_solver = nlpsol('inv_kin','ipopt',nlp,opts)
 
     solution       = inv_kin_solver(x0= [0,0,0,0])
     

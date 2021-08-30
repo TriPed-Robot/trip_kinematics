@@ -1,13 +1,13 @@
 from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
 from trip_kinematics.Robot import Robot, inverse_kinematics, forward_kinematics
-from casadi import Opti
+from casadi import Opti, SX, Function, SX, nlpsol, vertcat
 from typing import Dict, List
 from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
 import numpy as np
 from math import radians, sin, cos
 
 
-def c(rx, ry, rz, opti):
+def c(rx, ry, rz):
     A_CSS_P_trans = TransformationMatrix(
         tx=0.265, ty=0, tz=0.014)
 
@@ -28,31 +28,18 @@ def c(rx, ry, rz, opti):
 
     A_c1 = A_CSS_P * A_P_SPH1_2
     A_c2 = A_CSS_P * A_P_SPH2_2
-    # print(A_c1)
+
     c1 = A_c1.get_translation()
     c2 = A_c2.get_translation()
-
-    c1_mx = opti.variable(3, 1)
-    c1_mx[0, 0] = c1[0]
-    c1_mx[1, 0] = c1[1]
-    c1_mx[2, 0] = c1[2]
-
-    c2_mx = opti.variable(3, 1)
-    c2_mx[0, 0] = c2[0]
-    c2_mx[1, 0] = c2[1]
-    c2_mx[2, 0] = c2[2]
-
-    c1 = c1_mx
-    c2 = c2_mx
     return c1, c2
 
 
-def p1(theta, opti):
+def p1(theta):
     A_CCS_lsm_tran = TransformationMatrix(
         tx=0.139807669447128, ty=0.0549998406976098, tz=-0.051)
 
     A_CCS_lsm_rot = TransformationMatrix(
-        rz=radians(-338.5255), conv='xyz')  # radians()34.875251275010434
+        rz=radians(-338.5255), conv='xyz')  
 
     A_CCS_lsm = A_CCS_lsm_tran * A_CCS_lsm_rot
 
@@ -67,19 +54,15 @@ def p1(theta, opti):
     A_CCS_SP11 = A_CSS_MCS1 * A_MCS1_SP11
 
     p1 = A_CCS_SP11.get_translation()
-    p1_mx = opti.variable(3, 1)
-    p1_mx[0, 0] = p1[0]
-    p1_mx[1, 0] = p1[1]
-    p1_mx[2, 0] = p1[2]
-    return p1_mx
+    return p1
 
 
-def p2(theta, opti):
+def p2(theta):
     A_CCS_rsm_tran = TransformationMatrix(
         tx=0.139807669447128, ty=-0.0549998406976098, tz=-0.051)
 
     A_CCS_rsm_rot = TransformationMatrix(
-        rz=radians(-21.4745), conv='xyz')  # radians(-21.4745)-34.875251275010434
+        rz=radians(-21.4745), conv='xyz')  
 
     A_CCS_rsm = A_CCS_rsm_tran*A_CCS_rsm_rot
 
@@ -94,66 +77,51 @@ def p2(theta, opti):
     A_CSS_SP21 = A_CSS_MCS2 * A_MCS2_SP21
 
     p2 = A_CSS_SP21.get_translation()
-    p2_mx = opti.variable(3, 1)
-    p2_mx[0, 0] = p2[0]
-    p2_mx[1, 0] = p2[1]
-    p2_mx[2, 0] = p2[2]
-    return p2_mx
+    return p2
+
+theta_left  = SX.sym('theta_left')
+theta_right = SX.sym('theta_right')
+gimbal_x    = SX.sym('gimbal_x')
+gimbal_y    = SX.sym('gimbal_y')
+gimbal_z    = SX.sym('gimbal_z')
+
+virtual_actuated_state = vertcat(theta_left,theta_right,gimbal_x,gimbal_y,gimbal_z)
+opts                   = {'ipopt.print_level':0, 'print_time':0}
+r                = 0.11
+c1, c2           = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z)
+closing_equation = ((c1-p1(theta_right)).T @ (c1-p1(theta_right)) -r**2)**2+(
+                    (c2-p2(theta_left)).T @ (c2-p2(theta_left)) -  r**2)**2
 
 
 def swing_to_gimbal(state: Dict[str, float], tips: Dict[str, float] = None):
-
-    opti = Opti()
-    r = 0.11
-
-    theta_left = state['swing_left']
-    theta_right = state['swing_right']
-
-    gimbal_x = opti.variable()
-    gimbal_y = opti.variable()
-    gimbal_z = opti.variable()
-
+    x_0 = [state['swing_left'],state['swing_right'],0,0,0]
     if tips:
-        opti.set_initial(gimbal_x, tips['rx'])
-        opti.set_initial(gimbal_y, tips['ry'])
-        opti.set_initial(gimbal_z, tips['rz'])
+        x_0[2] = tips['rx']
+        x_0[3] = tips['ry']
+        x_0[4] = tips['rz']
 
-    c1, c2 = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z, opti=opti)
-    closing_equation = ((c1-p1(theta_right, opti)).T @ (c1-p1(theta_right, opti)) -
-                        r**2)**2+((c2-p2(theta_left, opti)).T @ (c2-p2(theta_left, opti)) - r**2)**2
+    constraints = (theta_right - state['swing_right'])**2  + (theta_left - state['swing_left'])**2  
 
-    opti.minimize(closing_equation)
-    p_opts = {"print_time": False}
-    s_opts = {"print_level": 0, "print_timing_statistics": "no"}
-    opti.solver('ipopt', p_opts, s_opts)
-    sol = opti.solve()
-    return {'gimbal_joint': {'rx': sol.value(gimbal_x), 'ry': sol.value(gimbal_y), 'rz': sol.value(gimbal_z)}}
+    nlp  = {'x':virtual_actuated_state ,'f':closing_equation,'g':constraints}
+    mapping_solver = nlpsol('swing_to_gimbal','ipopt',nlp,opts)
+    solution       = mapping_solver(x0 = x_0)
+    sol_vector     = np.array(solution['x'])
+    return {'gimbal_joint': {'rx': sol_vector[2][0], 'ry': sol_vector[3][0], 'rz': sol_vector[4][0]}}
 
 
 def gimbal_to_swing(state: Dict[str,Dict[str, float]], tips: Dict[str, float] = None):
-
-    opti = Opti()
-    r = 0.11
-
-    theta_left = opti.variable()
-    theta_right = opti.variable()
-
+    x_0 = [0,0, state['gimbal_joint']['rx'], state['gimbal_joint']['ry'],state['gimbal_joint']['rz']]
     if tips:
-        opti.set_initial(theta_left, tips['swing_left'])
-        opti.set_initial(theta_right, tips['swing_right'])
+        x_0[0] = tips['swing_left'] 
+        x_0[1] = tips['swing_right']
 
-    gimbal_x = state['gimbal_joint']['rx']
-    gimbal_y = state['gimbal_joint']['ry']
-    gimbal_z = state['gimbal_joint']['rz']
-    c1, c2 = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z, opti=opti)
-    closing_equation = ((c1-p1(theta_right, opti)).T @ (c1-p1(theta_right, opti)) -
-                        r**2)**2+((c2-p2(theta_left, opti)).T @ (c2-p2(theta_left, opti)) - r**2)**2
-    opti.minimize(closing_equation)
-    p_opts = {"print_time": False}
-    s_opts = {"print_level": 0, "print_timing_statistics": "no"}
-    opti.solver('ipopt', p_opts, s_opts)
-    sol = opti.solve()
-    return {'swing_left': sol.value(theta_left), 'swing_right': sol.value(theta_right)}
+    constraints = (gimbal_x - state['gimbal_joint']['rx'])**2  + (gimbal_y - state['gimbal_joint']['ry'])**2  + (gimbal_z - state['gimbal_joint']['rz'])**2
+    
+    nlp  = {'x':virtual_actuated_state ,'f':closing_equation,'g':constraints}
+    reverse_mapping_solver = nlpsol('gimbal_to_swing','ipopt',nlp,opts)
+    solution               = reverse_mapping_solver(x0 = [0,0,0,0,0])
+    sol_vector             = np.array(solution['x'])
+    return {'swing_left': sol_vector[0][0], 'swing_right': sol_vector[1][0]}
 
 
 A_CSS_P_trans = Transformation(name='A_CSS_P_trans',
