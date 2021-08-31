@@ -401,7 +401,7 @@ class KinematicGroup():
         """propagates changes from the :py:attr:`__virtual_state` to the underlying :py:class:`Transformation` objects.
         """
         for key in self.__virtual_state.keys():
-            self.__virtual_transformations[key].state = self.__virtual_state[key]
+            self.__virtual_transformations[key].set_state(self.__virtual_state[key])
 
     def __add_child(self, child):
         self.__child = child
