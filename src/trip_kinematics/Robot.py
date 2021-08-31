@@ -29,10 +29,10 @@ class Robot:
         for i in range(len(kinematic_chain)):
             group = kinematic_chain[i]
             if isinstance(group,Transformation):
+                print("Warning: Transformation "+str(group)+" was converted to a Group with parent "+str(kinematic_chain[i-1]))
                 if i >0:
-                    print(i)
                     group = KinematicGroup(name=str(group),virtual_transformations=[group],
-                                           parent= self.__group_dict[str(kinematic_chain[i-1])])
+                                           parent= str(kinematic_chain[i-1]))
                 else:
                     group = KinematicGroup(str(group),[group])
 
@@ -81,8 +81,6 @@ class Robot:
         Args:
             state (Dict[str, float]):  A dictionary containing the members of :py:attr:`__actuated_state` that should be set. 
         """
-        #TODO first group them according to their group then send them as packages
-        #TODO detect when grouping is incomplete!!!!!
         grouping = {}
         for key in state.keys():
             if self.__actuator_group_mapping[key] not in grouping.keys():

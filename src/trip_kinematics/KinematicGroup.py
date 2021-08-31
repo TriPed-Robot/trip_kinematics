@@ -203,11 +203,17 @@ class KinematicGroup():
 
     def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, actuated_to_virtual: Callable = None, virtual_to_actuated: Callable = None, act_to_virt_args=None, virt_to_act_args=None, parent=None):
         self.__name = name
+        if parent = None:
+            self.__parent = name
+        elif isinstance(parent,KinematicGroup):
+            self.__parent = str(parent)
+            parent.__add_children(name)
+        else:
+            raise TypeError("The parent of a group must be a another group object")
 
-        # Adds itself as child to parent
-        if parent != None:
-            self.__parent = parent
-            parent.__add_child(self)
+        self.__children = []
+
+
 
         self.__virtual_transformations = {}
         for transformation in virtual_transformations:
@@ -403,8 +409,9 @@ class KinematicGroup():
         for key in self.__virtual_state.keys():
             self.__virtual_transformations[key].set_state(self.__virtual_state[key])
 
-    def __add_child(self, child):
-        self.__child = child
+    def __add_children(self, child: str):
+        self.__children.append(child)
+
 
     def pass_arguments_g(self, argv):
         g_map = self.___original_virtual_to_actuated
