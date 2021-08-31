@@ -153,6 +153,22 @@ class Robot:
 
         return hom_matrix, symbolic_state, symbolic_keys
 
+    def get_inv_kin_handle(self,orientation=False,type="simple"):
+        supported_types = ["simple"]
+        if type not in supported_types:
+            raise KeyError("The specified type does not correspond to any inv kin solver. Supported types are "+str(supported_types))
+            
+        matrix, symboles, symbolic_keys = self.get_symbolic_rep()
+        end_effector_position = SX.sym("end_effector_pos",3)
+        objective = ((matrix[0,3] - end_effector_position[0])**2 + 
+                    (matrix[1,3] - end_effector_position[1])**2 + 
+                    (matrix[2,3] - end_effector_position[2])**2)
+
+        nlp  = {'x':vertcat(*symboles),'f':objective,'p':end_effector_position}
+        opts = {'ipopt.print_level':0, 'print_time':0}
+        inv_kin_solver = nlpsol('inv_kin','ipopt',nlp,opts)
+        return (inv_kin_solver, symbolic_keys)
+
     @staticmethod
     def solver_to_virtual_state(sol,symbolic_keys):
         """This Function maps the solution of a casadi solver to the virtual state of the robot
@@ -195,29 +211,22 @@ def forward_kinematics(robot: Robot):
     return transformation.matrix
 
 
-def inverse_kinematics(robot: Robot, end_effector_position):
-    """Simple Inverse kinematics algorithm that computes the actuated state necessairy for the endeffector to be at a specified position
 
-    Args:
-        robot (Robot): The robot for which the inverse kinematics should be computed 
-        end_effector_position ([type]): the desrired endeffector position
+def inverse_kinematics(robot: Robot, target_position, inv_kin_handle = None, orientation=False,type="simple"):
+    supported_types = ["simple"]
 
-    Returns:
-        Dict[str, float]: combined actuated state of all :py:class`KinematicGroup` objects.
-    """
+    if type not in supported_types:
+        raise KeyError("The specified type does not correspond to any inv kin solver. Supported types are "+str(supported_types))
 
-    matrix, symboles, symbolic_keys = robot.get_symbolic_rep()
+    if inv_kin_handle != None:
+        inv_kin_solver = inv_kin_handle[0]
+        symbolic_keys  = inv_kin_handle[1]
+    else:
+        inv_kin_solver,symbolic_keys = robot.get_inv_kin_handle(orientation,type)
 
-    objective = ((matrix[0,3] - end_effector_position[0])**2 + 
-                 (matrix[1,3] - end_effector_position[1])**2 + 
-                 (matrix[2,3] - end_effector_position[2])**2)
-
-    nlp  = {'x':vertcat(*symboles),'f':objective}
-    opts = {'ipopt.print_level':0, 'print_time':0}
-    inv_kin_solver = nlpsol('inv_kin','ipopt',nlp,opts)
-
-    solution       = inv_kin_solver(x0= [0,0,0,0])
+    solution = inv_kin_solver(x0= [0,0,0,0],p=target_position)
     
+
     solved_states = robot.solver_to_virtual_state(solution['x'],symbolic_keys)
     robot.set_virtual_state(solved_states)
     actuated_state = robot.get_actuated_state()

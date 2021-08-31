@@ -31,10 +31,10 @@ def unit_test_forward_kinematics(robot_type,precision):
     sample_results = [ (np.abs(reference[i]-calculated[i]) < precision).all() for i in range(len(reference))]
     return all(sample_results)
 
-def unit_test_inverse_kinematics(robot_type,inverse_kinematic_alg,precision):
-    test_inv(robot_type,inverse_kinematic_alg)
+def unit_test_inverse_kinematics(robot_type,inverse_kinematic_type,precision):
+    test_inv(robot_type,inverse_kinematic_type)
     inverse_reference   = os.path.join('tests','experiments',robot_type,'reference_solution','joint_values.csv')
-    inverse_calculated  = os.path.join('tests','experiments',robot_type,inverse_kinematic_alg.__name__,'joint_values.csv')
+    inverse_calculated  = os.path.join('tests','experiments',robot_type,'inverse_kinematics',inverse_kinematic_type,'joint_values.csv')
     
     reference  = []
     calculated = []
@@ -55,8 +55,8 @@ def unit_test_inverse_kinematics(robot_type,inverse_kinematic_alg,precision):
 class TestStates(unittest.TestCase):
 
 
-    def test_trivial_inverse_kinematics(self):
-        self.assertTrue(unit_test_inverse_kinematics("triped_leg",inverse_kinematics,0.015))
+    def test_simple_inverse_kinematics(self):
+        self.assertTrue(unit_test_inverse_kinematics("triped_leg","simple",0.015))
 
     def test_forward_kinematics(self):
         self.assertTrue(unit_test_forward_kinematics("triped_leg",0.1))

@@ -5,21 +5,21 @@ import os
 
 
 
-def test_inv(robot_name,inverse_kinematic_algorithm):
+def test_inv(robot_name,inverse_kinematic_type):
     available_robots = ["triped_leg"]
     if robot_name == "triped_leg":
-        test_triped_leg(inverse_kinematic_algorithm)
+        test_triped_leg(inverse_kinematic_type)
     else:
         raise KeyError("Robot "+robot_name+"not found in the list of available robots: "+str(available_robots))
 
 
-def test_triped_leg(inverse_kinematic_algorithm):
+def test_triped_leg(inverse_kinematic_type):
 
     robot_type ="triped_leg"
     forward_reference   = os.path.join('tests','experiments',robot_type,'reference_solution','endeffector_coordinates.csv')
     inverse_reference   = os.path.join('tests','experiments',robot_type,'reference_solution','joint_values.csv')
 
-    inverse_calculated  = os.path.join('tests','experiments',robot_type,inverse_kinematic_algorithm.__name__,'joint_values.csv')
+    inverse_calculated  = os.path.join('tests','experiments',robot_type,'inverse_kinematics',inverse_kinematic_type,'joint_values.csv')
 
 
     input_x = []
@@ -57,7 +57,7 @@ def test_triped_leg(inverse_kinematic_algorithm):
         closed_chain.pass_arguments_g([tip])
         triped_leg.set_actuated_state({'extend_joint_ry': tip['ry'],'swing_left': tip['swing_left'], 'swing_right':tip['swing_right']})
 
-        row = inverse_kinematic_algorithm(triped_leg, [input_x[i], input_y[i], input_z[i]])
+        row = inverse_kinematics(triped_leg, [input_x[i], input_y[i], input_z[i]],type=inverse_kinematic_type)
         inverse_rows.append([row['swing_left'], row['extend_joint_ry'],row['swing_right']])
 
 
