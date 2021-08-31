@@ -85,7 +85,9 @@ gimbal_x    = SX.sym('gimbal_x')
 gimbal_y    = SX.sym('gimbal_y')
 gimbal_z    = SX.sym('gimbal_z')
 
-virtual_actuated_state = vertcat(theta_left,theta_right,gimbal_x,gimbal_y,gimbal_z)
+virtual_state  = vertcat(gimbal_x ,gimbal_y ,gimbal_z )
+actuated_state = vertcat(theta_left,theta_right)
+
 opts                   = {'ipopt.print_level':0, 'print_time':0}
 r                = 0.11
 c1, c2           = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z)
@@ -94,32 +96,28 @@ closing_equation = ((c1-p1(theta_right)).T @ (c1-p1(theta_right)) -r**2)**2+(
 
 
 def swing_to_gimbal(state: Dict[str, float], tips: Dict[str, float] = None):
-    x_0 = [state['swing_left'],state['swing_right'],0,0,0]
+    x_0 = [0,0,0]
     if tips:
         x_0[2] = tips['rx']
         x_0[3] = tips['ry']
         x_0[4] = tips['rz']
 
-    constraints = (theta_right - state['swing_right'])**2  + (theta_left - state['swing_left'])**2  
-
-    nlp  = {'x':virtual_actuated_state ,'f':closing_equation,'g':constraints}
+    nlp  = {'x':virtual_state ,'f':closing_equation,'p':actuated_state}
     mapping_solver = nlpsol('swing_to_gimbal','ipopt',nlp,opts)
-    solution       = mapping_solver(x0 = x_0)
+    solution       = mapping_solver(x0 = x_0,p=[state['swing_left'],state['swing_right']])
     sol_vector     = np.array(solution['x'])
-    return {'gimbal_joint': {'rx': sol_vector[2][0], 'ry': sol_vector[3][0], 'rz': sol_vector[4][0]}}
+    return {'gimbal_joint': {'rx': sol_vector[0][0], 'ry': sol_vector[1][0], 'rz': sol_vector[2][0]}}
 
 
 def gimbal_to_swing(state: Dict[str,Dict[str, float]], tips: Dict[str, float] = None):
-    x_0 = [0,0, state['gimbal_joint']['rx'], state['gimbal_joint']['ry'],state['gimbal_joint']['rz']]
+    x_0 = [0,0]
     if tips:
         x_0[0] = tips['swing_left'] 
         x_0[1] = tips['swing_right']
-
-    constraints = (gimbal_x - state['gimbal_joint']['rx'])**2  + (gimbal_y - state['gimbal_joint']['ry'])**2  + (gimbal_z - state['gimbal_joint']['rz'])**2
     
-    nlp  = {'x':virtual_actuated_state ,'f':closing_equation,'g':constraints}
+    nlp  = {'x':actuated_state ,'f':closing_equation,'p':virtual_state}
     reverse_mapping_solver = nlpsol('gimbal_to_swing','ipopt',nlp,opts)
-    solution               = reverse_mapping_solver(x0 = [0,0,0,0,0])
+    solution               = reverse_mapping_solver(x0 = x_0, p=[ state['gimbal_joint']['rx'], state['gimbal_joint']['ry'],state['gimbal_joint']['rz']])
     sol_vector             = np.array(solution['x'])
     return {'swing_left': sol_vector[0][0], 'swing_right': sol_vector[1][0]}
 
