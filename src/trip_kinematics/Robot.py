@@ -1,6 +1,7 @@
 from typing import Dict, List, Callable, Union
 from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
-from casadi import Opti
+from casadi import Function, SX, nlpsol, vertcat
+import numpy as np
 from trip_kinematics.KinematicGroup import KinematicGroup
 
 
@@ -107,7 +108,7 @@ class Robot:
         return virtual_state
 
 
-    def get_symbolic_rep(self,opti_obj,endeffector):
+    def get_symbolic_rep(self):
         """This Function returnes a symbolic representation of the virtual chain.
 
 
@@ -116,7 +117,8 @@ class Robot:
         """
         matrix = TransformationMatrix()
 
-        symbolic_state = {}
+        symbolic_state = []
+        symbolic_keys  = []
 
         groups = self.get_groups()
         
@@ -133,40 +135,59 @@ class Robot:
                 for key in state.keys():
 
                     start_value = state[key]
-                    state[key] = opti_obj.variable()
-                    opti_obj.set_initial(state[key], start_value)
+                    state[key] = SX.sym(virtual_key+"_"+key)
+                    symbolic_state.append(state[key])
+                    symbolic_keys.append([virtual_key,key])
+                    #opti_obj.set_initial(state[key], start_value)
 
-                if state != {}:
-                    symbolic_state[virtual_key]=state
+                #if state != {}:
+                #    symbolic_keys[virtual_key]=state
 
                 hmt = virtual_transformation.get_transformation_matrix()
                 matrix = matrix * hmt
 
+        hom_matrix = SX.zeros(4,4)
+        for i in range(4):
+            for j in range(4):
+                hom_matrix[i,j] = matrix.matrix[i,j]   
 
+        return hom_matrix, symbolic_state, symbolic_keys
 
-        return matrix, symbolic_state
+    def get_inv_kin_handle(self,orientation=False,type="simple"):
+        supported_types = ["simple"]
+        if type not in supported_types:
+            raise KeyError("The specified type does not correspond to any inv kin solver. Supported types are "+str(supported_types))
+            
+        matrix, symboles, symbolic_keys = self.get_symbolic_rep()
+        end_effector_position = SX.sym("end_effector_pos",3)
+        objective = ((matrix[0,3] - end_effector_position[0])**2 + 
+                    (matrix[1,3] - end_effector_position[1])**2 + 
+                    (matrix[2,3] - end_effector_position[2])**2)
+
+        nlp  = {'x':vertcat(*symboles),'f':objective,'p':end_effector_position}
+        opts = {'ipopt.print_level':0, 'print_time':0}
+        inv_kin_solver = nlpsol('inv_kin','ipopt',nlp,opts)
+        return (inv_kin_solver, symbolic_keys)
 
     @staticmethod
-    def solver_to_virtual_state(sol,symbolic_state):
-        """This Function maps the solution of a opti solver to the virtual state of the robot
+    def solver_to_virtual_state(sol,symbolic_keys):
+        """This Function maps the solution of a casadi solver to the virtual state of the robot
 
         Args:
-            sol ([type]): A opti solver object
-            symbolic_state ([type]): the description of the symbolic state that corresponds to the solver values
-
+            sol ([type]): A solution of a nlp solver
+            symbolic_state ([type]): A dictionary containing the corresponding virtual state keys.
         Returns:
             Dict[str,Dict[str, float]]: a :py:attr:`virtual_state` of a robot.
         """
         solved_states = {}
+        sol = np.array(sol) #convert casadi DM to usable datatype
+        for i in range(len(sol)):
+            outer_key = symbolic_keys[i][0]
+            inner_key = symbolic_keys[i][1]
+            if outer_key not in solved_states.keys():
+                solved_states[outer_key] = {}
 
-        for joint_key in symbolic_state.keys():
-            states = {}
-            virtual_joint = symbolic_state[joint_key]
-            for key in virtual_joint.keys():
-                states[key]=sol.value(symbolic_state[joint_key][key])
-
-            solved_states[joint_key]=states
-        
+            solved_states[outer_key][inner_key] = sol[i][0] 
         return solved_states
 
 
@@ -190,38 +211,23 @@ def forward_kinematics(robot: Robot):
     return transformation.matrix
 
 
-def inverse_kinematics(robot: Robot, end_effector_position):
-    """Simple Inverse kinematics algorithm that computes the actuated state necessairy for the endeffector to be at a specified position
 
-    Args:
-        robot (Robot): The robot for which the inverse kinematics should be computed 
-        end_effector_position ([type]): the desrired endeffector position
+def inverse_kinematics(robot: Robot, target_position, inv_kin_handle = None, orientation=False,type="simple"):
+    supported_types = ["simple"]
 
-    Returns:
-        Dict[str, float]: combined actuated state of all :py:class`KinematicGroup` objects.
-    """
+    if type not in supported_types:
+        raise KeyError("The specified type does not correspond to any inv kin solver. Supported types are "+str(supported_types))
 
-    opti = Opti()
-    matrix, states_to_solve_for = robot.get_symbolic_rep(opti,"placeholder_endeffector")
+    if inv_kin_handle != None:
+        inv_kin_solver = inv_kin_handle[0]
+        symbolic_keys  = inv_kin_handle[1]
+    else:
+        inv_kin_solver,symbolic_keys = robot.get_inv_kin_handle(orientation,type)
 
-    # position only inverse kinematics
-    translation = matrix.get_translation()
-    equation = ((translation[0] - end_effector_position[0])**2 + 
-                (translation[1] - end_effector_position[1])**2 + 
-                (translation[2] - end_effector_position[2])**2)
+    solution = inv_kin_solver(x0= [0,0,0,0],p=target_position)
+    
 
-
-    opti.minimize(equation)
-    p_opts = {"print_time": False}
-    s_opts = {"print_level": 0, "print_timing_statistics": "no"}
-
-
-    opti.solver('ipopt', p_opts, s_opts)
-    sol = opti.solve()
-
-    #print(robot.get_virtual_state())
-
-    solved_states = robot.solver_to_virtual_state(sol,states_to_solve_for)
+    solved_states = robot.solver_to_virtual_state(solution['x'],symbolic_keys)
     robot.set_virtual_state(solved_states)
     actuated_state = robot.get_actuated_state()
     return actuated_state
