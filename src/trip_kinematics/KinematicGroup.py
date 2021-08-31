@@ -203,7 +203,7 @@ class KinematicGroup():
 
     def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, actuated_to_virtual: Callable = None, virtual_to_actuated: Callable = None, act_to_virt_args=None, virt_to_act_args=None, parent=None):
         self.__name = name
-        if parent = None:
+        if parent == None:
             self.__parent = name
         elif isinstance(parent,KinematicGroup):
             self.__parent = str(parent)

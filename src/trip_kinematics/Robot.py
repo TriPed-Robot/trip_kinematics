@@ -32,7 +32,7 @@ class Robot:
                 print("Warning: Transformation "+str(group)+" was converted to a Group with parent "+str(kinematic_chain[i-1]))
                 if i >0:
                     group = KinematicGroup(name=str(group),virtual_transformations=[group],
-                                           parent= str(kinematic_chain[i-1]))
+                                           parent= self.__group_dict[str(kinematic_chain[i-1])])
                 else:
                     group = KinematicGroup(str(group),[group])
 
