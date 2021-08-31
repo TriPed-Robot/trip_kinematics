@@ -1,5 +1,6 @@
 from examples.triped import triped_leg, closed_chain, leg_linear_part
 from trip_kinematics.Robot import inverse_kinematics, forward_kinematics
+import time
 import csv
 import os
 
@@ -37,6 +38,8 @@ def test_triped_leg():
             input_t2.append(float(row[2]))
             input_e.append(float(row[1]))
 
+    start_time = time.time()
+
     for i in range(len(input_t1)):
         state['swing_left'] = input_t1[i]
         state['swing_right'] = input_t2[i]
@@ -46,6 +49,11 @@ def test_triped_leg():
 
         row = forward_kinematics(triped_leg)
         forward_rows.append(row[: 3, 3])
+
+    stop_time = time.time()
+    calc_time = stop_time-start_time
+    print(robot_type+":\n")
+    print(str(len(input_t1))+" forward kinematic calculations where performed in "+str(calc_time)+" seconds\n")
 
 
     with open(forward_calculated, 'w') as f:
