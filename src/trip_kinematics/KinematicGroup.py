@@ -207,11 +207,11 @@ class KinematicGroup():
             self.parent = name
         elif isinstance(parent,KinematicGroup):
             self.parent = str(parent)
-            parent.__add_children(name)
+            parent.add_children(name)
         else:
             raise TypeError("The parent of a group must be a another group object")
 
-        self.__children = []
+        self.children = []
 
 
 
@@ -409,8 +409,8 @@ class KinematicGroup():
         for key in self.__virtual_state.keys():
             self.__virtual_transformations[key].set_state(self.__virtual_state[key])
 
-    def __add_children(self, child: str):
-        self.__children.append(child)
+    def add_children(self, child: str):
+        self.children.append(child)
 
 
     def pass_arguments_g(self, argv):

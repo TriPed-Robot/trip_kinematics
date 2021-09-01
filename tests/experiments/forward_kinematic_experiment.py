@@ -47,7 +47,7 @@ def test_triped_leg():
 
         triped_leg.set_actuated_state({'extend_joint_ry': state['ry'], 'swing_left': state['swing_left'], 'swing_right':state['swing_right']})
 
-        row = forward_kinematics(triped_leg)
+        row = forward_kinematics(triped_leg,'A_LL_Joint_FCS')
         forward_rows.append(row[: 3, 3])
 
     stop_time = time.time()

@@ -212,7 +212,7 @@ class Robot:
 
 
 
-def forward_kinematics(robot: Robot):
+def forward_kinematics(robot: Robot,endeffector):
     """Calculates a robots transformation from base to endeffector using its current state
 
     Args:
@@ -222,9 +222,22 @@ def forward_kinematics(robot: Robot):
         numpy.array : The Transformation from base to endeffector 
     """
     transformation = TransformationMatrix()
-    groups = robot.get_groups()
-    for group_key in groups.keys():
-        group = groups[group_key]
+    group_dict = robot.get_groups()
+    if endeffector not in group_dict.keys():
+        raise KeyError("The endeffector must be a valid group name. Valid group names for this robot are: "+str(group_dict.keys()))
+    endeff_group   = group_dict[endeffector]
+    current_parent = endeff_group.parent
+    current_key    = endeffector
+    group_key_list = [endeffector]
+    while current_parent != current_key:
+        next_group     = group_dict[current_parent]
+        current_key    = current_parent
+        current_parent = next_group.parent
+        group_key_list.append(current_key)
+
+    group_key_list.reverse()
+    for group_key in group_key_list:
+        group = group_dict[group_key]
         hmt = group.get_transformation_matrix()
         transformation = transformation * hmt
     return transformation.matrix
