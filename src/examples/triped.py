@@ -147,7 +147,7 @@ A_LL_Joint_FCS = Transformation(name='A_LL_Joint_FCS', values={'tx': -1.5})
 leg_linear_part = KinematicGroup(name='leg_linear_part',
                                  virtual_transformations=[A_P_LL, zero_angle_convention,extend_joint, A_LL_Joint_FCS], 
                                  parent=closed_chain)
-print("leg linear:",leg_linear_part.get_actuated_state())
+
 triped_leg = Robot([closed_chain, A_P_LL, zero_angle_convention,extend_joint, A_LL_Joint_FCS])
 
 closed_chain.set_actuated_state({'swing_left': 0, 'swing_right': 0})

@@ -22,7 +22,7 @@ def test_triped_leg(inverse_kinematic_type):
 
     inverse_calculated  = os.path.join('tests','experiments',robot_type,'inverse_kinematics',inverse_kinematic_type,'joint_values.csv')
 
-    inv_kin_handle = triped_leg.get_inv_kin_handle()
+    inv_kin_handle = triped_leg.get_inv_kin_handle('A_LL_Joint_FCS')
 
     input_x = []
     input_y = []
@@ -61,7 +61,7 @@ def test_triped_leg(inverse_kinematic_type):
         closed_chain.pass_arguments_g([tip])
         triped_leg.set_actuated_state({'extend_joint_ry': tip['ry'],'swing_left': tip['swing_left'], 'swing_right':tip['swing_right']})
 
-        row = inverse_kinematics(triped_leg, [input_x[i], input_y[i], input_z[i]],inv_kin_handle=inv_kin_handle,type=inverse_kinematic_type)
+        row = inverse_kinematics(triped_leg, 'A_LL_Joint_FCS',[input_x[i], input_y[i], input_z[i]],inv_kin_handle=inv_kin_handle,type=inverse_kinematic_type)
         inverse_rows.append([row['swing_left'], row['extend_joint_ry'],row['swing_right']])
     
     stop_time = time.time()
