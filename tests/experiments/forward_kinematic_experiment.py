@@ -1,4 +1,4 @@
-from examples.triped import triped_leg, closed_chain, leg_linear_part
+from examples.triped import triped
 from trip_kinematics.Robot import inverse_kinematics, forward_kinematics
 import time
 import csv
@@ -7,8 +7,8 @@ import os
 
 
 def test_fwd(robot_name):
-    available_robots = ["triped_leg"]
-    if robot_name == "triped_leg":
+    available_robots = ["triped"]
+    if robot_name == "triped":
         test_triped_leg()
     else:
         raise KeyError("Robot "+robot_name+"not found in the list of available robots: "+str(available_robots))
@@ -16,7 +16,7 @@ def test_fwd(robot_name):
 
 def test_triped_leg():
 
-    robot_type ="triped_leg"
+    robot_type ="triped"
     inverse_reference   = os.path.join('tests','experiments',robot_type,'reference_solution','joint_values.csv')
 
     forward_calculated  = os.path.join('tests','experiments',robot_type,'forward_kinematics','endeffector_coordinates.csv')
@@ -45,9 +45,9 @@ def test_triped_leg():
         state['swing_right'] = input_t2[i]
         state['ry'] = input_e[i]
 
-        triped_leg.set_actuated_state({'extend_joint_ry': state['ry'], 'swing_left': state['swing_left'], 'swing_right':state['swing_right']})
+        triped.set_actuated_state({'leg0_extend_joint_ry': state['ry'], 'leg0_swing_left': state['swing_left'], 'leg0_swing_right':state['swing_right']})
 
-        row = forward_kinematics(triped_leg,'A_LL_Joint_FCS')
+        row = forward_kinematics(triped,'leg0_A_LL_Joint_FCS')
         forward_rows.append(row[: 3, 3])
 
     stop_time = time.time()

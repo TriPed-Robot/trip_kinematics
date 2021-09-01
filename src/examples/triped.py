@@ -1,3 +1,4 @@
+from copy import deepcopy
 from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
 from trip_kinematics.Robot import Robot, inverse_kinematics, forward_kinematics
 from casadi import Opti, SX, Function, SX, nlpsol, vertcat
@@ -122,32 +123,66 @@ def gimbal_to_swing(state: Dict[str,Dict[str, float]], tips: Dict[str, float] = 
     return {'swing_left': sol_vector[0][0], 'swing_right': sol_vector[1][0]}
 
 
-A_CSS_P_trans = Transformation(name='A_CSS_P_trans',
+def single_leg(leg_number):
+    leg_name = 'leg'+str(leg_number)+'_'
+    leg_rotation  = Transformation(name=leg_name+'leg_rotation',
+                               values={'rz':radians(120)*leg_number })
+    leg_rotation_group = KinematicGroup(name=leg_name+"leg_rotation",virtual_transformations=[leg_rotation])
+    A_CSS_P_trans = Transformation(name=leg_name+'A_CSS_P_trans',
                                values={'tx': 0.265, 'tz': 0.014})
 
-A_CSS_P_rot = Transformation(name='gimbal_joint',
+    A_CSS_P_rot = Transformation(name=leg_name+'gimbal_joint',
                              values={'rx': 0, 'ry': 0, 'rz': 0}, state_variables=['rx', 'ry', 'rz'])
 
-closed_chain = KinematicGroup(name='closed_chain', virtual_transformations=[A_CSS_P_trans,A_CSS_P_rot], 
-                              actuated_state={'swing_left': 0, 'swing_right': 0}, 
-                              actuated_to_virtual=swing_to_gimbal, virtual_to_actuated=gimbal_to_swing)
 
-A_P_LL = Transformation(name='A_P_LL', values={'tx': 1.640, 'tz': -0.037, })
+    def leg_swing_to_gimbal(swing: Dict[str, float], tips: Dict[str, float] = None):
+        swing = deepcopy(swing)
+        swing['swing_left'] = swing[leg_name+'swing_left']
+        del swing[leg_name+'swing_left']
+        swing['swing_right'] = swing[leg_name+'swing_right']
+        del swing[leg_name+'swing_right']
 
-zero_angle_convention = Transformation(name='zero_angle_convention',
+        gimbal = swing_to_gimbal(swing,tips)
+
+        gimbal[leg_name+'gimbal_joint'] = gimbal['gimbal_joint']
+        del gimbal['gimbal_joint']
+
+        return gimbal
+
+    def leg_gimbal_swing(gimbal: Dict[str, float], tips: Dict[str, float] = None):
+        gimbal = deepcopy(gimbal)
+        gimbal['gimbal_joint'] = gimbal[leg_name+'gimbal_joint']
+        del gimbal[leg_name+'gimbal_joint']
+
+        swing = gimbal_to_swing(gimbal,tips)
+
+        swing[leg_name+'swing_left'] = swing['swing_left']
+        del swing['swing_left']
+        swing[leg_name+'swing_right'] = swing['swing_right']
+        del swing['swing_right']
+
+        return swing
+
+
+    closed_chain = KinematicGroup(name=leg_name+'closed_chain', virtual_transformations=[A_CSS_P_trans,A_CSS_P_rot], 
+                              actuated_state={leg_name+'swing_left': 0, leg_name+'swing_right': 0}, 
+                              actuated_to_virtual=leg_swing_to_gimbal, virtual_to_actuated=leg_gimbal_swing,parent=leg_rotation_group)
+
+    A_P_LL = Transformation(name=leg_name+'A_P_LL', values={'tx': 1.640, 'tz': -0.037, })
+
+    zero_angle_convention = Transformation(name=leg_name+'zero_angle_convention',
                                        values={'ry': radians(-3)})
 
-extend_joint = Transformation(name='extend_joint',
+    extend_joint = Transformation(name=leg_name+'extend_joint',
                                    values={'ry': 0}, state_variables=['ry'])
 
-A_LL_Joint_FCS = Transformation(name='A_LL_Joint_FCS', values={'tx': -1.5})
+    A_LL_Joint_FCS = Transformation(name=leg_name+'A_LL_Joint_FCS', values={'tx': -1.5})
 
 
+    return [leg_rotation_group,closed_chain, A_P_LL, zero_angle_convention,extend_joint, A_LL_Joint_FCS]
 
-leg_linear_part = KinematicGroup(name='leg_linear_part',
-                                 virtual_transformations=[A_P_LL, zero_angle_convention,extend_joint, A_LL_Joint_FCS], 
-                                 parent=closed_chain)
-
-triped_leg = Robot([closed_chain, A_P_LL, zero_angle_convention,extend_joint, A_LL_Joint_FCS])
-
-closed_chain.set_actuated_state({'swing_left': 0, 'swing_right': 0})
+first_leg  = single_leg(0)
+second_leg = single_leg(1)
+third_leg  = single_leg(2)
+triped     = Robot(first_leg+second_leg+third_leg)
+triped.set_actuated_state({'leg0_swing_left': 0, 'leg0_swing_right': 0})

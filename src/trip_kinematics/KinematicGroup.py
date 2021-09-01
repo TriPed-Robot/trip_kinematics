@@ -201,7 +201,7 @@ class KinematicGroup():
     def object_list_to_key_lists(object_lst):
         return list(object_lst.keys())
 
-    def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: List[Dict[str, float]] = None, actuated_to_virtual: Callable = None, virtual_to_actuated: Callable = None, act_to_virt_args=None, virt_to_act_args=None, parent=None):
+    def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: Dict[str, float] = None, actuated_to_virtual: Callable = None, virtual_to_actuated: Callable = None, act_to_virt_args=None, virt_to_act_args=None, parent=None):
         self.__name = name
         if parent == None:
             self.parent = name
@@ -242,18 +242,15 @@ class KinematicGroup():
             self.__original_actuated_to_virtual = actuated_to_virtual
             if act_to_virt_args:
                 self.__actuated_to_virtual = lambda state: actuated_to_virtual(state, *act_to_virt_args)
-            self.__actuated_to_virtual = actuated_to_virtual
-
+            self.__actuated_to_virtual   = actuated_to_virtual
             actuated_to_virtual_to_check = self.__actuated_to_virtual(actuated_state)
-
+            
             if KinematicGroup.object_list_to_key_lists(actuated_to_virtual_to_check) != KinematicGroup.object_list_to_key_lists(virtual_state):
                 raise RuntimeError("actuated_to_virtual does not fit virtual state")
-
             self.___original_virtual_to_actuated = virtual_to_actuated
             if virt_to_act_args:
                 self.__virtual_to_actuated = lambda state: virtual_to_actuated(state, *virt_to_act_args)
-            self.__virtual_to_actuated = virtual_to_actuated
-
+            self.__virtual_to_actuated   = virtual_to_actuated
             virtual_to_actuated_to_check = virtual_to_actuated(virtual_state)
 
             if KinematicGroup.object_list_to_key_lists(virtual_to_actuated_to_check) != KinematicGroup.object_list_to_key_lists(actuated_state):
