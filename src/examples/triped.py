@@ -37,7 +37,7 @@ def p1(theta):
 
     A_CCS_lsm  = A_CCS_lsm_tran * A_CCS_lsm_rot
     A_CSS_MCS1 = A_CCS_lsm * A_MCS1_JOINT
-    A_CCS_SP11 = A_CSS_MCS1 * A_MCS1_SP11
+    A_CCS_SP11 =A_CCS_lsm_tran * A_CCS_lsm_rot * A_MCS1_JOINT * A_MCS1_SP11
 
     return A_CCS_SP11.get_translation()
 
