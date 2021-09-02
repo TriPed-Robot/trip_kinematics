@@ -2,7 +2,7 @@ from typing import Dict, List, Callable, Union
 from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
 from casadi import Function, SX, nlpsol, vertcat
 import numpy as np
-from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
+from trip_kinematics.KinematicGroup import OpenKinematicGroup, KinematicGroup, Transformation
 
 
 
@@ -29,12 +29,12 @@ class Robot:
         for i in range(len(kinematic_chain)):
             group = kinematic_chain[i]
             if isinstance(group,Transformation):
-                print("Warning: Transformation "+str(group)+" was converted to a Group with parent "+str(kinematic_chain[i-1]))
+                print("Warning: Transformation "+str(group)+" was converted to a OpenKinematicGroup with parent "+str(kinematic_chain[i-1]))
                 if i >0:
-                    group = KinematicGroup(name=str(group),virtual_transformations=[group],
+                    group = OpenKinematicGroup(name=str(group),virtual_transformations=[group],
                                            parent= self.__group_dict[str(kinematic_chain[i-1])])
                 else:
-                    group = KinematicGroup(str(group),[group])
+                    group = OpenKinematicGroup(str(group),[group])
 
             self.__group_dict[str(group)]=group
 
@@ -45,7 +45,6 @@ class Robot:
                         raise KeyError("More than one robot actuator has the same name! Please give each actuator a unique name")
                     self.__actuator_group_mapping[key]=str(group)
 
-                group_virtuals = []
                 for key in group.get_virtual_state().keys():
                     if key in self.__virtual_group_mapping.keys():
                         raise KeyError("More than one robot virtual transformation has the same name! Please give each virtual transformation a unique name")
