@@ -1,4 +1,4 @@
-from examples.triped import triped_leg, closed_chain, leg_linear_part
+from trip_robots.triped import triped_leg, closed_chain, leg_linear_part
 from trip_kinematics.Robot import inverse_kinematics, forward_kinematics
 import csv
 import os

@@ -48,14 +48,14 @@ Building virtual open chains
 In the case of the TriPed two virtual open chains have to be set up, one for each group.
 According to the kinematic transformations described `here <https://triped-robot.github.io/docs/kinematics/>`_ the virtual open chain of the closed chain can be defined using:
 
-.. literalinclude:: ../../src/examples/triped.py
+.. literalinclude:: ../../src/trip_robots/triped.py
    :language: python
    :linenos:
    :lines: 159-164
 
 While the virtual open chain of the open chain (wich are identical) can be defined using:
 
-.. literalinclude:: ../../src/examples/triped.py
+.. literalinclude:: ../../src/trip_robots/triped.py
    :language: python
    :linenos:
    :lines: 168-176
@@ -84,7 +84,7 @@ The virtual_to_actuated and actuated_to_virtual mappings can now be defined as t
 This can be done using casadis opti stack.
 The final code can be seen down below:
 
-.. literalinclude:: ../../src/examples/triped.py
+.. literalinclude:: ../../src/trip_robots/triped.py
    :language: python
    :linenos:
    :lines: 10-157
@@ -97,12 +97,12 @@ Building the groups
 
 Using both the mappings and the virtual open chain, the groups can be build:
 
-.. literalinclude:: ../../src/examples/triped.py
+.. literalinclude:: ../../src/trip_robots/triped.py
    :language: python
    :linenos:
    :lines: 165-166
 
-.. literalinclude:: ../../src/examples/triped.py
+.. literalinclude:: ../../src/trip_robots/triped.py
    :language: python
    :linenos:
    :lines: 178-179

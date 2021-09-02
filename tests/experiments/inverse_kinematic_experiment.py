@@ -1,4 +1,4 @@
-from examples.triped import triped
+from trip_robots.triped import triped
 from trip_kinematics.Robot import inverse_kinematics, forward_kinematics
 import time
 import csv
