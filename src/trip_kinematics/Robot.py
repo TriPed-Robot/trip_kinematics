@@ -256,7 +256,7 @@ def inverse_kinematics(robot: Robot, endeffector, target_position, inv_kin_handl
     else:
         inv_kin_solver,symbolic_keys = robot.get_inv_kin_handle(endeffector,orientation,type)
 
-    solution = inv_kin_solver(x0= [0,0,0,0],p=target_position)
+    solution = inv_kin_solver(x0= [0]*len(symbolic_keys),p=target_position)
     
 
     solved_states = robot.solver_to_virtual_state(solution['x'],symbolic_keys)

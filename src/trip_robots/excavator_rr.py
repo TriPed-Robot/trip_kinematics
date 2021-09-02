@@ -139,4 +139,3 @@ closure_group_2 = KinematicGroup(name="geometric group 2",
 closure_excavator = Robot([closure_group_1,closure_group_2])
 
 
-
