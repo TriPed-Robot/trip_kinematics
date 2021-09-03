@@ -9,8 +9,8 @@ Tutorials
 Building a Robot Model
 ======================
 
-Building a robot is the first step in using the functionality of TriP.
-This Tutorial will show how to buil a leg of the `TriPed robot  <https://triped-robot.github.io/docs/robot/>`_  shown below:
+Before TriPs functionality can be used on a robot, it first has to be build within TriP.
+This Tutorial will show how to build the `TriPed robot  <https://triped-robot.github.io/docs/robot/>`_  shown below:
 
 
 .. image:: https://user-images.githubusercontent.com/22688144/124489566-6d70f000-ddb1-11eb-9f57-6a2d9e374fcc.png?raw=true
@@ -18,53 +18,68 @@ This Tutorial will show how to buil a leg of the `TriPed robot  <https://triped-
 
 
 Here each leg was highlighted in a different color.
+Since all legs are identicall, this tutorial will start with a single leg.
 More information about the triped legs can be found `here <https://triped-robot.github.io/docs/legs/>`_ .
 
-The first step in setting up a robot is identifying the kinematic groups.
-This is requires some knowledge about kinematic structures, but as a generale rule, each time multiple moving parts converge in a single location they should be part of a group.
-Specifically they are in all likelyhood part of something called a closed kinematic chain.
-The name is derived from the fact that the moving parts form closed loops.
-A good first step when dividing a robot into groups is first identifying these closed chains.
+
+The first step in setting up a robot is identifying the groups and transformations.
+TriP uses Groups to model closed kinematic chains.
+These are structures where multiple moving parts converge in a single location forming one or more loops.
+Some examples can be seen down below:
+
+## TODO 
 
 These closed chains will either be connected directly to each other or using a series of other moving parts.
 Such a series is called a open kinematic chain.
-Each open chain is also considered a group.
+Open Kinematic chains are handled using a series of transformations.
+
 
 In the case of the TriPed the following chains can be identified:
 
 .. image:: images/triped_hybrid_chain.png
     :alt: triped-hybrid_chain
 
-This in turn means that the leg of the TriPed is made up of two kinematic groups.
+This in turn means that the leg of the TriPed contains one kinematic group and a number of transformations representing the open chain.
 
 Once each group has been identified the group construction worklow goes like this:
 
 .. image:: images/trip_sameple_workflow.png
     :alt: trip_sample_workflow
 
-Building virtual open chains
+Building open chains
 ----------------------------
 
-In the case of the TriPed two virtual open chains have to be set up, one for each group.
-According to the kinematic transformations described `here <https://triped-robot.github.io/docs/kinematics/>`_ the virtual open chain of the closed chain can be defined using:
+Groups handle closed chains by abstracting them into a virtual open chains that models how group moves combined with two mapping functions from these virtual joints to the actual actuated joints and back.
+This means that for both the open and the closed chain, a chain has to be build.
+The precise transformations depend on the type of robot and its conventions. 
+The kinematic transformations of the TriPed are described here: `here <https://triped-robot.github.io/docs/kinematics/>`_  .
+This leads to the following virtual open chain:
 
-.. literalinclude:: ../../src/trip_robots/triped.py
+.. literalinclude:: ../../src/trip_robots/triped_leg.py
    :language: python
    :linenos:
-   :lines: 159-164
+   :lines: 107-112
 
-While the virtual open chain of the open chain (wich are identical) can be defined using:
+And the corresponding transformations for the open chain:
 
-.. literalinclude:: ../../src/trip_robots/triped.py
+.. literalinclude:: ../../src/trip_robots/triped_leg.py
    :language: python
    :linenos:
-   :lines: 168-176
+   :lines: 119-127
+
+
+Note that both chains are made up of transformations without `state_variables`.
+Such transformations are 'static' and dont represent a joint. 
+It is possible to construct open chains without such transformations (see the `denavit hartenberg <https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters/>`_ convention for example).
+In practice however they are handy to specify the position of a joint at a specified angle.
+This allows the joint angles to be interpretable.
+This can be seen with the `A_LL_LL_zero` transformation. It ensures that a `extend_joint` angle corresponds to the foot of the leg being completely retracted. 
 
 
 Create Mappings
 ---------------
 
-For the closed chain a mapping from the actuated swing_joints to the virtual joint have to be provided. These joints can be seen down below:
+For the kinematic group a mapping from the actuated swing_joints to the virtual gimbal joint have to be provided. These joints can be seen down below:
 
 .. image:: images/triped_mapping.png
     :alt: triped_mapping
@@ -81,41 +96,54 @@ Mathematically this can be described using:
 Where :math:`rx,ry,rz` are the rotation around the x, y and z axis and the suberscript :math:`v,~a`denotes the virtual and actuated state respectively.
 
 The virtual_to_actuated and actuated_to_virtual mappings can now be defined as the virtual or actuated state that solves the closure equation assuming the other state as a fixed value.
-This can be done using casadis opti stack.
+This can be done using casadis nonelinear programming solver.
 The final code can be seen down below:
 
-.. literalinclude:: ../../src/trip_robots/triped.py
+.. literalinclude:: ../../src/trip_robots/triped_leg.py
    :language: python
    :linenos:
-   :lines: 10-157
+   :lines: 10-104
 
-Note that for the open chains no mappings are necessairy as the virtual and actuated state differs only in their dictionary structure.
-This trivial mapping is autogenerated by TriP
 
-Building the groups
+Building the group
 -------------------
 
-Using both the mappings and the virtual open chain, the groups can be build:
+Using both the mappings and the virtual open chain, the group can be build:
 
-.. literalinclude:: ../../src/trip_robots/triped.py
+.. literalinclude:: ../../src/trip_robots/triped_leg.py
    :language: python
    :linenos:
-   :lines: 165-166
+   :lines: 113-117
 
-.. literalinclude:: ../../src/trip_robots/triped.py
-   :language: python
-   :linenos:
-   :lines: 178-179
-
-Where `leg_linear_part` is the name of the open chain. 
 Note that the closed chain specifies no parent since it is located directly at the robots base and the open chain specifies no mappings since these are autogenerated.
 
 Combining groups to a robot
 ---------------------------
 
-The last step is to combine the groups into a robot object:
+The last step is to combine the group and transformations into a robot object:
 ::
 
-    triped_leg = Robot([closed_chain, leg_linear_part])
+    triped_leg     = Robot([closed_chain,A_P_LL,A_LL_LL_zero,A_LL_zero_LL_joint,A_LL_Joint_FCS])
 
+Building the complete robot
+---------------------------
 
+Since the TriPed has three legs, the above process has to be repeated three times.
+Each time the joints and actuated state need their own unique names.
+
+Since this would be tedious to do by hand, a function can be written that returns the full transformation of a single leg.
+This functions then follows the above steps, only appending the initial kinematic group with a transformation to the start position of each leg.
+
+This function can be seen here:
+
+.. literalinclude:: ../../src/trip_robots/triped.py
+   :language: python
+   :linenos:
+   :lines: 10-66
+
+The final TriPed robot can then be build using:
+
+.. literalinclude:: ../../src/trip_robots/triped.py
+   :language: python
+   :linenos:
+   :lines: 69-70
