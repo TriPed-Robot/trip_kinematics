@@ -56,7 +56,7 @@ class TestStates(unittest.TestCase):
 
 
     def test_simple_inverse_kinematics(self):
-        self.assertTrue(unit_test_inverse_kinematics("triped","simple",0.015))
+        self.assertTrue(unit_test_inverse_kinematics("triped","simple",0.03))
 
     def test_forward_kinematics(self):
         self.assertTrue(unit_test_forward_kinematics("triped",0.1))

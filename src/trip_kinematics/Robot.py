@@ -242,7 +242,7 @@ def forward_kinematics(robot: Robot,endeffector):
 
 
 
-def inverse_kinematics(robot: Robot, endeffector, target_position, inv_kin_handle = None, orientation=False,type="simple"):
+def inverse_kinematics(robot: Robot, endeffector, target_position, inv_kin_handle = None, orientation=False,initial_tip = None,type="simple"):
     supported_types = ["simple"]
 
     if type not in supported_types:
@@ -254,10 +254,21 @@ def inverse_kinematics(robot: Robot, endeffector, target_position, inv_kin_handl
     else:
         inv_kin_solver,symbolic_keys = robot.get_inv_kin_handle(endeffector,orientation,type)
 
-    solution = inv_kin_solver(x0= [0]*len(symbolic_keys),p=target_position)
+    if initial_tip == None:
+        virtual_state = robot.get_virtual_state()
+        x_0 = []
+        for i in range(len(symbolic_keys)):
+            x_0.append(virtual_state[symbolic_keys[i][0]][symbolic_keys[i][1]])
+    else:
+        if len(initial_tip) != len(symbolic_keys):
+            raise RuntimeError("The initial state has "+str(len(initial_tip))+ " values, while the solver expected ",str(len(symbolic_keys)))
+        else:
+            x_0 = initial_tip
+
+    solution = inv_kin_solver(x0= x_0,p=target_position)
     
 
-    solved_states = robot.solver_to_virtual_state(solution['x'],symbolic_keys)
+    solved_states = Robot.solver_to_virtual_state(solution['x'],symbolic_keys)
     robot.set_virtual_state(solved_states)
     actuated_state = robot.get_actuated_state()
     return actuated_state
