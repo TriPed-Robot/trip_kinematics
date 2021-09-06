@@ -1,7 +1,7 @@
-from typing import Dict, List, Callable, Union
+from typing import Dict, List
 from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
-from casadi import Function, SX, nlpsol, vertcat
-import numpy as np
+from casadi import SX, nlpsol, vertcat
+from numpy import array
 from trip_kinematics.KinematicGroup import OpenKinematicGroup, KinematicGroup, Transformation
 
 
@@ -197,7 +197,7 @@ class Robot:
             Dict[str,Dict[str, float]]: a :py:attr:`virtual_state` of a robot.
         """
         solved_states = {}
-        sol = np.array(sol) #convert casadi DM to usable datatype
+        sol = array(sol) #convert casadi DM to usable datatype
         for i in range(len(sol)):
             outer_key = symbolic_keys[i][0]
             inner_key = symbolic_keys[i][1]

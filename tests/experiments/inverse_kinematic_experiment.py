@@ -1,5 +1,5 @@
 from trip_robots.triped import triped
-from trip_kinematics.Robot import inverse_kinematics, forward_kinematics
+from trip_kinematics.Robot import inverse_kinematics
 import time
 import csv
 import os

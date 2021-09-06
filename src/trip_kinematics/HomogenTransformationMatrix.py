@@ -1,8 +1,8 @@
-import numpy as np
-from casadi import MX, cos, sin
+from numpy import array
+from casadi import cos, sin
 
 
-def quat_rotation_matrix(qw, qx, qy, qz) -> np.ndarray:
+def quat_rotation_matrix(qw, qx, qy, qz) -> array:
     """Generates a 3x3 rotation matrix from q quaternion
 
     Args:
@@ -12,9 +12,9 @@ def quat_rotation_matrix(qw, qx, qy, qz) -> np.ndarray:
         qz (float): part of a quaternion [qw,qx,qy,qz]
 
     Returns:
-        np.array: A 3x3 rotation matrix
+        numpy.array: A 3x3 rotation matrix
     """
-    return np.array([[1-2*(qy**2+qz**2), 2*(qx*qy-qz*qw), 2*(qx*qz + qy*qw)], [2*(qx*qy + qz*qw), 1-2*(qx**2+qz**2), 2*(qy*qz - qx*qw)], [2*(qx*qz-qy*qw), 2*(qy*qz+qx*qw), 1-2*(qx**2+qy**2)]], dtype=object)
+    return array([[1-2*(qy**2+qz**2), 2*(qx*qy-qz*qw), 2*(qx*qz + qy*qw)], [2*(qx*qy + qz*qw), 1-2*(qx**2+qz**2), 2*(qy*qz - qx*qw)], [2*(qx*qz-qy*qw), 2*(qy*qz+qx*qw), 1-2*(qx**2+qy**2)]], dtype=object)
 
 
 def x_axis_rotation_matrix(theta):
@@ -24,9 +24,9 @@ def x_axis_rotation_matrix(theta):
         theta (float): The angle of rotation in rad
 
     Returns:
-        np.array: A 3x3 rotation matrix
+        numpy.array: A 3x3 rotation matrix
     """
-    return np.array([[1, 0, 0], [0, cos(theta), -sin(theta)], [0, sin(theta), cos(theta)]], dtype=object)
+    return array([[1, 0, 0], [0, cos(theta), -sin(theta)], [0, sin(theta), cos(theta)]], dtype=object)
 
 
 def y_axis_rotation_matrix(theta):
@@ -36,9 +36,9 @@ def y_axis_rotation_matrix(theta):
         theta (float): The angle of rotation in rad
 
     Returns:
-        np.array: A 3x3 rotation matrix
+        numpy.array: A 3x3 rotation matrix
     """
-    return np.array([[cos(theta), 0, sin(theta)], [0, 1, 0], [-sin(theta), 0, cos(theta)]], dtype=object)
+    return array([[cos(theta), 0, sin(theta)], [0, 1, 0], [-sin(theta), 0, cos(theta)]], dtype=object)
 
 
 def z_axis_rotation_matrix(theta):
@@ -48,9 +48,9 @@ def z_axis_rotation_matrix(theta):
         theta (float): The angle of rotation in rad
 
     Returns:
-        np.array: A 3x3 rotation matrix
+        numpy.array: A 3x3 rotation matrix
     """
-    return np.array([[cos(theta), -sin(theta), 0], [sin(theta), cos(theta), 0], [0, 0, 1]], dtype=object)
+    return array([[cos(theta), -sin(theta), 0], [sin(theta), cos(theta), 0], [0, 0, 1]], dtype=object)
 
 
 class TransformationMatrix:
@@ -73,7 +73,7 @@ class TransformationMatrix:
     def __init__(self, qw=1, qx=0, qy=0, qz=0, tx=0, ty=0, tz=0, conv='quat', rx=0, ry=0, rz=0):
 
 
-        self.matrix: np.array = np.array(
+        self.matrix: array = array(
             [[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0., 0., 0., 1.]], dtype=object)
         if conv == 'quat':
             self.matrix[:3, :3] = quat_rotation_matrix(qw, qx, qy, qz)
