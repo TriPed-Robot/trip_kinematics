@@ -13,8 +13,6 @@ def array_find(arr, obj) -> int:
 
 
 
-
-
 class Transformation():
     """Initializes the :py:class:`Transformation` class. 
 
@@ -86,17 +84,19 @@ class Transformation():
             else:
                 constants.setdefault(key, values.get(key))
 
-        self.state = state
-        self.constants = constants
+        self._state     = state
+        self._constants = constants
 
     def __str__(self):
         return self._name
 
+    def get_state(self):
+        return deepcopy(self._state)
     def set_state(self, state: Dict[str, float]):
         for key in state.keys():
-            if not key in self.state.keys():
+            if not key in self._state.keys():
                 raise KeyError("The specified keys is not part of the Transformations state. Maybe the Transofmration uses a different convention?")
-            self.state[key] = state[key]
+            self._state[key] = state[key]
 
             
     def get_name(self):
@@ -111,68 +111,25 @@ class Transformation():
         Returns:
             [type]: A transformation matrix build using the parameters of the  :py:class:`Transformation` :py:attr:`state`
         """
+
+        # collect transformation parameters from state and constants respectively
+        tx = self._constants.get('tx') if 'tx' in self._constants.keys() else self._state.get('tx',0)
+        ty = self._constants.get('ty') if 'ty' in self._constants.keys() else self._state.get('ty',0)
+        tz = self._constants.get('tz') if 'tz' in self._constants.keys() else self._state.get('tz',0)
+
         if self.convention == 'euler':
-            rx = 0
-            ry = 0
-            rz = 0
-        if self.convention == 'quaternion':
-            qw = 0
-            qx = 0
-            qy = 0
-            qz = 0
-
-        tx = 0
-        ty = 0
-        tz = 0
-
-        for key in self.constants.keys():
-            if key == 'rx':
-                rx = self.constants.get(key)
-            if key == 'ry':
-                ry = self.constants.get(key)
-            if key == 'rz':
-                rz = self.constants.get(key)
-            if key == 'qw':
-                qw = self.constants.get(key)
-            if key == 'qx':
-                qx = self.constants.get(key)
-            if key == 'qy':
-                qy = self.constants.get(key)
-            if key == 'qz':
-                qz = self.constants.get(key)
-            if key == 'tx':
-                tx = self.constants.get(key)
-            if key == 'ty':
-                ty = self.constants.get(key)
-            if key == 'tz':
-                tz = self.constants.get(key)
-
-        for key in self.state.keys():
-            if key == 'rx':
-                rx = self.state.get(key)
-            if key == 'ry':
-                ry = self.state.get(key)
-            if key == 'rz':
-                rz = self.state.get(key)
-            if key == 'qw':
-                qw = self.state.get(key)
-            if key == 'qx':
-                qx = self.state.get(key)
-            if key == 'qy':
-                qy = self.state.get(key)
-            if key == 'qz':
-                qz = self.state.get(key)
-            if key == 'tx':
-                tx = self.state.get(key)
-            if key == 'ty':
-                ty = self.state.get(key)
-            if key == 'tz':
-                tz = self.state.get(key)
-        if self.convention == 'euler':
+            rx = self._constants.get('rx') if 'rx' in self._constants.keys() else self._state.get('rx',0)
+            ry = self._constants.get('ry') if 'ry' in self._constants.keys() else self._state.get('ry',0)
+            rz = self._constants.get('rz') if 'rz' in self._constants.keys() else self._state.get('rz',0)
             return TransformationMatrix(rx=rx, ry=ry, rz=rz, conv='xyz', tx=tx, ty=ty, tz=tz)
-        if self.convention == 'quaternion':
+        elif self.convention == 'quaternion':
+            qw = self._constants.get('qw') if 'qw' in self._constants.keys() else self._state.get('qw',0)
+            qx = self._constants.get('qx') if 'qx' in self._constants.keys() else self._state.get('qx',0)
+            qy = self._constants.get('qy') if 'qy' in self._constants.keys() else self._state.get('qy',0)
+            qz = self._constants.get('qz') if 'qz' in self._constants.keys() else self._state.get('qz',0)
             return TransformationMatrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=tx, ty=ty, tz=tz)
-        raise RuntimeError("No Convention. This should normally be catched during initialization. Did you retroactively change the keys of the Transformation state?")
+        else:
+            raise RuntimeError("No Convention. This should normally be catched during initialization. Did you retroactively change the keys of the Transformation state?")
 
 
 class KinematicGroup():
@@ -220,8 +177,8 @@ class KinematicGroup():
         virtual_state = {}
         for transformation in virtual_transformations:
             self._virtual_transformations[str(transformation)]=transformation
-            if transformation.state != {}:
-                virtual_state[str(transformation)]=transformation.state
+            if transformation.get_state() != {}:
+                virtual_state[str(transformation)]=transformation.get_state()
 
         if virtual_state:
             if (actuated_to_virtual or virtual_to_actuated) and not actuated_state:
@@ -383,8 +340,8 @@ class OpenKinematicGroup(KinematicGroup):
         virtual_trafo_dict = {}
         for transformation in virtual_transformations:
             virtual_trafo_dict[str(transformation)]=transformation
-            if transformation.state != {}:
-                virtual_state[str(transformation)]=transformation.state
+            if transformation.get_state() != {}:
+                virtual_state[str(transformation)]=transformation.get_state()
 
         if any(virtual_state):
             # trivial mappings
@@ -395,7 +352,7 @@ class OpenKinematicGroup(KinematicGroup):
             for virtual_key in virtual_trafo_dict.keys():
 
                 transformation = virtual_trafo_dict[virtual_key]
-                state = transformation.state
+                state = transformation.get_state()
                 for key, value in state.items():
                     concat_key = transformation.get_name() + '_' + key
                     actuated_state_dummy.setdefault(concat_key, value)

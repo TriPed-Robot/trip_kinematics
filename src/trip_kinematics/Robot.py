@@ -151,7 +151,7 @@ class Robot:
 
             for virtual_key in virtual_trafo.keys():
                 virtual_transformation = virtual_trafo[virtual_key]
-                state = virtual_transformation.state
+                state = virtual_transformation.get_state()
 
                 if state != {}:
                     for key in state.keys():
