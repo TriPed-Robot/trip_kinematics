@@ -47,12 +47,7 @@ class Robot:
                     if key in self._virtual_group_mapping.keys():
                         raise KeyError("More than one robot virtual transformation has the same name! Please give each virtual transformation a unique name")
                     self._virtual_group_mapping[key]=str(group)
-
-
-
-        
-
-
+     
     def get_groups(self):
         """Returns a dictionary of the py:class`KinematicGroup` managed by the :py:class`Robot`-
 
@@ -192,19 +187,20 @@ class SimpleInvKinHandle:
             self.inv_kin_solver = nlpsol('inv_kin','ipopt',nlp,opts)
         pass
 
-    def solve_open(self,x0,target):
+    def solve_virtual(self,initial_tip,target):
+        x0 = self._virtual_to_solver_state(initial_tip)
         if len(x0) != len(self._symbolic_keys):
             raise RuntimeError("The initial state has "+str(len(x0))+ " values, while the solver expected ",str(len(self._symbolic_keys)))
         solution = self.inv_kin_solver(x0= x0,p=target)
-        return self.solver_to_virtual_state(solution['x'])
+        return self._solver_to_virtual_state(solution['x'])
 
-    def solve_closed(self,x0,target):
-        virtual_state = self.solve_open(x0= x0,target=target)
+    def solve_actuated(self,initial_tip,target):
+        virtual_state = self.solve_virtual(initial_tip=initial_tip,target=target)
         self._robot.set_virtual_state(virtual_state)
         actuated_state = self._robot.get_actuated_state()
         return actuated_state
 
-    def solver_to_virtual_state(self,solver_state):
+    def _solver_to_virtual_state(self,solver_state):
         """This Function maps the solution of a casadi solver to the virtual state of a robot
 
         Args:
@@ -223,7 +219,7 @@ class SimpleInvKinHandle:
             virtual_state[outer_key][inner_key] = solver_state[i][0] 
         return virtual_state
 
-    def virtual_to_solver_state(self,virtual_state):
+    def _virtual_to_solver_state(self,virtual_state):
             solver_state = []
             for i in range(len(self._symbolic_keys)):
                 solver_state.append(virtual_state[self._symbolic_keys[i][0]][self._symbolic_keys[i][1]])
@@ -273,9 +269,6 @@ def inverse_kinematics(robot: Robot, endeffector, target_position, inv_kin_handl
             raise KeyError("The specified endeffector "+endeffector+
                            "does not match the endeffector "+inv_kin_handle.endeffector+"of the kinematic handle")
         if initial_tip == None:
-            virtual_state = robot.get_virtual_state()
-            x_0 = inv_kin_handle.virtual_to_solver_state(virtual_state)
-        else:
-            x_0 = initial_tip
+            initial_tip = robot.get_virtual_state()
 
-        return inv_kin_handle.solve_closed(x0= x_0,target=target_position)
+        return inv_kin_handle.solve_actuated(initial_tip=initial_tip,target=target_position)
