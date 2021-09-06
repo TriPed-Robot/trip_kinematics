@@ -2,7 +2,7 @@ from typing import Dict, List, Callable, Union
 from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
 from casadi import Function, SX, nlpsol, vertcat
 import numpy as np
-from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
+from trip_kinematics.KinematicGroup import OpenKinematicGroup, KinematicGroup, Transformation
 
 
 
@@ -22,34 +22,31 @@ class Robot:
 
     def __init__(self, kinematic_chain: List[KinematicGroup]) -> None:
 
-        self.__group_dict = {}
-        self.__actuator_group_mapping = {}
-        self.__virtual_group_mapping = {}
-
+        self._group_dict = {}
+        self._actuator_group_mapping = {}
+        self._virtual_group_mapping = {}
         for i in range(len(kinematic_chain)):
             group = kinematic_chain[i]
             if isinstance(group,Transformation):
-                print("Warning: Transformation "+str(group)+" was converted to a Group with parent "+str(kinematic_chain[i-1]))
+                print("Warning: Transformation "+str(group)+" was converted to a OpenKinematicGroup with parent "+str(kinematic_chain[i-1]))
                 if i >0:
-                    group = KinematicGroup(name=str(group),virtual_transformations=[group],
-                                           parent= self.__group_dict[str(kinematic_chain[i-1])])
+                    group = OpenKinematicGroup(name=str(group),virtual_transformations=[group],
+                                           parent= self._group_dict[str(kinematic_chain[i-1])])
                 else:
-                    group = KinematicGroup(str(group),[group])
+                    group = OpenKinematicGroup(str(group),[group])
 
-            self.__group_dict[str(group)]=group
-
+            self._group_dict[str(group)]=group
             if group.get_virtual_state() != {}:
                 group_actuators = group.get_actuated_state().keys()
                 for key in group_actuators:
-                    if key in self.__actuator_group_mapping.keys():
+                    if key in self._actuator_group_mapping.keys():
                         raise KeyError("More than one robot actuator has the same name! Please give each actuator a unique name")
-                    self.__actuator_group_mapping[key]=str(group)
+                    self._actuator_group_mapping[key]=str(group)
 
-                group_virtuals = []
                 for key in group.get_virtual_state().keys():
-                    if key in self.__virtual_group_mapping.keys():
+                    if key in self._virtual_group_mapping.keys():
                         raise KeyError("More than one robot virtual transformation has the same name! Please give each virtual transformation a unique name")
-                    self.__virtual_group_mapping[key]=str(group)
+                    self._virtual_group_mapping[key]=str(group)
 
 
 
@@ -62,7 +59,7 @@ class Robot:
         Returns:
             Dict[str, KinematicGroup]: The dictionary of py:class`KinematicGroup` objects.
         """
-        return self.__group_dict
+        return self._group_dict
 
     def set_virtual_state(self, state: Dict[str,Dict[str, float]]):
         """Sets the virtual state of multiple virtual joints of the robot.
@@ -73,7 +70,7 @@ class Robot:
         """
         for key in state.keys():
             virtual_state = {key:state[key]}
-            self.__group_dict[self.__virtual_group_mapping[key]].set_virtual_state(virtual_state)
+            self._group_dict[self._virtual_group_mapping[key]].set_virtual_state(virtual_state)
     
     def set_actuated_state(self, state: Dict[str, float]):
         """Sets the virtual state of multiple actuated joints of the robot.
@@ -83,11 +80,11 @@ class Robot:
         """
         grouping = {}
         for key in state.keys():
-            if self.__actuator_group_mapping[key] not in grouping.keys():
-                grouping[self.__actuator_group_mapping[key]] = {}
-            grouping[self.__actuator_group_mapping[key]][key]=state[key]
+            if self._actuator_group_mapping[key] not in grouping.keys():
+                grouping[self._actuator_group_mapping[key]] = {}
+            grouping[self._actuator_group_mapping[key]][key]=state[key]
         for key in grouping.keys():
-            self.__group_dict[key].set_actuated_state(grouping[key])
+            self._group_dict[key].set_actuated_state(grouping[key])
 
 
     def get_actuated_state(self):
@@ -97,8 +94,8 @@ class Robot:
             Dict[str, float]: combined actuated state of all :py:class`KinematicGroup` objects.
         """
         actuated_state={}
-        for key in self.__group_dict.keys():
-            actuated_group = self.__group_dict[key].get_actuated_state()
+        for key in self._group_dict.keys():
+            actuated_group = self._group_dict[key].get_actuated_state()
             if actuated_group != None:
                 for actuated_key in actuated_group:
                     actuated_state[actuated_key]=actuated_group[actuated_key]
@@ -111,8 +108,8 @@ class Robot:
             Dict[str,Dict[str, float]]: combined virtual state of all :py:class`KinematicGroup` objects.
         """
         virtual_state={}
-        for group_key in self.__group_dict.keys():
-            group_state = self.__group_dict[group_key].get_virtual_state()
+        for group_key in self._group_dict.keys():
+            group_state = self._group_dict[group_key].get_virtual_state()
             if group_state != {}:
                 for key in group_state.keys():
                     virtual_state[key]=group_state[key]
@@ -135,10 +132,12 @@ class Robot:
         group_dict = self.get_groups()
         if endeffector not in group_dict.keys():
             raise KeyError("The endeffector must be a valid group name. Valid group names for this robot are: "+str(group_dict.keys()))
+
         endeff_group   = group_dict[endeffector]
         current_parent = endeff_group.parent
         current_key    = endeffector
         group_key_list = [endeffector]
+
         while current_parent != current_key:
             next_group     = group_dict[current_parent]
             current_key    = current_parent
@@ -150,14 +149,13 @@ class Robot:
             group = group_dict[group_key]
             virtual_trafo  = group.get_virtual_transformations()
 
-
             for virtual_key in virtual_trafo.keys():
                 virtual_transformation = virtual_trafo[virtual_key]
                 state = virtual_transformation.state
 
                 if state != {}:
                     for key in state.keys():
-                        state[key] = SX.sym(virtual_key+"_"+key)
+                        state[key] = SX.sym(virtual_key+'_'+key)
                         symbolic_state.append(state[key])
                         symbolic_keys.append([virtual_key,key])
 
@@ -180,8 +178,8 @@ class Robot:
         matrix, symboles, symbolic_keys = self.get_symbolic_rep(endeffector)
         end_effector_position = SX.sym("end_effector_pos",3)
         objective = ((matrix[0,3] - end_effector_position[0])**2 + 
-                    (matrix[1,3] - end_effector_position[1])**2 + 
-                    (matrix[2,3] - end_effector_position[2])**2)
+                     (matrix[1,3] - end_effector_position[1])**2 + 
+                     (matrix[2,3] - end_effector_position[2])**2)
 
         nlp  = {'x':vertcat(*symboles),'f':objective,'p':end_effector_position}
         opts = {'ipopt.print_level':0, 'print_time':0}
