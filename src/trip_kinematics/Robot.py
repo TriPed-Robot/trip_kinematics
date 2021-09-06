@@ -167,7 +167,7 @@ class Robot:
 
     
 
-class SimpleInvKinHandle:
+class SimpleInvKinSolver:
     """[summary]
     """
     def __init__(self,robot : Robot,endeffector: str,orientation=False):
@@ -256,19 +256,3 @@ def forward_kinematics(robot: Robot,endeffector):
     return transformation.matrix
 
 
-
-def inverse_kinematics(robot: Robot, endeffector, target_position, inv_kin_handle = None, orientation=False,initial_tip = None,type="simple"):
-    supported_types = ["simple"]
-
-    if type not in supported_types:
-        raise KeyError("The specified type does not correspond to any inv kin solver. Supported types are "+str(supported_types))
-    elif type == "simple":
-        if inv_kin_handle == None:
-            inv_kin_handle = SimpleInvKinHandle(robot,endeffector,orientation,type)
-        elif endeffector != inv_kin_handle.endeffector:
-            raise KeyError("The specified endeffector "+endeffector+
-                           "does not match the endeffector "+inv_kin_handle.endeffector+"of the kinematic handle")
-        if initial_tip == None:
-            initial_tip = robot.get_virtual_state()
-
-        return inv_kin_handle.solve_actuated(initial_tip=initial_tip,target=target_position)
