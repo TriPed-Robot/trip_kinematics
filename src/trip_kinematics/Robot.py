@@ -170,45 +170,64 @@ class Robot:
 
         return hom_matrix, symbolic_state, symbolic_keys
 
-    def get_inv_kin_handle(self,endeffector: str,orientation=False,type="simple"):
-        supported_types = ["simple"]
-        if type not in supported_types:
-            raise KeyError("The specified type does not correspond to any inv kin solver. Supported types are "+str(supported_types))
+    
+
+class SimpleInvKinHandle:
+    """[summary]
+    """
+    def __init__(self,robot : Robot,endeffector: str,orientation=False):
             
-        matrix, symboles, symbolic_keys = self.get_symbolic_rep(endeffector)
-        end_effector_position = SX.sym("end_effector_pos",3)
-        objective = ((matrix[0,3] - end_effector_position[0])**2 + 
-                     (matrix[1,3] - end_effector_position[1])**2 + 
-                     (matrix[2,3] - end_effector_position[2])**2)
+        matrix, symboles, self._symbolic_keys = robot.get_symbolic_rep(endeffector)
+        self.endeffector = endeffector
+        self._robot =robot
 
-        nlp  = {'x':vertcat(*symboles),'f':objective,'p':end_effector_position}
-        opts = {'ipopt.print_level':0, 'print_time':0}
-        inv_kin_solver = nlpsol('inv_kin','ipopt',nlp,opts)
-        return (inv_kin_solver, symbolic_keys)
+        if orientation == False:
+            end_effector_position = SX.sym("end_effector_pos",3)
+            objective = ((matrix[0,3] - end_effector_position[0])**2 + 
+                        (matrix[1,3] - end_effector_position[1])**2 + 
+                        (matrix[2,3] - end_effector_position[2])**2)
 
-    @staticmethod
-    def solver_to_virtual_state(sol,symbolic_keys):
-        """This Function maps the solution of a casadi solver to the virtual state of the robot
+            nlp  = {'x':vertcat(*symboles),'f':objective,'p':end_effector_position}
+            opts = {'ipopt.print_level':0, 'print_time':0}
+            self.inv_kin_solver = nlpsol('inv_kin','ipopt',nlp,opts)
+        pass
+
+    def solve_open(self,x0,target):
+        if len(x0) != len(self._symbolic_keys):
+            raise RuntimeError("The initial state has "+str(len(x0))+ " values, while the solver expected ",str(len(self._symbolic_keys)))
+        solution = self.inv_kin_solver(x0= x0,p=target)
+        return self.solver_to_virtual_state(solution['x'])
+
+    def solve_closed(self,x0,target):
+        virtual_state = self.solve_open(x0= x0,target=target)
+        self._robot.set_virtual_state(virtual_state)
+        actuated_state = self._robot.get_actuated_state()
+        return actuated_state
+
+    def solver_to_virtual_state(self,solver_state):
+        """This Function maps the solution of a casadi solver to the virtual state of a robot
 
         Args:
-            sol ([type]): A solution of a nlp solver
-            symbolic_state ([type]): A dictionary containing the corresponding virtual state keys.
+            solver_state ([type]): A solution of a nlp solver
         Returns:
             Dict[str,Dict[str, float]]: a :py:attr:`virtual_state` of a robot.
         """
-        solved_states = {}
-        sol = array(sol) #convert casadi DM to usable datatype
-        for i in range(len(sol)):
-            outer_key = symbolic_keys[i][0]
-            inner_key = symbolic_keys[i][1]
-            if outer_key not in solved_states.keys():
-                solved_states[outer_key] = {}
+        virtual_state = {}
+        solver_state = array(solver_state) #convert casadi DM to usable datatype
+        for i in range(len(solver_state)):
+            outer_key = self._symbolic_keys[i][0]
+            inner_key = self._symbolic_keys[i][1]
+            if outer_key not in virtual_state.keys():
+                virtual_state[outer_key] = {}
 
-            solved_states[outer_key][inner_key] = sol[i][0] 
-        return solved_states
+            virtual_state[outer_key][inner_key] = solver_state[i][0] 
+        return virtual_state
 
-
-
+    def virtual_to_solver_state(self,virtual_state):
+            solver_state = []
+            for i in range(len(self._symbolic_keys)):
+                solver_state.append(virtual_state[self._symbolic_keys[i][0]][self._symbolic_keys[i][1]])
+            return solver_state
 
 def forward_kinematics(robot: Robot,endeffector):
     """Calculates a robots transformation from base to endeffector using its current state
@@ -247,28 +266,16 @@ def inverse_kinematics(robot: Robot, endeffector, target_position, inv_kin_handl
 
     if type not in supported_types:
         raise KeyError("The specified type does not correspond to any inv kin solver. Supported types are "+str(supported_types))
-
-    if inv_kin_handle != None:
-        inv_kin_solver = inv_kin_handle[0]
-        symbolic_keys  = inv_kin_handle[1]
-    else:
-        inv_kin_solver,symbolic_keys = robot.get_inv_kin_handle(endeffector,orientation,type)
-
-    if initial_tip == None:
-        virtual_state = robot.get_virtual_state()
-        x_0 = []
-        for i in range(len(symbolic_keys)):
-            x_0.append(virtual_state[symbolic_keys[i][0]][symbolic_keys[i][1]])
-    else:
-        if len(initial_tip) != len(symbolic_keys):
-            raise RuntimeError("The initial state has "+str(len(initial_tip))+ " values, while the solver expected ",str(len(symbolic_keys)))
+    elif type == "simple":
+        if inv_kin_handle == None:
+            inv_kin_handle = SimpleInvKinHandle(robot,endeffector,orientation,type)
+        elif endeffector != inv_kin_handle.endeffector:
+            raise KeyError("The specified endeffector "+endeffector+
+                           "does not match the endeffector "+inv_kin_handle.endeffector+"of the kinematic handle")
+        if initial_tip == None:
+            virtual_state = robot.get_virtual_state()
+            x_0 = inv_kin_handle.virtual_to_solver_state(virtual_state)
         else:
             x_0 = initial_tip
 
-    solution = inv_kin_solver(x0= x_0,p=target_position)
-    
-
-    solved_states = Robot.solver_to_virtual_state(solution['x'],symbolic_keys)
-    robot.set_virtual_state(solved_states)
-    actuated_state = robot.get_actuated_state()
-    return actuated_state
+        return inv_kin_handle.solve_closed(x0= x_0,target=target_position)

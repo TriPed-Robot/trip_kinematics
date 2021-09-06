@@ -1,4 +1,3 @@
-from copy import deepcopy
 from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
 from trip_kinematics.Robot import Robot
 from casadi import  SX, nlpsol

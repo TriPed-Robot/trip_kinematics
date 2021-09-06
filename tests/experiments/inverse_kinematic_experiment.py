@@ -1,5 +1,5 @@
 from trip_robots.triped import triped
-from trip_kinematics.Robot import inverse_kinematics
+from trip_kinematics.Robot import SimpleInvKinHandle, inverse_kinematics
 import time
 import csv
 import os
@@ -22,7 +22,7 @@ def test_triped(inverse_kinematic_type):
 
     inverse_calculated  = os.path.join('tests','experiments',robot_type,'inverse_kinematics',inverse_kinematic_type,'joint_values.csv')
 
-    inv_kin_handle = triped.get_inv_kin_handle('leg0_A_LL_Joint_FCS')
+    inv_kin_handle = SimpleInvKinHandle(triped,'leg0_A_LL_Joint_FCS')
 
     input_x = []
     input_y = []
