@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Dict, List
 from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
 from casadi import SX, nlpsol, vertcat
@@ -170,12 +171,15 @@ class Robot:
 class SimpleInvKinSolver:
     """[summary]
     """
-    def __init__(self,robot : Robot,endeffector: str,orientation=False):
+    def __init__(self,robot : Robot,endeffector: str,orientation=False,update_robot=False):
             
         matrix, symboles, self._symbolic_keys = robot.get_symbolic_rep(endeffector)
         self.endeffector = endeffector
-        self._robot =robot
-
+        if update_robot:
+            self._robot      = robot
+        else:
+            self._robot      = deepcopy(robot)
+ 
         if orientation == False:
             end_effector_position = SX.sym("end_effector_pos",3)
             objective = ((matrix[0,3] - end_effector_position[0])**2 + 
@@ -187,15 +191,18 @@ class SimpleInvKinSolver:
             self.inv_kin_solver = nlpsol('inv_kin','ipopt',nlp,opts)
         pass
 
-    def solve_virtual(self,initial_tip,target):
-        x0 = self._virtual_to_solver_state(initial_tip)
+    def solve_virtual(self,target,initial_tip=None):
+        if initial_tip == None:
+            x0 = [0]*len(self._symbolic_keys)
+        else:
+            x0 = self._virtual_to_solver_state(initial_tip)
         if len(x0) != len(self._symbolic_keys):
             raise RuntimeError("The initial state has "+str(len(x0))+ " values, while the solver expected ",str(len(self._symbolic_keys)))
         solution = self.inv_kin_solver(x0= x0,p=target)
         return self._solver_to_virtual_state(solution['x'])
 
-    def solve_actuated(self,initial_tip,target):
-        virtual_state = self.solve_virtual(initial_tip=initial_tip,target=target)
+    def solve_actuated(self,target,initial_tip=None):
+        virtual_state = self.solve_virtual(target=target,initial_tip=initial_tip)
         self._robot.set_virtual_state(virtual_state)
         actuated_state = self._robot.get_actuated_state()
         return actuated_state
@@ -224,6 +231,7 @@ class SimpleInvKinSolver:
             for i in range(len(self._symbolic_keys)):
                 solver_state.append(virtual_state[self._symbolic_keys[i][0]][self._symbolic_keys[i][1]])
             return solver_state
+
 
 def forward_kinematics(robot: Robot,endeffector):
     """Calculates a robots transformation from base to endeffector using its current state

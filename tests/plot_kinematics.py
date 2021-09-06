@@ -63,4 +63,4 @@ def plot_inverse(robot_type,inv_kin_type):
 
 if __name__ == "__main__":
     plot_forward("triped")
-    plot_inverse("triped","simple")
+    plot_inverse("triped","SimpleInvKinSolver")
