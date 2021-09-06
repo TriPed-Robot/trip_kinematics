@@ -69,7 +69,7 @@ class Transformation():
 
     def __init__(self, name: str, values: Dict[str, float], state_variables: List[str] = []):
 
-        self.__name = name
+        self._name = name
 
         if not set(state_variables) <= set(values.keys()):
             raise ValueError(
@@ -90,7 +90,7 @@ class Transformation():
         self.constants = constants
 
     def __str__(self):
-        return self.__name
+        return self._name
 
     def set_state(self, state: Dict[str, float]):
         for key in state.keys():
@@ -100,7 +100,7 @@ class Transformation():
 
             
     def get_name(self):
-        return deepcopy(self.__name)
+        return deepcopy(self._name)
 
     def get_transformation_matrix(self):
         """Returns a homogeneous transformation matrix build from the :py:attr:`state` and :py:attr:`constants`
@@ -205,7 +205,7 @@ class KinematicGroup():
         return list(object_lst.keys())
 
     def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: Dict[str, float], actuated_to_virtual: Callable, virtual_to_actuated: Callable, act_to_virt_args=None, virt_to_act_args=None, parent=None):
-        self.__name   = name
+        self._name   = name
         self.children = []
 
         if parent == None:
@@ -237,22 +237,19 @@ class KinematicGroup():
             if actuated_state or (actuated_to_virtual or virtual_to_actuated):
                 raise ValueError('Error: Allthough the Group is static, a actuated state and or mapping was provided that is not a None object.')
 
-        self.virtual_state  = virtual_state
-        self.actuated_state = deepcopy(actuated_state)
-
         if actuated_state:
-            self.__original_actuated_to_virtual = actuated_to_virtual
+            self._original_actuated_to_virtual = actuated_to_virtual
             if act_to_virt_args:
-                self.__actuated_to_virtual = lambda state: actuated_to_virtual(state, *act_to_virt_args)
-            self.__actuated_to_virtual   = actuated_to_virtual
-            actuated_to_virtual_to_check = self.__actuated_to_virtual(actuated_state)
+                self._actuated_to_virtual = lambda state: actuated_to_virtual(state, *act_to_virt_args)
+            self._actuated_to_virtual   = actuated_to_virtual
+            actuated_to_virtual_to_check = self._actuated_to_virtual(actuated_state)
             
             if KinematicGroup.object_list_to_key_lists(actuated_to_virtual_to_check) != KinematicGroup.object_list_to_key_lists(virtual_state):
                 raise RuntimeError("actuated_to_virtual does not fit virtual state")
-            self.___original_virtual_to_actuated = virtual_to_actuated
+            self._original_virtual_to_actuated = virtual_to_actuated
             if virt_to_act_args:
-                self.__virtual_to_actuated = lambda state: virtual_to_actuated(state, *virt_to_act_args)
-            self.__virtual_to_actuated   = virtual_to_actuated
+                self._virtual_to_actuated = lambda state: virtual_to_actuated(state, *virt_to_act_args)
+            self._virtual_to_actuated   = virtual_to_actuated
             virtual_to_actuated_to_check = virtual_to_actuated(virtual_state)
 
             if KinematicGroup.object_list_to_key_lists(virtual_to_actuated_to_check) != KinematicGroup.object_list_to_key_lists(actuated_state):
@@ -268,6 +265,10 @@ class KinematicGroup():
                         init_values_do_not_match = True
             if init_values_do_not_match:
                 print("Calculated state values do not match given values! Using set_state() before forward_kinematics() or inverse_kinematics() is recommended.")
+        
+        
+        self.virtual_state  = deepcopy(virtual_state)
+        self.actuated_state = deepcopy(actuated_state)
         
 
     def set_virtual_state(self, state: Dict[str,Dict[str, float]]):
@@ -290,7 +291,7 @@ class KinematicGroup():
             for key in state.keys():
                 self.virtual_state[key] = state[key]
             self._update_chain()
-            self.actuated_state = self.__virtual_to_actuated(self.virtual_state)  
+            self.actuated_state = self._virtual_to_actuated(self.virtual_state)  
         else:
             raise ValueError(
                 "Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations.")
@@ -315,7 +316,7 @@ class KinematicGroup():
         if KinematicGroup.object_list_to_key_lists(self.actuated_state) == KinematicGroup.object_list_to_key_lists(state):
             for key in state.keys():
                 self.actuated_state[key] = state[key]
-            new_virtual_state = self.__actuated_to_virtual(self.actuated_state)
+            new_virtual_state = self._actuated_to_virtual(self.actuated_state)
             for key in new_virtual_state.keys():
                 self.virtual_state[key] = new_virtual_state[key]
             self._update_chain()
@@ -324,10 +325,10 @@ class KinematicGroup():
                 "Error: State not set! Keys do not match! Make sure that your state includes the same keys as the intial actuated state.")
 
     def __str__(self):
-        return self.__name
+        return self._name
 
     def get_name(self):
-        return deepcopy(self.__name)
+        return deepcopy(self._name)
 
     def get_virtual_state(self):
         return deepcopy(self.virtual_state)
@@ -369,30 +370,31 @@ class KinematicGroup():
 
 
     def pass_arguments_g(self, argv):
-        g_map = self.___original_virtual_to_actuated
-        self.__virtual_to_actuated = lambda state: g_map(state, *argv)
+        g_map = self._original_virtual_to_actuated
+        self._virtual_to_actuated = lambda state: g_map(state, *argv)
 
     def pass_arguments_f(self, argv):
-        f_map = self.__original_actuated_to_virtual
-        self.__actuated_to_virtual = lambda state: f_map(state, *argv)
+        f_map = self._original_actuated_to_virtual
+        self._actuated_to_virtual = lambda state: f_map(state, *argv)
 
 class OpenKinematicGroup(KinematicGroup):
     def __init__(self, name: str, virtual_transformations: List[Transformation], parent=None):
-        virtual_state = {}
-        virtual_transformations_dict = {}
+        virtual_state      = {}
+        virtual_trafo_dict = {}
         for transformation in virtual_transformations:
-            virtual_transformations_dict[str(transformation)]=transformation
+            virtual_trafo_dict[str(transformation)]=transformation
             if transformation.state != {}:
                 virtual_state[str(transformation)]=transformation.state
+
         if any(virtual_state):
             # trivial mappings
             actuated_state_dummy = {}
             f_map = {}
             g_map = {}
 
-            for virtual_key in virtual_transformations_dict.keys():
+            for virtual_key in virtual_trafo_dict.keys():
 
-                transformation = virtual_transformations_dict[virtual_key]
+                transformation = virtual_trafo_dict[virtual_key]
                 state = transformation.state
                 for key, value in state.items():
                     concat_key = transformation.get_name() + '_' + key
@@ -415,17 +417,20 @@ class OpenKinematicGroup(KinematicGroup):
                     transformation = states[virtual_key]
                     for key in transformation.keys():
                         combined_key = (key, virtual_key)
-                        new_key = g_map[combined_key]
-                        out[new_key]=states[virtual_key][key]
+                        new_key      = g_map[combined_key]
+                        out[new_key] = states[virtual_key][key]
                 return out
 
             actuated_to_virtual = trivial_actuated_to_virtual
             virtual_to_actuated = trivial_virtual_to_actuated
-            actuated_state = actuated_state_dummy
+            actuated_state      = actuated_state_dummy
         else:   # This is a static group
             actuated_state = None
             actuated_to_virtual = None
             virtual_to_actuated = None
-        super(OpenKinematicGroup,self).__init__(name, virtual_transformations, 
-                                                actuated_state, actuated_to_virtual, 
-                                                virtual_to_actuated)
+        super(OpenKinematicGroup,self).__init__(name = name, 
+                                                virtual_transformations = virtual_transformations, 
+                                                actuated_state = actuated_state, 
+                                                actuated_to_virtual = actuated_to_virtual, 
+                                                virtual_to_actuated = virtual_to_actuated,
+                                                parent = parent)
