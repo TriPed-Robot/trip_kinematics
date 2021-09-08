@@ -1,10 +1,10 @@
 from copy import deepcopy
-from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
-from trip_kinematics.Robot import Robot
-from trip_robots.triped_leg import *
 from typing import Dict
 from math import radians
 
+from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
+from trip_kinematics.Robot import Robot
+from trip_robots.triped_leg import *
 
 
 def leg_model(leg_number: str):

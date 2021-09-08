@@ -2,7 +2,8 @@ import unittest
 import numpy as np
 import csv
 import os
-from trip_kinematics.Robot import SimpleInvKinSolver
+
+from trip_kinematics.Solver import SimpleInvKinSolver
 from experiments.inverse_kinematic_experiment import test_inv
 from experiments.forward_kinematic_experiment import test_fwd
 
