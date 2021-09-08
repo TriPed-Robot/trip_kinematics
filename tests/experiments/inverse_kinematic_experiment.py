@@ -57,8 +57,7 @@ def test_triped(inverse_kinematic_solver):
         tip['ry'] = input_e_tip[i]
 
 
-        groups = triped.get_groups()
-        groups['leg0_closed_chain'].pass_arg_v_to_a([tip])
+        triped.pass_group_arg_v_to_a({'leg0_closed_chain':[tip]})
         triped.set_actuated_state({'leg0_extend_joint_ry': tip['ry'],'leg0_swing_left': tip['swing_left'], 'leg0_swing_right':tip['swing_right']})
 
         row = inv_kin_solver.solve_actuated(target=[input_x[i], input_y[i], input_z[i]],initial_tip=triped.get_virtual_state())

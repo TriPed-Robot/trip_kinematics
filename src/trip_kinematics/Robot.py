@@ -57,6 +57,19 @@ class Robot:
         """
         return self._group_dict
 
+    def pass_group_arg_v_to_a(self,argv_dict):
+        for key in argv_dict.keys():
+            if key not in self._group_dict.keys():
+                raise KeyError("No group with name "+str(key)+"in this robot")
+            self._group_dict[key].pass_arg_v_to_a(argv_dict[key])
+
+    def pass_group_arg_a_to_v(self,argv_dict):
+        for key in argv_dict.keys():
+            if key not in self._group_dict.keys():
+                raise KeyError("No group with name "+str(key)+"in this robot")
+            self._group_dict[key].pass_arg_a_to_v(argv_dict[key])
+
+
     def set_virtual_state(self, state: Dict[str,Dict[str, float]]):
         """Sets the virtual state of multiple virtual joints of the robot.
 
