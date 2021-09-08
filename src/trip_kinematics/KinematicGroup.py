@@ -1,5 +1,5 @@
 from typing import Dict, List, Callable
-from trip_kinematics.Utility import x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, quat_rotation_matrix, identity_transformation
+from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, quat_rotation_matrix, identity_transformation
 from copy import deepcopy
 from numpy import array
 
@@ -118,8 +118,7 @@ class Transformation():
         ty = self._constants.get('ty') if 'ty' in self._constants.keys() else self._state.get('ty',0)
         tz = self._constants.get('tz') if 'tz' in self._constants.keys() else self._state.get('tz',0)
 
-        matrix: array = array(
-            [[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0., 0., 0., 1.]], dtype=object)
+        matrix = hom_translation_matrix(tx,ty,tz)
 
         if self.convention == 'euler':
             rx = self._constants.get('rx') if 'rx' in self._constants.keys() else self._state.get('rx',0)
@@ -310,7 +309,7 @@ class KinematicGroup():
         """Calculates the full transformationmatrix from the start of the virtual chain to its endeffector.
 
         Returns:
-            TransformationMatrix: The homogenous transformation matrix from the start of the virtual chain to its endeffector.
+            array: The homogenous transformation matrix from the start of the virtual chain to its endeffector.
         """
 
         # Identity matrix

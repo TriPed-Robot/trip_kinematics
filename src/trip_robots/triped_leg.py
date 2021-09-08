@@ -2,60 +2,51 @@ from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
 from trip_kinematics.Robot import Robot
 from casadi import  SX, nlpsol, vertcat
 from typing import Dict
-from trip_kinematics.Utility import TransformationMatrix
+from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, hom_rotation, get_translation
 import numpy as np
 from math import radians
 
 
 def c(rx, ry, rz):
-    A_CSS_P_trans = TransformationMatrix(
+    A_CSS_P_trans = hom_translation_matrix(
         tx=0.265, ty=0, tz=0.014)
-    A_CSS_P_rot = TransformationMatrix(
-        rx=rx, ry=ry, rz=rz,conv='xyz')
-    A_P_SPH1_2 = TransformationMatrix(
-        tx=0.015, ty=0.029, tz=-0.0965, conv='xyz')
-    A_P_SPH2_2 = TransformationMatrix(
-        tx=0.015, ty=-0.029, tz=-0.0965, conv='xyz')
+    A_CSS_P_rot = hom_rotation(x_axis_rotation_matrix(rx) @ 
+                               y_axis_rotation_matrix(ry) @ 
+                               z_axis_rotation_matrix(rz))
+    A_P_SPH1_2 = hom_translation_matrix(
+        tx=0.015, ty=0.029, tz=-0.0965)
+    A_P_SPH2_2 = hom_translation_matrix(
+        tx=0.015, ty=-0.029, tz=-0.0965)
 
-    A_CSS_P = A_CSS_P_trans * A_CSS_P_rot
-    A_c1    = A_CSS_P * A_P_SPH1_2
-    A_c2    = A_CSS_P * A_P_SPH2_2
+    A_CSS_P = A_CSS_P_trans @ A_CSS_P_rot
+    A_c1    = A_CSS_P @ A_P_SPH1_2
+    A_c2    = A_CSS_P @ A_P_SPH2_2
 
-    return A_c1.get_translation(),A_c2.get_translation()
+    return get_translation(A_c1),get_translation(A_c2)
 
 
 def p1(theta):
-    A_CCS_lsm_tran = TransformationMatrix(
+    A_CCS_lsm_tran = hom_translation_matrix(
         tx=0.139807669447128, ty=0.0549998406976098, tz=-0.051)
-    A_CCS_lsm_rot  = TransformationMatrix(
-        rz=radians(-338.5255), conv='xyz')  
-    A_MCS1_JOINT   = TransformationMatrix(
-        rz=theta, conv='xyz')
-    A_MCS1_SP11    = TransformationMatrix(
+    A_CCS_lsm_rot  = hom_rotation(z_axis_rotation_matrix(radians(-338.5255)))  
+    A_MCS1_JOINT   = hom_rotation(z_axis_rotation_matrix(theta))
+    A_MCS1_SP11    = hom_translation_matrix(
         tx=0.085, ty=0, tz=-0.0245)
 
-    A_CCS_lsm  = A_CCS_lsm_tran * A_CCS_lsm_rot
-    A_CSS_MCS1 = A_CCS_lsm * A_MCS1_JOINT
-    A_CCS_SP11 =A_CCS_lsm_tran * A_CCS_lsm_rot * A_MCS1_JOINT * A_MCS1_SP11
-
-    return A_CCS_SP11.get_translation()
+    A_CCS_SP11 =A_CCS_lsm_tran @ A_CCS_lsm_rot @ A_MCS1_JOINT @ A_MCS1_SP11
+    return get_translation(A_CCS_SP11)
 
 
 def p2(theta):
-    A_CCS_rsm_tran = TransformationMatrix(
+    A_CCS_rsm_tran = hom_translation_matrix(
         tx=0.139807669447128, ty=-0.0549998406976098, tz=-0.051)
-    A_CCS_rsm_rot  = TransformationMatrix(
-        rz=radians(-21.4745), conv='xyz')  
-    A_MCS2_JOINT   = TransformationMatrix(
-        rz=theta, conv='xyz')
-    A_MCS2_SP21    = TransformationMatrix(
+    A_CCS_rsm_rot  = hom_rotation(z_axis_rotation_matrix(radians(-21.4745))) 
+    A_MCS2_JOINT   = hom_rotation(z_axis_rotation_matrix(theta))
+    A_MCS2_SP21    = hom_translation_matrix(
         tx=0.085, ty=0, tz=-0.0245)
 
-    A_CCS_rsm  = A_CCS_rsm_tran*A_CCS_rsm_rot
-    A_CSS_MCS2 = A_CCS_rsm * A_MCS2_JOINT
-    A_CSS_SP21 = A_CSS_MCS2 * A_MCS2_SP21
-
-    return A_CSS_SP21.get_translation()
+    A_CSS_SP21 =  A_CCS_rsm_tran @ A_CCS_rsm_rot @ A_MCS2_JOINT @ A_MCS2_SP21
+    return get_translation(A_CSS_SP21)
 
 
 def swing_to_gimbal(state: Dict[str, float], tips: Dict[str, float] = None):

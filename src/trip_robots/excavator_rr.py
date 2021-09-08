@@ -3,7 +3,7 @@ from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
 from trip_kinematics.Robot import Robot
 from casadi import  SX, nlpsol
 from typing import Dict
-from trip_kinematics.Utility import TransformationMatrix
+from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, hom_rotation, get_translation
 import numpy as np
 from math import radians
 
@@ -70,14 +70,14 @@ opts            = {'ipopt.print_level':0, 'print_time':0}
 
 closure_1_state = SX.sym('cls_1_q',3)
 
-cls_q_1     = TransformationMatrix(ry=closure_1_state[0], conv='xyz')
-cls_l_1     = TransformationMatrix(tx=l_1, conv='xyz')
-cls_qs_2    = TransformationMatrix(ry=closure_1_state[1], conv='xyz')
-cls_a_1     = TransformationMatrix(tx=closure_1_state[2], conv='xyz')
-cls_a_1z    = TransformationMatrix(tx=a_1_offset, conv='xyz')
+cls_q_1     = hom_rotation(y_axis_rotation_matrix(closure_1_state[0]))
+cls_l_1     = hom_translation_matrix(tx=l_1)
+cls_qs_2    = hom_rotation(y_axis_rotation_matrix(closure_1_state[1]))
+cls_a_1     = hom_translation_matrix(tx=closure_1_state[2])
+cls_a_1z    = hom_translation_matrix(tx=a_1_offset)
 cls_1_trafo = cls_q_1 * cls_l_1 * cls_qs_2 * cls_a_1 * cls_a_1z 
 
-cls_1_trafo_pos = cls_1_trafo.get_translation()
+cls_1_trafo_pos = get_translation(cls_1_trafo)
 
 closure_1 = (cls_1_trafo_pos[0]-l_2)**2 + cls_1_trafo_pos[1]**2 + cls_1_trafo_pos[2]**2
 
@@ -98,14 +98,14 @@ def closure_a_to_q_group_1(state: Dict[str, float]):
 
 closure_2_state = SX.sym('cls_2_q',3)
 
-cls_q_2     = TransformationMatrix(ry=closure_2_state[0], conv='xyz')
-cls_l_4     = TransformationMatrix(tx=l_4, conv='xyz')
-cls_qs_4    = TransformationMatrix(ry=closure_2_state[1], conv='xyz')
-cls_a_2     = TransformationMatrix(tx=closure_2_state[2], conv='xyz')
-cls_a_2z    = TransformationMatrix(tx=a_1_offset, conv='xyz')
+cls_q_2     = hom_rotation(y_axis_rotation_matrix(closure_2_state[0]))
+cls_l_4     = hom_translation_matrix(tx=l_4)
+cls_qs_4    = hom_rotation(y_axis_rotation_matrix(closure_2_state[1]))
+cls_a_2     = hom_translation_matrix(tx=closure_2_state[2])
+cls_a_2z    = hom_translation_matrix(tx=a_1_offset)
 cls_2_trafo = cls_q_2 * cls_l_4 * cls_qs_4 * cls_a_2 * cls_a_2z 
 
-cls_2_trafo_pos = cls_1_trafo.get_translation()
+cls_2_trafo_pos = get_translation(cls_1_trafo)
 
 closure_2 = (cls_2_trafo_pos[0]+l_3)**2 + cls_2_trafo_pos[1]**2 + cls_2_trafo_pos[2]**2
 
