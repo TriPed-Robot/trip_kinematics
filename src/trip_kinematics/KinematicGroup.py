@@ -326,11 +326,11 @@ class KinematicGroup():
         self.children.append(child)
 
 
-    def pass_arguments_g(self, argv):
+    def pass_arg_v_to_a(self, argv):
         g_map = self._original_virtual_to_actuated
         self._virtual_to_actuated = lambda state: g_map(state, *argv)
 
-    def pass_arguments_f(self, argv):
+    def pass_arg_a_to_v(self, argv):
         f_map = self._original_actuated_to_virtual
         self._actuated_to_virtual = lambda state: f_map(state, *argv)
 
