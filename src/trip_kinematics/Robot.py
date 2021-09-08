@@ -1,5 +1,5 @@
 from typing import Dict, List
-from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
+from trip_kinematics.Utility import identity_transformation
 from casadi import SX, nlpsol, vertcat
 from numpy import array
 from trip_kinematics.KinematicGroup import OpenKinematicGroup, KinematicGroup, Transformation
@@ -117,21 +117,26 @@ class Robot:
 
 
     def get_symbolic_rep(self,endeffector: str):
-        """This Function returnes a symbolic representation of the virtual chain.
+        """his Function returnes a symbolic representation of the virtual chain.
 
         Args:
             endeffector (str):  The name of the group whose virtual chain models the desired endeffector
+
+        Raises:
+            KeyError: If the endeffector argument is not the name of a transformation or group
+
         Returns:
-            TransformationMatrix: The :py:class:`TransformationMatrix` containing symbolic objects
+            SX: A 4x4 symbolic casadi matrix containing the transformation from base to endeffector 
         """
-        matrix = TransformationMatrix()
+  
+        matrix = identity_transformation()
 
         symbolic_state = []
         symbolic_keys  = []
 
         group_dict = self.get_groups()
         if endeffector not in group_dict.keys():
-            raise KeyError("The endeffector must be a valid group name. Valid group names for this robot are: "+str(group_dict.keys()))
+            raise KeyError("The endeffector must be a valid group or transformation name. Valid names for this robot are: "+str(group_dict.keys()))
 
         endeff_group   = group_dict[endeffector]
         current_parent = endeff_group.parent
@@ -161,12 +166,12 @@ class Robot:
 
 
                 hmt = virtual_transformation.get_transformation_matrix()
-                matrix = matrix * hmt
+                matrix = matrix @ hmt
 
         hom_matrix = SX.zeros(4,4)
         for i in range(4):
             for j in range(4):
-                hom_matrix[i,j] = matrix.matrix[i,j]   
+                hom_matrix[i,j] = matrix[i,j]   
 
         return hom_matrix, symbolic_state, symbolic_keys
 
@@ -219,7 +224,7 @@ def forward_kinematics(robot: Robot,endeffector):
     Returns:
         numpy.array : The Transformation from base to endeffector 
     """
-    transformation = TransformationMatrix()
+    transformation = identity_transformation()
     group_dict = robot.get_groups()
     if endeffector not in group_dict.keys():
         raise KeyError("The endeffector must be a valid group name. Valid group names for this robot are: "+str(group_dict.keys()))
@@ -237,8 +242,8 @@ def forward_kinematics(robot: Robot,endeffector):
     for group_key in group_key_list:
         group = group_dict[group_key]
         hmt = group.get_transformation_matrix()
-        transformation = transformation * hmt
-    return transformation.matrix
+        transformation = transformation @ hmt
+    return transformation
 
 
 

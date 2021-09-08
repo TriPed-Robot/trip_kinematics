@@ -2,7 +2,7 @@ from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
 from trip_kinematics.Robot import Robot
 from casadi import  SX, nlpsol, vertcat
 from typing import Dict
-from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
+from trip_kinematics.Utility import TransformationMatrix
 import numpy as np
 from math import radians
 

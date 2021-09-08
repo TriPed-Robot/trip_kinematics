@@ -1,6 +1,7 @@
 from typing import Dict, List, Callable
-from trip_kinematics.HomogenTransformationMatrix import TransformationMatrix
+from trip_kinematics.Utility import x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, quat_rotation_matrix, identity_transformation
 from copy import deepcopy
+from numpy import array
 
 
 def array_find(arr, obj) -> int:
@@ -117,20 +118,29 @@ class Transformation():
         ty = self._constants.get('ty') if 'ty' in self._constants.keys() else self._state.get('ty',0)
         tz = self._constants.get('tz') if 'tz' in self._constants.keys() else self._state.get('tz',0)
 
+        matrix: array = array(
+            [[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0., 0., 0., 1.]], dtype=object)
+
         if self.convention == 'euler':
             rx = self._constants.get('rx') if 'rx' in self._constants.keys() else self._state.get('rx',0)
             ry = self._constants.get('ry') if 'ry' in self._constants.keys() else self._state.get('ry',0)
             rz = self._constants.get('rz') if 'rz' in self._constants.keys() else self._state.get('rz',0)
-            return TransformationMatrix(rx=rx, ry=ry, rz=rz, conv='xyz', tx=tx, ty=ty, tz=tz)
+
+            matrix[:3, :3] = x_axis_rotation_matrix(
+                rx) @ y_axis_rotation_matrix(ry) @ z_axis_rotation_matrix(rz)
+
         elif self.convention == 'quaternion':
             qw = self._constants.get('qw') if 'qw' in self._constants.keys() else self._state.get('qw',0)
             qx = self._constants.get('qx') if 'qx' in self._constants.keys() else self._state.get('qx',0)
             qy = self._constants.get('qy') if 'qy' in self._constants.keys() else self._state.get('qy',0)
             qz = self._constants.get('qz') if 'qz' in self._constants.keys() else self._state.get('qz',0)
-            return TransformationMatrix(qw=qw, qx=qx, qy=qy, qz=qz, conv='quat', tx=tx, ty=ty, tz=tz)
-        else:
-            raise RuntimeError("No Convention. This should normally be catched during initialization. Did you retroactively change the keys of the Transformation state?")
 
+            matrix[:3, :3] = quat_rotation_matrix(qw, qx, qy, qz)
+        else:
+            raise RuntimeError("No Convention. This should normally be catched during initialization. " + 
+                               "Did you retroactively change the keys of the Transformation state?")
+        
+        return matrix
 
 class KinematicGroup():
     """Initializes a :py:class:`KinematicGroup` object.
@@ -296,7 +306,7 @@ class KinematicGroup():
         else:
             return None
 
-    def get_transformation_matrix(self) -> TransformationMatrix:
+    def get_transformation_matrix(self):
         """Calculates the full transformationmatrix from the start of the virtual chain to its endeffector.
 
         Returns:
@@ -304,12 +314,12 @@ class KinematicGroup():
         """
 
         # Identity matrix
-        transformation = TransformationMatrix()
+        transformation = identity_transformation()
         transformations = self._virtual_transformations
         for key in transformations:
             part           = transformations[key]
             hmt            = part.get_transformation_matrix()
-            transformation = transformation * hmt
+            transformation = transformation @ hmt
 
         return transformation
 

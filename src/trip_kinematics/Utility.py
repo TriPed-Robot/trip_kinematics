@@ -2,6 +2,10 @@ from numpy import array
 from casadi import cos, sin
 
 
+def identity_transformation():
+    return array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
+
+
 def quat_rotation_matrix(qw, qx, qy, qz) -> array:
     """Generates a 3x3 rotation matrix from q quaternion
 
