@@ -1,4 +1,5 @@
 import trip_kinematics.KinematicGroup
+import trip_kinematics.Transformation
 import trip_kinematics.Robot
 import trip_kinematics.Utility
 

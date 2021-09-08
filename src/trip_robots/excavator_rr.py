@@ -1,10 +1,12 @@
-from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
-from trip_kinematics.Robot import Robot
 from casadi import  SX, nlpsol
 from typing import Dict
-from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, hom_rotation, get_translation
 import numpy as np
 from math import radians
+
+from trip_kinematics.KinematicGroup import KinematicGroup
+from trip_kinematics.Transformation import Transformation
+from trip_kinematics.Utility import hom_translation_matrix, y_axis_rotation_matrix, hom_rotation, get_translation
+from trip_kinematics.Robot import Robot
 
 l_1 = 1
 l_2 = 0.7
