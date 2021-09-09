@@ -184,6 +184,10 @@ class Robot:
 
         return hom_matrix, symbolic_state, symbolic_keys
 
+    def get_endeffectors(self):
+        return list(self.get_groups().keys())
+
+
     
 
 
