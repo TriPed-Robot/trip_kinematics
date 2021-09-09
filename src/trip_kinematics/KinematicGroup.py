@@ -152,7 +152,7 @@ class KinematicGroup():
             raise RuntimeError(
                 "This is a static group! There is no state to be set.")
 
-        if KinematicGroup.object_list_to_key_lists(self.actuated_state) == KinematicGroup.object_list_to_key_lists(state):
+        if all(key in self.actuated_state.keys()for key in state.keys()):
             for key in state.keys():
                 self.actuated_state[key] = state[key]
             new_virtual_state = self._actuated_to_virtual(self.actuated_state)
@@ -161,7 +161,7 @@ class KinematicGroup():
             self._update_chain()
         else:
             raise ValueError(
-                "Error: State not set! Keys do not match! Make sure that your state includes the same keys as the intial actuated state.")
+                "Error: One or more keys are not part of the actuated state. correct keys are: "+str(self.actuated_state.keys()))
 
     def __str__(self):
         return self._name
