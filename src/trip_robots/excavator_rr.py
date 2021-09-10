@@ -1,12 +1,12 @@
-from casadi import  SX, nlpsol
 from typing import Dict
 import numpy as np
 from math import radians
 
 from trip_kinematics.KinematicGroup import KinematicGroup
 from trip_kinematics.Transformation import Transformation
-from trip_kinematics.Utility import hom_translation_matrix, y_axis_rotation_matrix, hom_rotation, get_translation
 from trip_kinematics.Robot import Robot
+
+
 
 l_1 = 1
 l_2 = 0.7
@@ -49,17 +49,17 @@ def geometric_a_to_q_group_2(state: Dict[str, float], tips: Dict[str, float] = N
     return {'q_2':{'ry':np.arccos((l_3**2+l_4**2-a_2**2)/(2*l_3*l_4))}}
 
 geometric_group_1 = KinematicGroup(name="geometric group 1",
-                                   virtual_transformations=[virtual_joint_1,link_1],
-                                   actuated_state={'a_1':0},
-                                   actuated_to_virtual=geometric_a_to_q_group_1,
-                                   virtual_to_actuated=geometric_q_to_a_group_1)
+                                   virtual_transformations = [virtual_joint_1,link_1],
+                                   actuated_state = {'a_1':0},
+                                   actuated_to_virtual = geometric_a_to_q_group_1,
+                                   virtual_to_actuated = geometric_q_to_a_group_1)
 
 geometric_group_2 = KinematicGroup(name="geometric group 2",
-                                   virtual_transformations=[virtual_joint_2,link_2],
-                                   actuated_state={'a_2':0},
-                                   actuated_to_virtual=geometric_a_to_q_group_2,
-                                   virtual_to_actuated=geometric_q_to_a_group_2,
-                                   parent=geometric_group_1)
+                                   virtual_transformations = [virtual_joint_2,link_2],
+                                   actuated_state = {'a_2':0},
+                                   actuated_to_virtual = geometric_a_to_q_group_2,
+                                   virtual_to_actuated = geometric_q_to_a_group_2,
+                                   parent = geometric_group_1)
 
 geometric_excavator = Robot([geometric_group_1,geometric_group_2])
 
@@ -67,9 +67,12 @@ geometric_excavator = Robot([geometric_group_1,geometric_group_2])
 ###################################################################
 # mappings using colsure equation solution geometric calculations #
 ###################################################################
+from trip_kinematics.Utility import hom_translation_matrix, y_axis_rotation_matrix
+from trip_kinematics.Utility import hom_rotation, get_translation
+import casadi 
 opts            = {'ipopt.print_level':0, 'print_time':0}
 
-closure_1_state = SX.sym('cls_1_q',3)
+closure_1_state = casadi.SX.sym('cls_1_q',3)
 
 cls_q_1     = hom_rotation(y_axis_rotation_matrix(closure_1_state[0]))
 cls_l_1     = hom_translation_matrix(tx=l_1)
@@ -84,20 +87,20 @@ closure_1 = (cls_1_trafo_pos[0]-l_2)**2 + cls_1_trafo_pos[1]**2 + cls_1_trafo_po
 
 def closure_q_to_a_group_1(state: Dict[str, float]):
     nlp        = {'x':closure_1_state[1:] ,'f':closure_1,'p':closure_1_state[0]}
-    nlp_solver = nlpsol('q_to_a','ipopt',nlp,opts)
+    nlp_solver = casadi.nlpsol('q_to_a','ipopt',nlp,opts)
     solution   = nlp_solver(x0 = [0,0], p  = [state['q_1']['ry']])
     sol_vector = np.array(solution['x'])
     return {'a_1': sol_vector[1]}
 
 def closure_a_to_q_group_1(state: Dict[str, float]):
     nlp        = {'x':closure_1_state[:1] ,'f':closure_1,'p':closure_1_state[2]}
-    nlp_solver = nlpsol('a_to_q','ipopt',nlp,opts)
+    nlp_solver = casadi.nlpsol('a_to_q','ipopt',nlp,opts)
     solution   = nlp_solver(x0 = [0,0], p  = [state['a_1']])
     sol_vector = np.array(solution['x'])
     return {'q_1': {'ry':sol_vector[0]}}
 
 
-closure_2_state = SX.sym('cls_2_q',3)
+closure_2_state = casadi.SX.sym('cls_2_q',3)
 
 cls_q_2     = hom_rotation(y_axis_rotation_matrix(closure_2_state[0]))
 cls_l_4     = hom_translation_matrix(tx=l_4)
@@ -112,14 +115,14 @@ closure_2 = (cls_2_trafo_pos[0]+l_3)**2 + cls_2_trafo_pos[1]**2 + cls_2_trafo_po
 
 def closure_q_to_a_group_1(state: Dict[str, float]):
     nlp        = {'x':closure_2_state[1:] ,'f':closure_2,'p':closure_2_state[0]}
-    nlp_solver = nlpsol('q_to_a','ipopt',nlp,opts)
+    nlp_solver = casadi.nlpsol('q_to_a','ipopt',nlp,opts)
     solution   = nlp_solver(x0 = [0,0], p  = [state['q_1']['ry']])
     sol_vector = np.array(solution['x'])
     return {'a_2': sol_vector[1]}
 
 def closure_a_to_q_group_1(state: Dict[str, float]):
     nlp        = {'x':closure_2_state[:1] ,'f':closure_2,'p':closure_2_state[2]}
-    nlp_solver = nlpsol('a_to_q','ipopt',nlp,opts)
+    nlp_solver = casadi.nlpsol('a_to_q','ipopt',nlp,opts)
     solution   = nlp_solver(x0 = [0,0], p  = [state['a_1']])
     sol_vector = np.array(solution['x'])
     return {'q_2': {'ry':sol_vector[0]}}
