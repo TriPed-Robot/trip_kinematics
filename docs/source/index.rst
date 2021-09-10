@@ -12,7 +12,7 @@ Or ever have to compensate bad motors by having them moving the joint via a comp
 Then you have worked with a hybrid kinematic chain.
 
 TriP is a python library designed to calculate the forward- and inverse-kinematics of such chains.
-Since hybrid chains are the most general type of rigid mechanisms this includes almost all robots.
+Since hybrid chains are the most general type of rigid mechanism this includes almost all robots.
 
 Features
 --------
@@ -22,15 +22,15 @@ Features
 - Compute Jacobian matrices for differential kinematics
 - Compute the inverse kinematics of arbitrary rigid mechanisms
 - Compute the Inverse Kinematics in position and/or orientation 
-- Support arbirtrary joint types and quaternions
-- Includes a  number of ready to use examples (TriPed robot, Excavator Arm)
+- Support arbitrary joint types and quaternions
+- Includes several ready to use examples (TriPed robot, Excavator Arm)
 - TriPs validates the inverse kinematics algorithms with extensive testing using analytic solutions.
 
 
 .. toctree::
 
-    what_is_trip
     how_it_works
+    getting_started
     usage
     tutorials
     code_docu
