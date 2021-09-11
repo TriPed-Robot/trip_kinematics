@@ -5,4 +5,5 @@ src/trip_kinematics/__pycache__
 workspace.code-workspace
 src/trip_kinematics/scratch_pad.py
 *.pyc 
+*.swp
 .cache/*

@@ -52,26 +52,29 @@ But, consider the excavator arm below:
 
 .. TODO describe joint drawing conventions
 
-a coordinate system has more than one parent since the transformations form a loop.
+In this example multiple coordinate system have more than one parent since the transformations form a loop.
 
 Such a loop is called a closed kinematic chain.
 
 .. TODO describe what the classical appoach its
 
 In practice, this is computationally expensive and unnecessary.
-Instead one would just calculate the orientation of the elbow joint as a function of hydraulic cylinder position.
-Then one could just treat the system as a normal open chain.
+.. important::
+    To simplify the system one could treat the system as if the hinges of the excavator arm where directly actuated.
+    This simplified virtual chain contains no closde loops and thus standard kinematics algorithms can be used to compute forward or inverse kinematics.
+    To get the solution of the real excavator, one simply has to convert between the state of the hinges and the state of the hydraulic cylinders.
+    This can be done using some kind of mapping function based on trigonometry.
+
 
 TriP embraces this mapping approach and implements it using the :class:`.KinematicGroup` class.
-A :class:`.KinematicGroup` is made up of a `virtual_transformation`, an `actuated_state`, and two mappings.
-The mappings convert between the state of the `virtual_transformation`, called `virtual_state`, and the `actuated_state`.
+A :class:`.KinematicGroup` is made up of a `virtual_chain`, an `actuated_state`, and two mappings.
+The mappings convert between the state of the `virtual_chain`, called `virtual_state`, and the state of the actuated joints called `actuated_state`.
 
 .. image:: images/group_structure.png
  :alt: group_structure
 
-As the graphic above implies the virtual_transformation is an open chain.
 .. important::
-    The virtual_transformation has to be a single open chain without branches.
+    The virtual_chain has to be a single open chain without branches.
     The reasons for this will be discussed in the next section
 
 divide a robot into groups
