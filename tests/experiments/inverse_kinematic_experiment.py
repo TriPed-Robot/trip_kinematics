@@ -48,7 +48,7 @@ def test_triped(inverse_kinematic_solver):
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             input_t1_tip.append([float(row[0]),float(row[3]),float(row[6])])
-            input_e_tip.append([float(row[1]) ,float(row[4]),float(row[7])])
+            input_e_tip.append([ float(row[1]),float(row[4]),float(row[7])])
             input_t2_tip.append([float(row[2]),float(row[5]),float(row[8])])
 
     start_time = time.time()
@@ -56,9 +56,9 @@ def test_triped(inverse_kinematic_solver):
     for i in range(len(input_x)):
         row = []
         for leg_number in [0,1,2]:
-            tip['swing_left'] = input_t1_tip[i][leg_number]
+            tip['swing_left']  = input_t1_tip[i][leg_number]
             tip['swing_right'] = input_t2_tip[i][leg_number]
-            tip['ry'] = input_e_tip[i][leg_number]
+            tip['ry']          = input_e_tip[i][leg_number]
 
 
             triped.set_actuated_state({'leg'+str(leg_number)+'_extend_joint_ry': tip['ry'],

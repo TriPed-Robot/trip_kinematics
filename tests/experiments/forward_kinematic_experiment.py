@@ -1,5 +1,6 @@
 from trip_robots.triped import triped
 from trip_kinematics.Robot import forward_kinematics
+from trip_kinematics.Utility import get_translation
 import time
 import csv
 import os
@@ -35,7 +36,7 @@ def test_triped_leg():
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             input_t1.append([float(row[0]),float(row[3]),float(row[6])])
-            input_e.append([float(row[1]) ,float(row[4]),float(row[7])])
+            input_e.append([ float(row[1]),float(row[4]),float(row[7])])
             input_t2.append([float(row[2]),float(row[5]),float(row[8])])
 
     start_time = time.time()
@@ -43,16 +44,16 @@ def test_triped_leg():
     for i in range(len(input_t1)):
         row = []
         for leg_number in [0,1,2]:
-            state['swing_left'] = input_t1[i][leg_number]
+            state['swing_left']  = input_t1[i][leg_number]
             state['swing_right'] = input_t2[i][leg_number]
-            state['ry'] = input_e[i][leg_number]
+            state['ry']          = input_e[i][leg_number]
 
             triped.set_actuated_state({'leg'+str(leg_number)+'_extend_joint_ry': state['ry'], 
                                        'leg'+str(leg_number)+'_swing_left': state['swing_left'], 
                                        'leg'+str(leg_number)+'_swing_right':state['swing_right']})
 
             leg_row = forward_kinematics(triped,'leg'+str(leg_number)+'_A_LL_Joint_FCS')
-            row.extend(leg_row[: 3, 3])
+            row.extend(get_translation(leg_row))
         forward_rows.append(row)
 
     stop_time = time.time()
