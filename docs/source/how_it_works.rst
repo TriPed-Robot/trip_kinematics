@@ -42,7 +42,7 @@ Kinematic Groups
 Most kinematic libraries rely only on such transformation objects because they only model open chains.
 An example for this is `IKPY<https://github.com/Phylliade/ikpy> `_ . 
 
-In an open-chain, the position and orientation of a coordinate system depend only on one transformation (its parent).
+In an open chain, the position and orientation of a coordinate system depend only on one transformation (its parent).
 
 
 But, consider the excavator arm below:
@@ -52,7 +52,7 @@ But, consider the excavator arm below:
 
 .. TODO describe joint drawing conventions
 
-In this example multiple coordinate system have more than one parent since the transformations form a loop.
+In this example, multiple coordinate systems have more than one parent since the transformations form a loop.
 
 Such a loop is called a closed kinematic chain.
 
@@ -61,9 +61,9 @@ Such a loop is called a closed kinematic chain.
 In practice, this is computationally expensive and unnecessary.
 
 .. important::
-    To simplify the system one could treat the system as if the hinges of the excavator arm where directly actuated.
+    To simplify the system one could treat the system as if the hinges of the excavator's arm were directly actuated.
 
-    This simplified virtual chain contains no closde loops and thus standard kinematics algorithms can be used to compute forward or inverse kinematics.
+    This simplified virtual chain contains no closed loops and thus standard kinematics algorithms can be used to compute forward or inverse kinematics.
 
     To get the solution of the real excavator, one simply has to convert between the state of the hinges and the state of the hydraulic cylinders.
     
@@ -84,9 +84,9 @@ The mappings convert between the state of the `virtual_chain`, called `virtual_s
 divide a robot into groups
 --------------------------------
 In the example above the excavator is modeled as a single group.
-However it is also possible to divide the excavator into multiple groups.
+However, it is also possible to divide the excavator into multiple groups.
 These groups can then be combined just like transformations.
-Mulitple smaller groups have two advantages over a single large group:
+Multiple smaller groups have two advantages over a single large group:
 
 For one it improves modularity, making it easier to reuse assembly parts.
 
