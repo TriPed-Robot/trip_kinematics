@@ -83,17 +83,17 @@ cls_1_trafo = cls_q_1 * cls_l_1 * cls_qs_2 * cls_a_1 * cls_a_1z
 
 cls_1_trafo_pos = get_translation(cls_1_trafo)
 
-closure_1 = (cls_1_trafo_pos[0]-l_2)**2 + cls_1_trafo_pos[1]**2 + cls_1_trafo_pos[2]**2
+c_1 = (cls_1_trafo_pos[0]-l_2)**2 + cls_1_trafo_pos[1]**2 + cls_1_trafo_pos[2]**2
 
 def closure_q_to_a_group_1(state: Dict[str, float]):
-    nlp        = {'x':closure_1_state[1:] ,'f':closure_1,'p':closure_1_state[0]}
+    nlp        = {'x':closure_1_state[1:] ,'f':c_1,'p':closure_1_state[0]}
     nlp_solver = casadi.nlpsol('q_to_a','ipopt',nlp,opts)
     solution   = nlp_solver(x0 = [0,0], p  = [state['q_1']['ry']])
     sol_vector = np.array(solution['x'])
     return {'a_1': sol_vector[1]}
 
 def closure_a_to_q_group_1(state: Dict[str, float]):
-    nlp        = {'x':closure_1_state[:1] ,'f':closure_1,'p':closure_1_state[2]}
+    nlp        = {'x':closure_1_state[:1] ,'f':c_1,'p':closure_1_state[2]}
     nlp_solver = casadi.nlpsol('a_to_q','ipopt',nlp,opts)
     solution   = nlp_solver(x0 = [0,0], p  = [state['a_1']])
     sol_vector = np.array(solution['x'])
@@ -111,17 +111,17 @@ cls_2_trafo = cls_q_2 * cls_l_4 * cls_qs_4 * cls_a_2 * cls_a_2z
 
 cls_2_trafo_pos = get_translation(cls_1_trafo)
 
-closure_2 = (cls_2_trafo_pos[0]+l_3)**2 + cls_2_trafo_pos[1]**2 + cls_2_trafo_pos[2]**2
+c_2 = (cls_2_trafo_pos[0]+l_3)**2 + cls_2_trafo_pos[1]**2 + cls_2_trafo_pos[2]**2
 
 def closure_q_to_a_group_1(state: Dict[str, float]):
-    nlp        = {'x':closure_2_state[1:] ,'f':closure_2,'p':closure_2_state[0]}
+    nlp        = {'x':closure_2_state[1:] ,'f':c_2,'p':closure_2_state[0]}
     nlp_solver = casadi.nlpsol('q_to_a','ipopt',nlp,opts)
     solution   = nlp_solver(x0 = [0,0], p  = [state['q_1']['ry']])
     sol_vector = np.array(solution['x'])
     return {'a_2': sol_vector[1]}
 
 def closure_a_to_q_group_1(state: Dict[str, float]):
-    nlp        = {'x':closure_2_state[:1] ,'f':closure_2,'p':closure_2_state[2]}
+    nlp        = {'x':closure_2_state[:1] ,'f':c_2,'p':closure_2_state[2]}
     nlp_solver = casadi.nlpsol('a_to_q','ipopt',nlp,opts)
     solution   = nlp_solver(x0 = [0,0], p  = [state['a_1']])
     sol_vector = np.array(solution['x'])

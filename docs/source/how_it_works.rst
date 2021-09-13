@@ -59,10 +59,14 @@ Such a loop is called a closed kinematic chain.
 .. TODO describe what the classical appoach its
 
 In practice, this is computationally expensive and unnecessary.
+
 .. important::
     To simplify the system one could treat the system as if the hinges of the excavator arm where directly actuated.
+
     This simplified virtual chain contains no closde loops and thus standard kinematics algorithms can be used to compute forward or inverse kinematics.
+
     To get the solution of the real excavator, one simply has to convert between the state of the hinges and the state of the hydraulic cylinders.
+    
     This can be done using some kind of mapping function based on trigonometry.
 
 
@@ -80,12 +84,9 @@ The mappings convert between the state of the `virtual_chain`, called `virtual_s
 divide a robot into groups
 --------------------------------
 In the example above the excavator is modeled as a single group.
-But is this the only way to divide the excavator into groups?
-The excavator has two actuated states and two virtual states.
-These are the lengths hydraulic cylinders :math:`a_1`,:math:`a_2` and the arm angles :math:`q_1`,:math:`q_2`.
-This can be modeled using two groups one for each cylinder.
-The second group only has to declare the first as its parent, like a :class:`.Transormation` would.
-The advantage of making multiple smaller groups are twofold:
+However it is also possible to divide the excavator into multiple groups.
+These groups can then be combined just like transformations.
+Mulitple smaller groups have two advantages over a single large group:
 
 For one it improves modularity, making it easier to reuse assembly parts.
 
@@ -95,6 +96,7 @@ A single group mechanism would mean updating every state.
 This problem is especially bad for branching mechanisms.
 Consider a four-legged robot, setting the actuator of one leg would then mean updating all four legs.
 To prevent this problem outright the virtual chain can not contain branches.
+
 
 In summary, groups should be defined as small as possible.
 Small in this case referring to the number of actuators that have to be grouped.
@@ -110,6 +112,8 @@ The reason is that the state of the top platform depends on the state of all thr
 
 .. TODO noch auf offene ketten eingehen, warum sind die keine Gruppen?
 
+
+
 These considerations lead to the following guidelines for building hybrid robots:
 
 .. important::
@@ -121,9 +125,12 @@ These considerations lead to the following guidelines for building hybrid robots
         :alt: group_partitoning
 
 
-This means that the excavator is made up of two groups.
-Each group has two mappings between the length hydraulic cylinders :math:`a_i` to the arm angles :math:`q_i`.
-These can be calculated using trigonometry:
+The excavator has two actuated states and two virtual states.
+These are the lengths hydraulic cylinders :math:`a_1`,:math:`a_2` and the arm angles :math:`q_1`,:math:`q_2`.
+Since each cylinder length :math:`a_i` controllrols one arm angle :math:`q_i`, the excavator can be divided into two groups.
+These are visualized by the green and blue parts respectively.
+
+The mappings for each group can be calculated using trigonometry:
 
 .. image:: images/geometric_mapping.png
     :alt: geometric_mapping
