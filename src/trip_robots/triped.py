@@ -40,7 +40,7 @@ def leg_model(leg_number: str):
     leg_name = 'leg'+str(leg_number)+'_'
 
     leg_rotation  = Transformation(name   = leg_name+'leg_rotation',
-                                   values = {'rz':radians(120)*leg_number })
+                                   values = {'rz':-1*radians(120)*leg_number })
     A_CSS_P_trans = Transformation(name   = leg_name+'A_CSS_P_trans',
                                    values = {'tx': 0.265, 'tz': 0.014})
     A_CSS_P_rot   = Transformation(name   = leg_name+'gimbal_joint',
