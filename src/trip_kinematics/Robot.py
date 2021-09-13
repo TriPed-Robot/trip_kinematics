@@ -1,5 +1,6 @@
 from typing import Dict, List
 from casadi import SX
+from copy import deepcopy
 
 from trip_kinematics.Utility import identity_transformation
 from trip_kinematics.KinematicGroup import  KinematicGroup , OpenKinematicGroup
@@ -49,12 +50,12 @@ class Robot:
                     self._virtual_group_mapping[key]=str(group)
      
     def get_groups(self):
-        """Returns a dictionary of the py:class`KinematicGroup` managed by the :py:class`Robot`-
+        """Returns a dictionary of the py:class`KinematicGroup` managed by the :py:class`Robot`_
 
         Returns:
             Dict[str, KinematicGroup]: The dictionary of py:class`KinematicGroup` objects.
         """
-        return self._group_dict
+        return deepcopy(self._group_dict)
 
     def pass_group_arg_v_to_a(self,argv_dict):
         for key in argv_dict.keys():
