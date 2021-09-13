@@ -35,8 +35,8 @@ def test_triped_leg():
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             input_t1.append([float(row[0]),float(row[3]),float(row[6])])
-            input_t2.append([float(row[1]),float(row[4]),float(row[7])])
-            input_e.append([float(row[2]) ,float(row[5]),float(row[8])])
+            input_e.append([float(row[1]) ,float(row[4]),float(row[7])])
+            input_t2.append([float(row[2]),float(row[5]),float(row[8])])
 
     start_time = time.time()
 
@@ -61,7 +61,7 @@ def test_triped_leg():
     print(str(len(input_t1)*3)+" forward kinematic calculations where performed in "+str(calc_time)+" seconds\n")
 
 
-    with open(forward_calculated, 'w') as f:
+    with open(forward_calculated, 'w',newline='') as f:
         writer = csv.writer(f)
         for row in forward_rows:
             writer.writerow(row)
