@@ -19,10 +19,10 @@ class KinematicGroup():
 
     Args:
         name (str): The unique name identifying the group. No two :py:class:`KinematicGroup` objects of a :py:class`Robot` should have the same name
-        virtual_transformations (List[Transformation]): A list of :py:class:`Transformation` objects forming a serial Kinematic chain. 
+        virtual_chain (List[Transformation]): A list of :py:class:`Transformation` objects forming a serial Kinematic chain. 
         actuated_state (List[Dict[str, float]], optional): The State of the Groups actuated joints. Defaults to None.
-        actuated_to_virtual (Callable, optional): Maps the :py:attr:`actuated_state` to the :py:attr:`virtual_state` of the :py:attr:`virtual_transformations`. Defaults to None.
-        virtual_to_actuated (Callable, optional): Maps the :py:attr:`virtual_state` of the :py:attr:`virtual_transformations` to the :py:attr:`actuated_state`.
+        actuated_to_virtual (Callable, optional): Maps the :py:attr:`actuated_state` to the :py:attr:`virtual_state` of the :py:attr:`virtual_chain`. Defaults to None.
+        virtual_to_actuated (Callable, optional): Maps the :py:attr:`virtual_state` of the :py:attr:`virtual_chain` to the :py:attr:`actuated_state`.
         act_to_virt_args ([type], optional): Arguments that can be passed to :py:attr:`actuated_to_virtual` during the initial testing of the function. Defaults to None.
         virt_to_act_args ([type], optional): Arguments that can be passed to :py:attr:`virtual_to_actuated` during the initial testing of the function. Defaults to None.
         parent ([type], optional): [description]. Defaults to None.
@@ -43,7 +43,7 @@ class KinematicGroup():
     def object_list_to_key_lists(object_lst):
         return list(object_lst.keys())
 
-    def __init__(self, name: str, virtual_transformations: List[Transformation], actuated_state: Dict[str, float], actuated_to_virtual: Callable, virtual_to_actuated: Callable, act_to_virt_args=None, virt_to_act_args=None, parent=None):
+    def __init__(self, name: str, virtual_chain: List[Transformation], actuated_state: Dict[str, float], actuated_to_virtual: Callable, virtual_to_actuated: Callable, act_to_virt_args=None, virt_to_act_args=None, parent=None):
         self._name   = name
         self.children = []
 
@@ -55,10 +55,10 @@ class KinematicGroup():
         else:
             raise TypeError("The parent of a group must be a another group object")
 
-        self._virtual_transformations = {}
+        self._virtual_chain = {}
         virtual_state = {}
-        for transformation in virtual_transformations:
-            self._virtual_transformations[str(transformation)]=transformation
+        for transformation in virtual_chain:
+            self._virtual_chain[str(transformation)]=transformation
             if transformation.get_state() != {}:
                 virtual_state[str(transformation)]=transformation.get_state()
 
@@ -118,9 +118,8 @@ class KinematicGroup():
                                                 The new values need to be valid state for the state of the joint.
 
         Raises:
-            RuntimeError: "This is a static group! There is no state to be set" if all  :py:class:`Transformation` objects of :py:attr:`_virtual_transformations` are static. 
-            ValueError: "Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations." 
-                        if the state to set is not part of keys of :py:attr:`virtual_state`
+            RuntimeError: if all  :py:class:`Transformation` objects of :py:attr:`_virtual_chain` are static. 
+            ValueError: if the state to set is not part of keys of :py:attr:`virtual_state`
         """
 
         if self.actuated_state == None:
@@ -143,9 +142,8 @@ class KinematicGroup():
 
 
         Raises:
-            RuntimeError: "This is a static group! There is no state to be set" if all  :py:class:`Transformation` objects of :py:attr:`_virtual_transformations` are static. 
-            ValueError: Error: State not set! Keys do not match! Make sure that your state includes the same keys as your intial virtual transformations." 
-                        if the state to set is not part of keys of :py:attr:`actuated_state`
+            RuntimeError:  if all  :py:class:`Transformation` objects of :py:attr:`_virtual_chain` are static. 
+            ValueError: if the state to set is not part of keys of :py:attr:`actuated_state`
         """
 
         if self.actuated_state == None:
@@ -187,7 +185,7 @@ class KinematicGroup():
 
         # Identity matrix
         transformation = identity_transformation()
-        transformations = self._virtual_transformations
+        transformations = self._virtual_chain
         for key in transformations:
             part           = transformations[key]
             hmt            = part.get_transformation_matrix()
@@ -195,14 +193,14 @@ class KinematicGroup():
 
         return transformation
 
-    def get_virtual_transformations(self):
-        return deepcopy(self._virtual_transformations)
+    def get_virtual_chain(self):
+        return deepcopy(self._virtual_chain)
 
     def _update_chain(self):
         """propagates changes from the :py:attr:`virtual_state` to the underlying :py:class:`Transformation` objects.
         """
         for key in self.virtual_state.keys():
-            self._virtual_transformations[key].set_state(self.virtual_state[key])
+            self._virtual_chain[key].set_state(self.virtual_state[key])
 
     def add_children(self, child: str):
         self.children.append(child)
@@ -218,10 +216,10 @@ class KinematicGroup():
 
 
 class OpenKinematicGroup(KinematicGroup):
-    def __init__(self, name: str, virtual_transformations: List[Transformation], parent=None):
+    def __init__(self, name: str, virtual_chain: List[Transformation], parent=None):
         virtual_state      = {}
         virtual_trafo_dict = {}
-        for transformation in virtual_transformations:
+        for transformation in virtual_chain:
             virtual_trafo_dict[str(transformation)]=transformation
             if transformation.get_state() != {}:
                 virtual_state[str(transformation)]=transformation.get_state()
@@ -269,7 +267,7 @@ class OpenKinematicGroup(KinematicGroup):
             actuated_to_virtual = None
             virtual_to_actuated = None
         super(OpenKinematicGroup,self).__init__(name = name, 
-                                                virtual_transformations = virtual_transformations, 
+                                                virtual_chain = virtual_chain, 
                                                 actuated_state = actuated_state, 
                                                 actuated_to_virtual = actuated_to_virtual, 
                                                 virtual_to_actuated = virtual_to_actuated,

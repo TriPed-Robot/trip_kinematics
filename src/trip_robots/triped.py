@@ -48,7 +48,7 @@ def leg_model(leg_number: str):
                                    state_variables = ['rx', 'ry', 'rz'])
 
     closed_chain  = KinematicGroup(name                    = leg_name+'closed_chain', 
-                                   virtual_transformations = [leg_rotation,A_CSS_P_trans,A_CSS_P_rot], 
+                                   virtual_chain = [leg_rotation,A_CSS_P_trans,A_CSS_P_rot], 
                                    actuated_state          = {leg_name+'swing_left': 0,leg_name+'swing_right': 0}, 
                                    actuated_to_virtual     = rename_swing_to_gimbal, 
                                    virtual_to_actuated     = rename_gimbal_to_swing)

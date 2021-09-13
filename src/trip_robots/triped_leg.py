@@ -104,7 +104,7 @@ A_CSS_P_rot   = Transformation(name   = 'gimbal_joint',
                                 state_variables = ['rx', 'ry', 'rz'])
 
 closed_chain  = KinematicGroup(name                    = 'closed_chain', 
-                                virtual_transformations = [A_CSS_P_trans,A_CSS_P_rot], 
+                                virtual_chain = [A_CSS_P_trans,A_CSS_P_rot], 
                                 actuated_state          = {'swing_left': 0,'swing_right': 0}, 
                                 actuated_to_virtual     = swing_to_gimbal, 
                                 virtual_to_actuated     = gimbal_to_swing)

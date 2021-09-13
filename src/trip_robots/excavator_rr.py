@@ -49,13 +49,13 @@ def geometric_a_to_q_group_2(state: Dict[str, float], tips: Dict[str, float] = N
     return {'q_2':{'ry':np.arccos((l_3**2+l_4**2-a_2**2)/(2*l_3*l_4))}}
 
 geometric_group_1 = KinematicGroup(name="geometric group 1",
-                                   virtual_transformations = [virtual_joint_1,link_1],
+                                   virtual_chain = [virtual_joint_1,link_1],
                                    actuated_state = {'a_1':0},
                                    actuated_to_virtual = geometric_a_to_q_group_1,
                                    virtual_to_actuated = geometric_q_to_a_group_1)
 
 geometric_group_2 = KinematicGroup(name="geometric group 2",
-                                   virtual_transformations = [virtual_joint_2,link_2],
+                                   virtual_chain = [virtual_joint_2,link_2],
                                    actuated_state = {'a_2':0},
                                    actuated_to_virtual = geometric_a_to_q_group_2,
                                    virtual_to_actuated = geometric_q_to_a_group_2,
@@ -128,13 +128,13 @@ def closure_a_to_q_group_1(state: Dict[str, float]):
     return {'q_2': {'ry':sol_vector[0]}}
 
 closure_group_1 = KinematicGroup(name="geometric group 1",
-                                 virtual_transformations=[virtual_joint_1,link_1],
+                                 virtual_chain=[virtual_joint_1,link_1],
                                  actuated_state={'a_1':0},
                                  actuated_to_virtual=geometric_a_to_q_group_1,
                                  virtual_to_actuated=geometric_q_to_a_group_1)
 
 closure_group_2 = KinematicGroup(name="geometric group 2",
-                                 virtual_transformations=[virtual_joint_2,link_2],
+                                 virtual_chain=[virtual_joint_2,link_2],
                                  actuated_state={'a_2':0},
                                  actuated_to_virtual=geometric_a_to_q_group_2,
                                  virtual_to_actuated=geometric_q_to_a_group_2,

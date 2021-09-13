@@ -17,8 +17,7 @@ class Robot:
     Raises:
         KeyError: "More than one robot actuator has the same name! Please give each actuator a unique name" 
                   if there are actuated states with the same names between the :py:class`KinematicGroup` objects of the :py:class`Robot`
-        KeyError: "More than one robot virtual transformation has the same name! Please give each virtual transformation a unique name"
-                  if there are joints with the same names between the :py:class`KinematicGroup` objects of the :py:class`Robot`
+        KeyError: if there are joints with the same names between the :py:class`KinematicGroup` objects of the :py:class`Robot`
     """
 
     def __init__(self, kinematic_chain: List[KinematicGroup]) -> None:
@@ -31,7 +30,7 @@ class Robot:
             if isinstance(group,Transformation):
                 print("Warning: Transformation "+str(group)+" was converted to a OpenKinematicGroup with parent "+str(kinematic_chain[i-1]))
                 if i >0:
-                    group = OpenKinematicGroup(name=str(group),virtual_transformations=[group],
+                    group = OpenKinematicGroup(name=str(group),virtual_chain=[group],
                                            parent= self._group_dict[str(kinematic_chain[i-1])])
                 else:
                     group = OpenKinematicGroup(str(group),[group])
@@ -46,7 +45,7 @@ class Robot:
 
                 for key in group.get_virtual_state().keys():
                     if key in self._virtual_group_mapping.keys():
-                        raise KeyError("More than one robot virtual transformation has the same name! Please give each virtual transformation a unique name")
+                        raise KeyError("More than one robot transformation of a (virtual) chain has the same name! Please give each transformation a unique name")
                     self._virtual_group_mapping[key]=str(group)
      
     def get_groups(self):
@@ -161,7 +160,7 @@ class Robot:
         group_key_list.reverse()
         for group_key in group_key_list:
             group = group_dict[group_key]
-            virtual_trafo  = group.get_virtual_transformations()
+            virtual_trafo  = group.get_virtual_chain()
 
             for virtual_key in virtual_trafo.keys():
                 virtual_transformation = virtual_trafo[virtual_key]

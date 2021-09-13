@@ -24,7 +24,7 @@ def virtual_to_actuated(state):
 class TestStates(unittest.TestCase):
 
     def test_set_actuated_state(self):
-        scara_arm = KinematicGroup(name="scara", virtual_transformations=[
+        scara_arm = KinematicGroup(name="scara", virtual_chain=[
             arm_1, joint, arm_2], actuated_state=[{'z': 0}], actuated_to_virtual=actuated_to_virtual, virtual_to_actuated=virtual_to_actuated)
 
         scara = Robot([scara_arm])
@@ -37,7 +37,7 @@ class TestStates(unittest.TestCase):
         self.assertEqual(str(list(end_position)), str([1.0, 1.0, 0.0]))
 
     def test_trivial_actuated_to_virtual(self):
-        scara_arm = KinematicGroup(name="scara", virtual_transformations=[
+        scara_arm = KinematicGroup(name="scara", virtual_chain=[
             arm_1, joint, arm_2])
         scara = Robot([scara_arm])
         inital_position = forward_kinematics(scara)
@@ -48,7 +48,7 @@ class TestStates(unittest.TestCase):
         self.assertEqual(str(list(end_position)), str([1.0, 1.0, 0.0]))
 
     def test_set_virtual_state(self):
-        scara_arm = KinematicGroup(name="scara", virtual_transformations=[
+        scara_arm = KinematicGroup(name="scara", virtual_chain=[
             arm_1, joint, arm_2], actuated_state=[{'z': 0}], actuated_to_virtual=actuated_to_virtual, virtual_to_actuated=virtual_to_actuated)
 
         scara = Robot([scara_arm])
@@ -60,7 +60,7 @@ class TestStates(unittest.TestCase):
         self.assertEqual(str(end_angle), str([[[{'z': radians(90)}]]]))
 
     def test_trivial_virtual_to_actuated(self):
-        scara_arm = KinematicGroup(name="scara", virtual_transformations=[
+        scara_arm = KinematicGroup(name="scara", virtual_chain=[
             arm_1, joint, arm_2])
         scara = Robot([scara_arm])
         inital_angle = inverse_kinematics(scara, [2.0, 0.0, 0.0])

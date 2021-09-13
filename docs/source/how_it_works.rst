@@ -180,7 +180,7 @@ The solving of the closure equation can be performed by casadi, which TriP also 
 
 
 
-Defining virtual transformations
+Defining virtual chains
 --------------------------------
 
 .. TODO example von vorne zeigen, mitvirtueller kette als part, dann 6dof joint (constrained), dann constrained joint (nur orientierung)
