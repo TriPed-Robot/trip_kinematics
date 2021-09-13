@@ -30,7 +30,7 @@ def c(rx, ry, rz):
 def p1(theta):
     A_CCS_lsm_tran = hom_translation_matrix(
         tx=0.139807669447128, ty=0.0549998406976098, tz=-0.051)
-    A_CCS_lsm_rot  = hom_rotation(z_axis_rotation_matrix(radians(-338.5255)))  
+    A_CCS_lsm_rot  = hom_rotation(z_axis_rotation_matrix(radians(-345.0)))  
     A_MCS1_JOINT   = hom_rotation(z_axis_rotation_matrix(theta))
     A_MCS1_SP11    = hom_translation_matrix(
         tx=0.085, ty=0, tz=-0.0245)
@@ -42,7 +42,7 @@ def p1(theta):
 def p2(theta):
     A_CCS_rsm_tran = hom_translation_matrix(
         tx=0.139807669447128, ty=-0.0549998406976098, tz=-0.051)
-    A_CCS_rsm_rot  = hom_rotation(z_axis_rotation_matrix(radians(-21.4745))) 
+    A_CCS_rsm_rot  = hom_rotation(z_axis_rotation_matrix(radians(-15.0))) 
     A_MCS2_JOINT   = hom_rotation(z_axis_rotation_matrix(theta))
     A_MCS2_SP21    = hom_translation_matrix(
         tx=0.085, ty=0, tz=-0.0245)
