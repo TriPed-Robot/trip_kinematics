@@ -63,9 +63,18 @@ class Transformation():
         else:
             return "quaternion"
 
-    def __init__(self, name: str, values: Dict[str, float], state_variables: List[str] = []):
+    def __init__(self, name: str, values: Dict[str, float], state_variables: List[str] = [], parent=None):
 
         self._name = name
+        self.children = []
+
+        if parent == None:
+            self.parent = name
+        else: #elif isinstance(parent,KinematicGroup) or isinstance(parent,Transformation):
+            self.parent = str(parent)
+            parent.add_children(name)
+        #else:
+        #    raise TypeError("The parent of a group must be a either a KinematicGroup or a Transformation")
 
         if not set(state_variables) <= set(values.keys()):
             raise ValueError(
@@ -138,5 +147,6 @@ class Transformation():
         
         return matrix
 
-
+    def add_children(self, child: str):
+        self.children.append(child)
 
