@@ -67,7 +67,6 @@ class KinematicGroup():
                 raise ValueError("The Transformation "+str(transformation)+"contains more than one child."+
                                  " In a virtual chain each transfromation can only have one child")
             elif transformation.children == []:
-                print("set endeffector")
                 endeffector = str(transformation)
             if transformation.parent == str(transformation):
                 if root == None:
@@ -104,7 +103,7 @@ class KinematicGroup():
             self._chain_keys.append(current_key)
         self._chain_keys.reverse()
 
-        # check the consistency of the provided mapping functions 
+        # check the consistency of the provided mapping functions if the group is not static 
         if actuated_state:
             self._original_actuated_to_virtual = actuated_to_virtual
             if act_to_virt_args:

@@ -69,7 +69,7 @@ def leg_model(leg_number: str):
                                         values = {'tx': -1.5},
                                         parent = A_LL_zero_LL_joint)
 
-    return [closed_chain, A_P_LL, A_LL_LL_zero,A_LL_zero_LL_joint, A_LL_Joint_FCS]
+    return [closed_chain,A_LL_zero_LL_joint, A_LL_Joint_FCS, A_P_LL, A_LL_LL_zero]
 
 
 triped     = Robot(leg_model(0)+leg_model(1)+leg_model(2))

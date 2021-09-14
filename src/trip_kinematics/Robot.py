@@ -29,14 +29,19 @@ class Robot:
         for i in range(len(kinematic_chain)):
             group = kinematic_chain[i]
             if isinstance(group,Transformation):
-                print("Warning: Transformation "+str(group)+" was converted to a OpenKinematicGroup with parent "+str(kinematic_chain[i-1]))
-                if i >0:
-                    group.children = [] # KinematicGroup expects endeffector of virtual children to have no children
-                    group.parent = str(group) # KinematicGroup expects root of virtual children to have itself as a parent
-                    group = OpenKinematicGroup(name=str(group),virtual_chain=[group],
-                                           parent= self._group_dict[str(kinematic_chain[i-1])])
-                else:
-                    group = OpenKinematicGroup(str(group),[group])
+                # create group from trafo, lifting the parent and child relations to group level
+                group_children = group.children
+                group_parent   = group.parent
+
+                group.children = [] # KinematicGroup expects endeffector of virtual children to have no children
+                group.parent   = str(group) # KinematicGroup expects root of virtual children to have itself as a parent
+
+                group = OpenKinematicGroup(name=str(group),virtual_chain=[group],
+                                        parent= self._group_dict[str(kinematic_chain[i-1])])
+
+                # carefull this circumvents the usual checks for correct group and parent names!
+                group.children = group_children
+                group.parent   = group_parent
 
             self._group_dict[str(group)]=group
             if group.get_virtual_state() != {}:
