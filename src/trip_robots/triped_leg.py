@@ -101,7 +101,8 @@ A_CSS_P_trans = Transformation(name   = 'A_CSS_P_trans',
                                 values = {'tx': 0.265, 'tz': 0.014})
 A_CSS_P_rot   = Transformation(name   = 'gimbal_joint',
                                 values = {'rx': 0, 'ry': 0, 'rz': 0}, 
-                                state_variables = ['rx', 'ry', 'rz'])
+                                state_variables = ['rx', 'ry', 'rz'],
+                                parent = A_CSS_P_trans)
 
 closed_chain  = KinematicGroup(name                    = 'closed_chain', 
                                 virtual_chain = [A_CSS_P_trans,A_CSS_P_rot], 
@@ -110,14 +111,18 @@ closed_chain  = KinematicGroup(name                    = 'closed_chain',
                                 virtual_to_actuated     = gimbal_to_swing)
 
 A_P_LL             = Transformation(name   = 'A_P_LL', 
-                                    values = {'tx': 1.640, 'tz': -0.037, })
+                                    values = {'tx': 1.640, 'tz': -0.037, },
+                                    parent = closed_chain)
 A_LL_LL_zero       = Transformation(name   = 'zero_angle_convention',
-                                    values = {'ry': radians(-3)})
+                                    values = {'ry': radians(-3)},
+                                    parent = A_P_LL)
 A_LL_zero_LL_joint = Transformation(name   = 'extend_joint',
                                     values = {'ry': 0}, 
-                                    state_variables = ['ry'])
+                                    state_variables = ['ry'],
+                                    parent = A_LL_LL_zero)
 A_LL_Joint_FCS     = Transformation(name   = 'A_LL_Joint_FCS', 
-                                    values = {'tx': -1.5})
+                                    values = {'tx': -1.5},
+                                    parent = A_LL_zero_LL_joint)
 
 
 triped_leg     = Robot([closed_chain,A_P_LL,A_LL_LL_zero,A_LL_zero_LL_joint,A_LL_Joint_FCS])

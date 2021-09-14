@@ -31,6 +31,8 @@ class Robot:
             if isinstance(group,Transformation):
                 print("Warning: Transformation "+str(group)+" was converted to a OpenKinematicGroup with parent "+str(kinematic_chain[i-1]))
                 if i >0:
+                    group.children = [] # KinematicGroup expects endeffector of virtual children to have no children
+                    group.parent = str(group) # KinematicGroup expects root of virtual children to have itself as a parent
                     group = OpenKinematicGroup(name=str(group),virtual_chain=[group],
                                            parent= self._group_dict[str(kinematic_chain[i-1])])
                 else:
