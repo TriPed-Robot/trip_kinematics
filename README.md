@@ -4,6 +4,8 @@ TriP is a python library designed to calculate the forward- and inverse-kinemati
 
 This includes open chains, closed chains, and even combinations of both.
 
+
+
 ## Features
 
 - Model any robot (including closed and hybrid chains)
@@ -29,6 +31,8 @@ cd TriP
 pip install src/
 `
 
+## Documentation
+The documentation can be found here
 
 
  
