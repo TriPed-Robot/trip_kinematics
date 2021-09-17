@@ -16,19 +16,117 @@ TriP implements its own :class:`.Transormation` class.
 One can distinguish between static transformations and dynamic transformations.
 Dynamic transformations change depending on an internal state thereby modeling the joints of a mechanism.
 
-
+.. TODO zuerst mehr auf Struktur der Transformation class eingehen!
 
 The :class:`.Transormation` class has an attribute that manages the internal state.
 
 In general, states can influence the transformation in arbitrary ways.
 Yet robotics uses several standard conventions.
 
-The :class:`.Transormation` class currently supports:
+The :class:`.Transormation` class currently supports the following conventions:
 
-.. TODO SUPPORTED CONVENTIONS
+* translation with euler angle rotation
+* translation with quaternion rotation
+* denavit hartenberg 
 
-.. TODO describe how joints can be defined in these conventions
-.. TODO add code examples for conventions
+
+
+Translation with Euler Angles rotation
+--------------------------------------
+This convention is perhaps the most natural and intuitive.
+in this convention the transformation is specified using 6 parameters `[tx ty tz rx ry rz]`.
+These parameters have the following interpretation:
+
+========== ===============================================
+paramenter interpretation
+========== ===============================================
+tx         moves the coordinate system along the x axis
+ty         moves the coordinate system along the y axis
+tz         moves the coordinate system along the z axis
+rx         rotates the coordinate system around the x axis
+ry         rotates the coordinate system around the y axis
+rz         rotates the coordinate system around the z axis
+========== ===============================================
+
+.. important::
+    In this convention the rotation is always applied before the translation.
+
+    The euler angles follow the `XYZ` convention.
+    This means that the transformation first rotates around x, then around y and lastly around z.
+    This convention is also called Roll, Pitch and Yaw. Here rx=Roll, ry=Pitch and rz=Yaw.
+
+
+This transformation is captured by the following transformation matrix:
+
+.. TODO hier bild der Matrix hin.
+
+The definition of joints in this convention is very straight forward, below is a sample list of different joints:
+
+.. image:: images/sample_transformations.png
+ :alt: sample_joints
+
+Note that while all nonspecified parameters are assumed to be zero, the value of each `state_variable` still has to be supplied.
+
+Translation with Quaternion rotation
+------------------------------------
+Quaternions are an alternative 4 dimensional description of rotation.
+They have many advantages compared to euler angles, that are explained `here <https://en.wikipedia.org/wiki/Quaternion>`_
+However they trade these advantages for an intuitive interpretation.
+
+========== ===============================================
+paramenter interpretation
+========== ===============================================
+tx         moves the coordinate system along the x axis
+ty         moves the coordinate system along the y axis
+tz         moves the coordinate system along the z axis
+qw         first quaternion, also called a.
+qx         second quaternion, also called b.
+qy         third quaternion, also called c.
+qz         fourth quaternion, also called d.
+========== ===============================================
+
+
+The cooresponding matrix is:
+
+.. TODO bild der matrix hier hin
+
+
+.. important:: 
+    The matrix only describes a rotation if all quaternions are normalized, meaning :math:`qw^2+qx^2+qy^2+qz^2=1`.
+    Since current inverse kinematics solver do not support constraints this means that quaterions are not supported when calculating inverse kinematics.
+
+
+Denavit Hartenberg
+------------------
+The denavit hartenberg is a popular although limited description format.
+It requires only 4 parameters to describe a transformation.
+This makes the transformation numerically efficient for inverse kinematic solvers.
+
+========== ===============================================
+paramenter interpretation
+========== ===============================================
+theta      rotates the coordinate system around the z axis
+d          moves the coordinate system along the z axis
+a          moves the coordinate system along the x axis
+alpha      rotates the coordinate system around the x axis
+========== ===============================================
+
+.. important::
+    While these parameters perform the same functions of the first convention the transformation are applied in a different order.
+    Namely first the system rotates around the z axis, then it moves along it, then it moves along the x axis and then it rotates around it.
+
+    The denavit hartenberg formulation only works for robots with only one branch from start to finish.
+    This includes most robotic arms but excludes for example humanoid robots as each limb is its own separate branch. For more information see the next subsection.
+
+
+The denavit hartenberg transformation is captured by the following matrix:
+
+.. TODO hier bild der matrix hin.
+
+
+Transformation trees
+--------------------
+
 
 .. TODO describe children an parent as well as tree structure.
 
@@ -42,7 +140,7 @@ Kinematic Groups
 Most kinematic libraries rely only on such transformation objects because they only model open chains.
 An example for this is `IKPY<https://github.com/Phylliade/ikpy> `_ . 
 
-In an open chain, the position and orientation of a coordinate system depend only on one transformation (its parent).
+In an open chain, the position and orientation of a coordinate system depend only on one transformation from its parent.
 
 
 But, consider the excavator arm below:
@@ -82,7 +180,7 @@ The mappings convert between the state of the `virtual_chain`, called `virtual_s
     The reasons for this will be discussed in the next section
 
 divide a robot into groups
---------------------------------
+--------------------------
 In the example above the excavator is modeled as a single group.
 However, it is also possible to divide the excavator into multiple groups.
 These groups can then be combined just like transformations.
