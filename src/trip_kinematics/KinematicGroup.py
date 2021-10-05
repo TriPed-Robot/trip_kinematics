@@ -5,15 +5,6 @@ from trip_kinematics.Utility import identity_transformation
 from trip_kinematics.Transformation import Transformation
 
 
-def array_find(arr, obj) -> int:
-    index = -1
-    try:
-        index = arr.index(obj)
-        return index
-    except:
-        return -1
-
-
 class KinematicGroup():
     """Initializes a :py:class:`KinematicGroup` object.
 
