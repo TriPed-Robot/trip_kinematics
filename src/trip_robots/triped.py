@@ -4,7 +4,7 @@ from math import radians
 
 from trip_kinematics.KinematicGroup import KinematicGroup, Transformation
 from trip_kinematics.Robot import Robot
-from trip_robots.triped_leg import *
+from trip_robots.triped_leg import swing_to_gimbal, gimbal_to_swing
 
 
 def leg_model(leg_number: str):
