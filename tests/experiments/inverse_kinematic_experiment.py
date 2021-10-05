@@ -5,7 +5,7 @@ import os
 
 
 
-def test_inv(robot_name,inverse_kinematic_solver):
+def inv_test(robot_name,inverse_kinematic_solver):
     available_robots = ["triped"]
     if robot_name == "triped":
         test_triped(inverse_kinematic_solver)

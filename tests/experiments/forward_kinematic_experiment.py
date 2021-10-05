@@ -7,7 +7,7 @@ import os
 
 
 
-def test_fwd(robot_name):
+def fwd_test(robot_name):
     available_robots = ["triped"]
     if robot_name == "triped":
         test_triped_leg()
