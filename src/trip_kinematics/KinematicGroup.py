@@ -40,7 +40,7 @@ class KinematicGroup():
 
         if parent is None:
             self.parent = name
-        elif isinstance(parent, KinematicGroup) or isinstance(parent, Transformation):
+        elif isinstance(parent, (KinematicGroup, Transformation)):
             self.parent = str(parent)
             parent.add_children(name)
         else:
@@ -58,7 +58,7 @@ class KinematicGroup():
             if len(transformation.children) >= 2:
                 raise ValueError("The Transformation "+str(transformation)+"contains more than one child." +
                                  " In a virtual chain each transfromation can only have one child")
-            elif transformation.children == []:
+            if transformation.children == []:
                 endeffector = str(transformation)
             if transformation.parent == str(transformation):
                 if root is None:
@@ -195,8 +195,7 @@ class KinematicGroup():
     def get_actuated_state(self):
         if self.actuated_state:
             return deepcopy(self.actuated_state)
-        else:
-            return None
+        return None
 
     def get_transformation_matrix(self):
         """Calculates the full transformationmatrix from the start of the virtual chain to its endeffector.
@@ -250,9 +249,8 @@ class OpenKinematicGroup(KinematicGroup):
             f_map = {}
             g_map = {}
 
-            for virtual_key in virtual_trafo_dict.keys():
+            for virtual_key, transformation in virtual_trafo_dict.items():
 
-                transformation = virtual_trafo_dict[virtual_key]
                 state = transformation.get_state()
                 for key, value in state.items():
                     concat_key = transformation.get_name() + '_' + key
