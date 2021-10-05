@@ -38,7 +38,7 @@ class KinematicGroup():
         self._name = name
         self.children = []
 
-        if parent == None:
+        if parent is None:
             self.parent = name
         elif isinstance(parent, KinematicGroup) or isinstance(parent, Transformation):
             self.parent = str(parent)
@@ -61,7 +61,7 @@ class KinematicGroup():
             elif transformation.children == []:
                 endeffector = str(transformation)
             if transformation.parent == str(transformation):
-                if root == None:
+                if root is None:
                     root = str(transformation)
                 else:
                     raise ValueError("Transformations "+root+" and "+str(transformation)+" are both connected to the ground." +
@@ -143,7 +143,7 @@ class KinematicGroup():
             ValueError: if the state to set is not part of keys of :py:attr:`virtual_state`
         """
 
-        if self.actuated_state == None:
+        if self.actuated_state is None:
             raise RuntimeError(
                 "This is a static group! There is no state to be set")
 
@@ -168,7 +168,7 @@ class KinematicGroup():
             ValueError: if the state to set is not part of keys of :py:attr:`actuated_state`
         """
 
-        if self.actuated_state == None:
+        if self.actuated_state is None:
             raise RuntimeError(
                 "This is a static group! There is no state to be set.")
 

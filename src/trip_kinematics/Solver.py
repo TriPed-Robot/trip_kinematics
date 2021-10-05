@@ -44,7 +44,7 @@ class SimpleInvKinSolver:
     def solve_actuated(self, target, initial_tip=None, mapping_argument=None):
         virtual_state = self.solve_virtual(
             target=target, initial_tip=initial_tip)
-        if mapping_argument != None:
+        if mapping_argument is not None:
             self._robot.pass_group_arg_v_to_a(mapping_argument)
 
         self._robot.set_virtual_state(virtual_state)

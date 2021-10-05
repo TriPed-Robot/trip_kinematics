@@ -1,7 +1,8 @@
-from casadi import SX, nlpsol, vertcat
-from typing import Dict
-import numpy as np
 from math import radians
+from typing import Dict
+from casadi import SX, nlpsol, vertcat
+import numpy as np
+
 
 from trip_kinematics.KinematicGroup import KinematicGroup
 from trip_kinematics.Transformation import Transformation

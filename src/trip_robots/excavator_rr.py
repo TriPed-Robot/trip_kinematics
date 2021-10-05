@@ -1,10 +1,10 @@
+from typing import Dict
+from math import radians
 import casadi
+import numpy as np
+
 from trip_kinematics.Utility import hom_rotation, get_translation
 from trip_kinematics.Utility import hom_translation_matrix, y_axis_rotation_matrix
-from typing import Dict
-import numpy as np
-from math import radians
-
 from trip_kinematics.KinematicGroup import KinematicGroup
 from trip_kinematics.Transformation import Transformation
 from trip_kinematics.Robot import Robot

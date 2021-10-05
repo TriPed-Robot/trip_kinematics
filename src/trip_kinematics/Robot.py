@@ -1,6 +1,6 @@
 from typing import Dict, List
-from casadi import SX
 from copy import deepcopy
+from casadi import SX
 
 from trip_kinematics.Utility import identity_transformation
 from trip_kinematics.KinematicGroup import KinematicGroup, OpenKinematicGroup
@@ -114,7 +114,7 @@ class Robot:
         actuated_state = {}
         for key in self._group_dict.keys():
             actuated_group = self._group_dict[key].get_actuated_state()
-            if actuated_group != None:
+            if actuated_group is not None:
                 for actuated_key in actuated_group:
                     actuated_state[actuated_key] = actuated_group[actuated_key]
         return actuated_state

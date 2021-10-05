@@ -71,7 +71,7 @@ class Transformation():
         self._name = name
         self.children = []
 
-        if parent == None:
+        if parent is None:
             self.parent = name
         # elif isinstance(parent,KinematicGroup) or isinstance(parent,Transformation):
         else:
