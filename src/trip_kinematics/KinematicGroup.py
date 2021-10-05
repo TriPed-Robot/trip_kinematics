@@ -19,7 +19,7 @@ class KinematicGroup():
 
     Args:
         name (str): The unique name identifying the group. No two :py:class:`KinematicGroup` objects of a :py:class`Robot` should have the same name
-        virtual_chain (List[Transformation]): A list of :py:class:`Transformation` objects forming a serial Kinematic chain. 
+        virtual_chain (List[Transformation]): A list of :py:class:`Transformation` objects forming a serial Kinematic chain.
         actuated_state (List[Dict[str, float]], optional): The State of the Groups actuated joints. Defaults to None.
         actuated_to_virtual (Callable, optional): Maps the :py:attr:`actuated_state` to the :py:attr:`virtual_state` of the :py:attr:`virtual_chain`. Defaults to None.
         virtual_to_actuated (Callable, optional): Maps the :py:attr:`virtual_state` of the :py:attr:`virtual_chain` to the :py:attr:`actuated_state`.
@@ -28,7 +28,7 @@ class KinematicGroup():
         parent ([type], optional): [description]. Defaults to None.
 
     Raises:
-        ValueError: 'Error: Actuated state is missing. You provided a mapping to actuate the group but no state to be actuated.' 
+        ValueError: 'Error: Actuated state is missing. You provided a mapping to actuate the group but no state to be actuated.'
                     if there is no :py:attr:`actuated_state` despite a mapping being passed
         ValueError: 'Error: Only one mapping provided. You need mappings for both ways. Consider to pass a trivial mapping.'
                     if either :py:attr:`actuated_to_virtual` or :py:attr:`virtual_to_actuated` was not set despite providing a :py:attr:`actuated_state`.
@@ -144,11 +144,11 @@ class KinematicGroup():
         """Sets the :py:attr:`virtual_state` of the Group and automatically updates the corresponding :py:attr:`actuated_state`
 
         Args:
-            state (Dict[str,Dict[str, float]]): A dictionary containing the members of :py:attr:`virtual_state` that should be set. 
+            state (Dict[str,Dict[str, float]]): A dictionary containing the members of :py:attr:`virtual_state` that should be set.
                                                 The new values need to be valid state for the state of the joint.
 
         Raises:
-            RuntimeError: if all  :py:class:`Transformation` objects of :py:attr:`_virtual_chain` are static. 
+            RuntimeError: if all  :py:class:`Transformation` objects of :py:attr:`_virtual_chain` are static.
             ValueError: if the state to set is not part of keys of :py:attr:`virtual_state`
         """
 
@@ -169,11 +169,11 @@ class KinematicGroup():
         """Sets the :py:attr:`actuated_state` of the Group and automatically updates the corresponding :py:attr:`virtual_state`
 
         Args:
-            state (Dict[str, float]): A dictionary containing the members of :py:attr:`actuated_state` that should be set. 
+            state (Dict[str, float]): A dictionary containing the members of :py:attr:`actuated_state` that should be set.
 
 
         Raises:
-            RuntimeError:  if all  :py:class:`Transformation` objects of :py:attr:`_virtual_chain` are static. 
+            RuntimeError:  if all  :py:class:`Transformation` objects of :py:attr:`_virtual_chain` are static.
             ValueError: if the state to set is not part of keys of :py:attr:`actuated_state`
         """
 

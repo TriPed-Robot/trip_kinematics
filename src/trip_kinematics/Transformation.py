@@ -14,12 +14,12 @@ def array_find(arr, obj) -> int:
 
 
 class Transformation():
-    """Initializes the :py:class:`Transformation` class. 
+    """Initializes the :py:class:`Transformation` class.
 
     Args:
         name (str): The unique name identifying the . No two :py:class:`Transformation` objects of a :py:class`Robot` should have the same name
-        values (Dict[str, float]): A parametric description of the transformation. 
-        state_variables (List[str], optional): This list describes which state variables are dynamically changable. 
+        values (Dict[str, float]): A parametric description of the transformation.
+        state_variables (List[str], optional): This list describes which state variables are dynamically changable.
                                                This is the case if the :py:class:`Transformation` represents a joint. Defaults to [].
 
     Raises:
@@ -28,7 +28,7 @@ class Transformation():
 
     @staticmethod
     def get_convention(state: Dict[str, float]):
-        """Returns the connvention which describes how the matrix  of a :py:class:`Transformation` is build from its state. 
+        """Returns the connvention which describes how the matrix  of a :py:class:`Transformation` is build from its state.
 
         Args:
             state (Dict[str, float]): :py:attr:'state'
@@ -38,7 +38,7 @@ class Transformation():
             ValueError: "State can't have euler angles and quaternions!" If the dictionary contains keys correspondig to multiple mutually exclusive conventions.
 
         Returns:
-            [type]: A string describing the convention 
+            [type]: A string describing the convention
         """
 
         valid_keys = ['tx', 'ty', 'tz', 'qw', 'qx',

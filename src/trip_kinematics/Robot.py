@@ -8,14 +8,14 @@ from trip_kinematics.Transformation import Transformation
 
 
 class Robot:
-    """A class managing multiple :py:class`KinematicGroup` objects pable of building tree like kinematic topologies.
+    """A class representing the kinematic model of a robot.
 
     Args:
         kinematic_chain (List[KinematicGroup]): A list of Kinematic Groups and Transformations with make up the robot.
                                                 Transformations are automatically converted to groups
 
     Raises:
-        KeyError: "More than one robot actuator has the same name! Please give each actuator a unique name" 
+        KeyError: "More than one robot actuator has the same name! Please give each actuator a unique name"
                   if there are actuated states with the same names between the :py:class`KinematicGroup` objects of the :py:class`Robot`
         KeyError: if there are joints with the same names between the :py:class`KinematicGroup` objects of the :py:class`Robot`
     """
@@ -83,7 +83,7 @@ class Robot:
         """Sets the virtual state of multiple virtual joints of the robot.
 
         Args:
-            state (Dict[str,Dict[str, float]]): A dictionary containing the members of :py:attr:`__virtual_state` that should be set. 
+            state (Dict[str,Dict[str, float]]): A dictionary containing the members of :py:attr:`__virtual_state` that should be set.
                                                 The new values need to be valid state for the state of the joint.
         """
         for key in state.keys():
@@ -95,7 +95,7 @@ class Robot:
         """Sets the virtual state of multiple actuated joints of the robot.
 
         Args:
-            state (Dict[str, float]):  A dictionary containing the members of :py:attr:`__actuated_state` that should be set. 
+            state (Dict[str, float]):  A dictionary containing the members of :py:attr:`__actuated_state` that should be set.
         """
         grouping = {}
         for key in state.keys():
@@ -143,7 +143,7 @@ class Robot:
             KeyError: If the endeffector argument is not the name of a transformation or group
 
         Returns:
-            SX: A 4x4 symbolic casadi matrix containing the transformation from base to endeffector 
+            SX: A 4x4 symbolic casadi matrix containing the transformation from base to endeffector
         """
 
         matrix = identity_transformation()
@@ -203,7 +203,7 @@ def forward_kinematics(robot: Robot, endeffector):
         robot (Robot): The robot for which the forward kinematics should be computed
 
     Returns:
-        numpy.array : The Transformation from base to endeffector 
+        numpy.array : The Transformation from base to endeffector
     """
     transformation = identity_transformation()
     group_dict = robot.get_groups()
