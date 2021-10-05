@@ -3,17 +3,19 @@ from casadi import cos, sin
 
 
 def identity_transformation():
-    return array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]], dtype=object)
+    return array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], dtype=object)
 
 
-def hom_translation_matrix(tx=0,ty=0,tz=0):
+def hom_translation_matrix(tx=0, ty=0, tz=0):
     return array(
-            [[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0., 0., 0., 1.]], dtype=object)
+        [[1, 0, 0, tx], [0, 1, 0, ty], [0, 0, 1, tz], [0., 0., 0., 1.]], dtype=object)
+
 
 def hom_rotation(rotation_matrix):
     matrix = identity_transformation()
     matrix[:3, :3] = rotation_matrix
     return matrix
+
 
 def quat_rotation_matrix(qw, qx, qy, qz) -> array:
     """Generates a 3x3 rotation matrix from q quaternion
@@ -73,6 +75,7 @@ def get_rotation(matrix):
         numpy.array: The 3x3 rotation matrix
     """
     return matrix[: 3, : 3]
+
 
 def get_translation(matrix):
     """Returns the translation of the :py:class`TransformationMatrix`

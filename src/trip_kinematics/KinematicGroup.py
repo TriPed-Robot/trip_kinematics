@@ -1,8 +1,9 @@
 from typing import Dict, List, Callable
 from copy import deepcopy
 
-from trip_kinematics.Utility import  identity_transformation
+from trip_kinematics.Utility import identity_transformation
 from trip_kinematics.Transformation import Transformation
+
 
 def array_find(arr, obj) -> int:
     index = -1
@@ -11,7 +12,6 @@ def array_find(arr, obj) -> int:
         return index
     except:
         return -1
-
 
 
 class KinematicGroup():
@@ -44,27 +44,28 @@ class KinematicGroup():
         return list(object_lst.keys())
 
     def __init__(self, name: str, virtual_chain: List[Transformation], actuated_state: Dict[str, float], actuated_to_virtual: Callable, virtual_to_actuated: Callable, act_to_virt_args=None, virt_to_act_args=None, parent=None):
-        self._name   = name
+        self._name = name
         self.children = []
 
         if parent == None:
             self.parent = name
-        elif isinstance(parent,KinematicGroup) or isinstance(parent,Transformation):
+        elif isinstance(parent, KinematicGroup) or isinstance(parent, Transformation):
             self.parent = str(parent)
             parent.add_children(name)
         else:
-            raise TypeError("The parent of a group must be a either a KinematicGroup or a Transformation")
+            raise TypeError(
+                "The parent of a group must be a either a KinematicGroup or a Transformation")
 
         self._virtual_chain = {}
         virtual_state = {}
         root = None
         endeffector = None
         for transformation in virtual_chain:
-            self._virtual_chain[str(transformation)]=transformation
+            self._virtual_chain[str(transformation)] = transformation
             if transformation.get_state() != {}:
-                virtual_state[str(transformation)]=transformation.get_state()
-            if len(transformation.children)>=2:
-                raise ValueError("The Transformation "+str(transformation)+"contains more than one child."+
+                virtual_state[str(transformation)] = transformation.get_state()
+            if len(transformation.children) >= 2:
+                raise ValueError("The Transformation "+str(transformation)+"contains more than one child." +
                                  " In a virtual chain each transfromation can only have one child")
             elif transformation.children == []:
                 endeffector = str(transformation)
@@ -72,9 +73,8 @@ class KinematicGroup():
                 if root == None:
                     root = str(transformation)
                 else:
-                    raise ValueError("Transformations "+root+" and "+str(transformation)+" are both connected to the ground."+
+                    raise ValueError("Transformations "+root+" and "+str(transformation)+" are both connected to the ground." +
                                      " In a virtual chain only one transformation can be connected to the ground")
-
 
         if virtual_state:
             if (actuated_to_virtual or virtual_to_actuated) and not actuated_state:
@@ -88,56 +88,59 @@ class KinematicGroup():
                     'Error: Mappings missing. You provided an actuated state but no mappings. If you want a trivial mapping you can use the OpenKinematicGroup.')
         else:
             if actuated_state or (actuated_to_virtual or virtual_to_actuated):
-                raise ValueError('Error: Allthough the Group is static, a actuated state and or mapping was provided that is not a None object.')
-
+                raise ValueError(
+                    'Error: Allthough the Group is static, a actuated state and or mapping was provided that is not a None object.')
 
         # build a sorted list of transformation keys from root to endeffector
         # later used in get_transformation_matrix
-        current_key      = endeffector
-        self._chain_keys = [endeffector] 
-        current_parent    = self._virtual_chain[current_key].parent
+        current_key = endeffector
+        self._chain_keys = [endeffector]
+        current_parent = self._virtual_chain[current_key].parent
         while current_parent != current_key:
-            next_trafo     = self._virtual_chain[current_parent]
-            current_key    = current_parent
-            current_parent  = next_trafo.parent
+            next_trafo = self._virtual_chain[current_parent]
+            current_key = current_parent
+            current_parent = next_trafo.parent
             self._chain_keys.append(current_key)
         self._chain_keys.reverse()
 
-        # check the consistency of the provided mapping functions if the group is not static 
+        # check the consistency of the provided mapping functions if the group is not static
         if actuated_state:
             self._original_actuated_to_virtual = actuated_to_virtual
             if act_to_virt_args:
-                self._actuated_to_virtual = lambda state: actuated_to_virtual(state, *act_to_virt_args)
-            self._actuated_to_virtual   = actuated_to_virtual
-            actuated_to_virtual_to_check = self._actuated_to_virtual(actuated_state)
-            
+                self._actuated_to_virtual = lambda state: actuated_to_virtual(
+                    state, *act_to_virt_args)
+            self._actuated_to_virtual = actuated_to_virtual
+            actuated_to_virtual_to_check = self._actuated_to_virtual(
+                actuated_state)
+
             if KinematicGroup.object_list_to_key_lists(actuated_to_virtual_to_check) != KinematicGroup.object_list_to_key_lists(virtual_state):
-                raise RuntimeError("actuated_to_virtual does not fit virtual state")
+                raise RuntimeError(
+                    "actuated_to_virtual does not fit virtual state")
             self._original_virtual_to_actuated = virtual_to_actuated
             if virt_to_act_args:
-                self._virtual_to_actuated = lambda state: virtual_to_actuated(state, *virt_to_act_args)
-            self._virtual_to_actuated   = virtual_to_actuated
+                self._virtual_to_actuated = lambda state: virtual_to_actuated(
+                    state, *virt_to_act_args)
+            self._virtual_to_actuated = virtual_to_actuated
             virtual_to_actuated_to_check = virtual_to_actuated(virtual_state)
 
             if KinematicGroup.object_list_to_key_lists(virtual_to_actuated_to_check) != KinematicGroup.object_list_to_key_lists(actuated_state):
-                raise RuntimeError("virtual_to_actuated does not fit actuated state")
+                raise RuntimeError(
+                    "virtual_to_actuated does not fit actuated state")
 
             # Check if inital values fit actuated_to_virtual's and virtual_to_actuated's calculated values.
             for key in actuated_to_virtual_to_check.keys():
-                state = actuated_to_virtual_to_check[key]  
+                state = actuated_to_virtual_to_check[key]
                 init_values_do_not_match = False
                 for state_key in state.keys():
                     if state[state_key] != virtual_state[key][state_key]:
                         init_values_do_not_match = True
             if init_values_do_not_match:
                 print("Calculated state values do not match given values! Using set_state() before forward_kinematics() or inverse_kinematics() is recommended.")
-        
-        
-        self.virtual_state  = deepcopy(virtual_state)
-        self.actuated_state = deepcopy(actuated_state)
-        
 
-    def set_virtual_state(self, state: Dict[str,Dict[str, float]]):
+        self.virtual_state = deepcopy(virtual_state)
+        self.actuated_state = deepcopy(actuated_state)
+
+    def set_virtual_state(self, state: Dict[str, Dict[str, float]]):
         """Sets the :py:attr:`virtual_state` of the Group and automatically updates the corresponding :py:attr:`actuated_state`
 
         Args:
@@ -150,13 +153,14 @@ class KinematicGroup():
         """
 
         if self.actuated_state == None:
-            raise RuntimeError("This is a static group! There is no state to be set")
+            raise RuntimeError(
+                "This is a static group! There is no state to be set")
 
         if all(key in self.virtual_state.keys()for key in state.keys()):
             for key in state.keys():
                 self.virtual_state[key] = state[key]
             self._update_chain()
-            self.actuated_state = self._virtual_to_actuated(self.virtual_state)  
+            self.actuated_state = self._virtual_to_actuated(self.virtual_state)
         else:
             raise ValueError(
                 "Error: One or more keys are not part of the virtual state. correct keys are: "+str(self.virtual_state.keys()))
@@ -214,8 +218,8 @@ class KinematicGroup():
         transformation = identity_transformation()
         transformations = self._virtual_chain
         for key in self._chain_keys:
-            part           = transformations[key]
-            hmt            = part.get_transformation_matrix()
+            part = transformations[key]
+            hmt = part.get_transformation_matrix()
             transformation = transformation @ hmt
 
         return transformation
@@ -232,7 +236,6 @@ class KinematicGroup():
     def add_children(self, child: str):
         self.children.append(child)
 
-
     def pass_arg_v_to_a(self, argv):
         g_map = self._original_virtual_to_actuated
         self._virtual_to_actuated = lambda state: g_map(state, *argv)
@@ -244,14 +247,14 @@ class KinematicGroup():
 
 class OpenKinematicGroup(KinematicGroup):
     def __init__(self, name: str, virtual_chain: List[Transformation], parent=None):
-        virtual_state      = {}
+        virtual_state = {}
         virtual_trafo_dict = {}
         for transformation in virtual_chain:
-            virtual_trafo_dict[str(transformation)]=transformation
+            virtual_trafo_dict[str(transformation)] = transformation
             if transformation.get_state() != {}:
-                virtual_state[str(transformation)]=transformation.get_state()
+                virtual_state[str(transformation)] = transformation.get_state()
 
-        if any(virtual_state): # group is dynamic
+        if any(virtual_state):  # group is dynamic
             actuated_state_dummy = {}
             f_map = {}
             g_map = {}
@@ -271,7 +274,7 @@ class OpenKinematicGroup(KinematicGroup):
                 out = {}
                 for concat_key, value in state.items():
                     key, index = f_map[concat_key]
-                    out[index] = {key:value}
+                    out[index] = {key: value}
                 return out
 
             def trivial_virtual_to_actuated(states):
@@ -280,20 +283,20 @@ class OpenKinematicGroup(KinematicGroup):
                     transformation = states[virtual_key]
                     for key in transformation.keys():
                         combined_key = (key, virtual_key)
-                        new_key      = g_map[combined_key]
+                        new_key = g_map[combined_key]
                         out[new_key] = states[virtual_key][key]
                 return out
 
             actuated_to_virtual = trivial_actuated_to_virtual
             virtual_to_actuated = trivial_virtual_to_actuated
-            actuated_state      = actuated_state_dummy
+            actuated_state = actuated_state_dummy
         else:   # group is static
             actuated_state = None
             actuated_to_virtual = None
             virtual_to_actuated = None
-        super(OpenKinematicGroup,self).__init__(name = name, 
-                                                virtual_chain = virtual_chain, 
-                                                actuated_state = actuated_state, 
-                                                actuated_to_virtual = actuated_to_virtual, 
-                                                virtual_to_actuated = virtual_to_actuated,
-                                                parent = parent)
+        super(OpenKinematicGroup, self).__init__(name=name,
+                                                 virtual_chain=virtual_chain,
+                                                 actuated_state=actuated_state,
+                                                 actuated_to_virtual=actuated_to_virtual,
+                                                 virtual_to_actuated=virtual_to_actuated,
+                                                 parent=parent)

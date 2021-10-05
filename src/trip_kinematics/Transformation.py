@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, quat_rotation_matrix
 
+
 def array_find(arr, obj) -> int:
     index = -1
     try:
@@ -10,6 +11,7 @@ def array_find(arr, obj) -> int:
         return index
     except:
         return -1
+
 
 class Transformation():
     """Initializes the :py:class:`Transformation` class. 
@@ -49,7 +51,8 @@ class Transformation():
 
         for key in state.keys():
             if array_find(valid_keys, key) == -1:
-                raise ValueError("Invalid key, acceptable keys are: "+str(valid_keys))
+                raise ValueError(
+                    "Invalid key, acceptable keys are: "+str(valid_keys))
             if array_find(quaternion_keys, key) >= 0:
                 got_quaternion = True
             if array_find(euler_keys, key) >= 0:
@@ -70,10 +73,11 @@ class Transformation():
 
         if parent == None:
             self.parent = name
-        else: #elif isinstance(parent,KinematicGroup) or isinstance(parent,Transformation):
+        # elif isinstance(parent,KinematicGroup) or isinstance(parent,Transformation):
+        else:
             self.parent = str(parent)
             parent.add_children(name)
-        #else:
+        # else:
         #    raise TypeError("The parent of a group must be a either a KinematicGroup or a Transformation")
 
         if not set(state_variables) <= set(values.keys()):
@@ -91,7 +95,7 @@ class Transformation():
             else:
                 constants.setdefault(key, values.get(key))
 
-        self._state     = state
+        self._state = state
         self._constants = constants
 
     def __str__(self):
@@ -99,13 +103,14 @@ class Transformation():
 
     def get_state(self):
         return deepcopy(self._state)
+
     def set_state(self, state: Dict[str, float]):
         for key in state.keys():
             if not key in self._state.keys():
-                raise KeyError("The specified keys is not part of the Transformations state. Maybe the Transofmration uses a different convention?")
+                raise KeyError(
+                    "The specified keys is not part of the Transformations state. Maybe the Transofmration uses a different convention?")
             self._state[key] = state[key]
 
-            
     def get_name(self):
         return deepcopy(self._name)
 
@@ -120,33 +125,42 @@ class Transformation():
         """
 
         # collect transformation parameters from state and constants respectively
-        tx = self._constants.get('tx') if 'tx' in self._constants.keys() else self._state.get('tx',0)
-        ty = self._constants.get('ty') if 'ty' in self._constants.keys() else self._state.get('ty',0)
-        tz = self._constants.get('tz') if 'tz' in self._constants.keys() else self._state.get('tz',0)
+        tx = self._constants.get(
+            'tx') if 'tx' in self._constants.keys() else self._state.get('tx', 0)
+        ty = self._constants.get(
+            'ty') if 'ty' in self._constants.keys() else self._state.get('ty', 0)
+        tz = self._constants.get(
+            'tz') if 'tz' in self._constants.keys() else self._state.get('tz', 0)
 
-        matrix = hom_translation_matrix(tx,ty,tz)
+        matrix = hom_translation_matrix(tx, ty, tz)
 
         if self.convention == 'euler':
-            rx = self._constants.get('rx') if 'rx' in self._constants.keys() else self._state.get('rx',0)
-            ry = self._constants.get('ry') if 'ry' in self._constants.keys() else self._state.get('ry',0)
-            rz = self._constants.get('rz') if 'rz' in self._constants.keys() else self._state.get('rz',0)
+            rx = self._constants.get(
+                'rx') if 'rx' in self._constants.keys() else self._state.get('rx', 0)
+            ry = self._constants.get(
+                'ry') if 'ry' in self._constants.keys() else self._state.get('ry', 0)
+            rz = self._constants.get(
+                'rz') if 'rz' in self._constants.keys() else self._state.get('rz', 0)
 
             matrix[:3, :3] = x_axis_rotation_matrix(
                 rx) @ y_axis_rotation_matrix(ry) @ z_axis_rotation_matrix(rz)
 
         elif self.convention == 'quaternion':
-            qw = self._constants.get('qw') if 'qw' in self._constants.keys() else self._state.get('qw',0)
-            qx = self._constants.get('qx') if 'qx' in self._constants.keys() else self._state.get('qx',0)
-            qy = self._constants.get('qy') if 'qy' in self._constants.keys() else self._state.get('qy',0)
-            qz = self._constants.get('qz') if 'qz' in self._constants.keys() else self._state.get('qz',0)
+            qw = self._constants.get(
+                'qw') if 'qw' in self._constants.keys() else self._state.get('qw', 0)
+            qx = self._constants.get(
+                'qx') if 'qx' in self._constants.keys() else self._state.get('qx', 0)
+            qy = self._constants.get(
+                'qy') if 'qy' in self._constants.keys() else self._state.get('qy', 0)
+            qz = self._constants.get(
+                'qz') if 'qz' in self._constants.keys() else self._state.get('qz', 0)
 
             matrix[:3, :3] = quat_rotation_matrix(qw, qx, qy, qz)
         else:
-            raise RuntimeError("No Convention. This should normally be catched during initialization. " + 
+            raise RuntimeError("No Convention. This should normally be catched during initialization. " +
                                "Did you retroactively change the keys of the Transformation state?")
-        
+
         return matrix
 
     def add_children(self, child: str):
         self.children.append(child)
-
