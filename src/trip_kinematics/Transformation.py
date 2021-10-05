@@ -125,37 +125,37 @@ class Transformation():
         """
 
         # collect transformation parameters from state and constants respectively
-        tx = self._constants.get(
+        t_x = self._constants.get(
             'tx') if 'tx' in self._constants.keys() else self._state.get('tx', 0)
-        ty = self._constants.get(
+        t_y = self._constants.get(
             'ty') if 'ty' in self._constants.keys() else self._state.get('ty', 0)
-        tz = self._constants.get(
+        t_z = self._constants.get(
             'tz') if 'tz' in self._constants.keys() else self._state.get('tz', 0)
 
-        matrix = hom_translation_matrix(tx, ty, tz)
+        matrix = hom_translation_matrix(t_x, t_y, t_z)
 
         if self.convention == 'euler':
-            rx = self._constants.get(
+            r_x = self._constants.get(
                 'rx') if 'rx' in self._constants.keys() else self._state.get('rx', 0)
-            ry = self._constants.get(
+            r_y = self._constants.get(
                 'ry') if 'ry' in self._constants.keys() else self._state.get('ry', 0)
-            rz = self._constants.get(
+            r_z = self._constants.get(
                 'rz') if 'rz' in self._constants.keys() else self._state.get('rz', 0)
 
             matrix[:3, :3] = x_axis_rotation_matrix(
-                rx) @ y_axis_rotation_matrix(ry) @ z_axis_rotation_matrix(rz)
+                r_x) @ y_axis_rotation_matrix(r_y) @ z_axis_rotation_matrix(r_z)
 
         elif self.convention == 'quaternion':
-            qw = self._constants.get(
+            q_w = self._constants.get(
                 'qw') if 'qw' in self._constants.keys() else self._state.get('qw', 0)
-            qx = self._constants.get(
+            q_x = self._constants.get(
                 'qx') if 'qx' in self._constants.keys() else self._state.get('qx', 0)
-            qy = self._constants.get(
+            q_y = self._constants.get(
                 'qy') if 'qy' in self._constants.keys() else self._state.get('qy', 0)
-            qz = self._constants.get(
+            q_z = self._constants.get(
                 'qz') if 'qz' in self._constants.keys() else self._state.get('qz', 0)
 
-            matrix[:3, :3] = quat_rotation_matrix(qw, qx, qy, qz)
+            matrix[:3, :3] = quat_rotation_matrix(q_w, q_x, q_y, q_z)
         else:
             raise RuntimeError("No Convention. This should normally be catched during initialization. " +
                                "Did you retroactively change the keys of the Transformation state?")

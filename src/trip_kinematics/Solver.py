@@ -19,7 +19,7 @@ class SimpleInvKinSolver:
         else:
             self._robot = deepcopy(robot)
 
-        if orientation == False:
+        if orientation is False:
             end_effector_position = SX.sym("end_effector_pos", 3)
             objective = ((matrix[0, 3] - end_effector_position[0])**2 +
                          (matrix[1, 3] - end_effector_position[1])**2 +
@@ -31,7 +31,7 @@ class SimpleInvKinSolver:
             self.inv_kin_solver = nlpsol('inv_kin', 'ipopt', nlp, opts)
 
     def solve_virtual(self, target, initial_tip=None):
-        if initial_tip == None:
+        if initial_tip is None:
             x0 = [0]*len(self._symbolic_keys)
         else:
             x0 = self._virtual_to_solver_state(initial_tip)

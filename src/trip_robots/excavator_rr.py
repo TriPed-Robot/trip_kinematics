@@ -81,10 +81,10 @@ opts = {'ipopt.print_level': 0, 'print_time': 0}
 closure_1_state = casadi.SX.sym('cls_1_q', 3)
 
 cls_q_1 = hom_rotation(y_axis_rotation_matrix(closure_1_state[0]))
-cls_l_1 = hom_translation_matrix(tx=l_1)
+cls_l_1 = hom_translation_matrix(t_x=l_1)
 cls_qs_2 = hom_rotation(y_axis_rotation_matrix(closure_1_state[1]))
-cls_a_1 = hom_translation_matrix(tx=closure_1_state[2])
-cls_a_1z = hom_translation_matrix(tx=a_1_offset)
+cls_a_1 = hom_translation_matrix(t_x=closure_1_state[2])
+cls_a_1z = hom_translation_matrix(t_x=a_1_offset)
 cls_1_trafo = cls_q_1 * cls_l_1 * cls_qs_2 * cls_a_1 * cls_a_1z
 
 cls_1_trafo_pos = get_translation(cls_1_trafo)
@@ -112,10 +112,10 @@ def closure_a_to_q_group_1(state: Dict[str, float]):
 closure_2_state = casadi.SX.sym('cls_2_q', 3)
 
 cls_q_2 = hom_rotation(y_axis_rotation_matrix(closure_2_state[0]))
-cls_l_4 = hom_translation_matrix(tx=l_4)
+cls_l_4 = hom_translation_matrix(t_x=l_4)
 cls_qs_4 = hom_rotation(y_axis_rotation_matrix(closure_2_state[1]))
-cls_a_2 = hom_translation_matrix(tx=closure_2_state[2])
-cls_a_2z = hom_translation_matrix(tx=a_1_offset)
+cls_a_2 = hom_translation_matrix(t_x=closure_2_state[2])
+cls_a_2z = hom_translation_matrix(t_x=a_1_offset)
 cls_2_trafo = cls_q_2 * cls_l_4 * cls_qs_4 * cls_a_2 * cls_a_2z
 
 cls_2_trafo_pos = get_translation(cls_1_trafo)

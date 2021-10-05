@@ -12,14 +12,14 @@ from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matr
 
 def c(rx, ry, rz):
     A_CSS_P_trans = hom_translation_matrix(
-        tx=0.265, ty=0, tz=0.014)
+        t_x=0.265, t_y=0, t_z=0.014)
     A_CSS_P_rot = hom_rotation(x_axis_rotation_matrix(rx) @
                                y_axis_rotation_matrix(ry) @
                                z_axis_rotation_matrix(rz))
     A_P_SPH1_2 = hom_translation_matrix(
-        tx=0.015, ty=0.029, tz=-0.0965)
+        t_x=0.015, t_y=0.029, t_z=-0.0965)
     A_P_SPH2_2 = hom_translation_matrix(
-        tx=0.015, ty=-0.029, tz=-0.0965)
+        t_x=0.015, t_y=-0.029, t_z=-0.0965)
 
     A_CSS_P = A_CSS_P_trans @ A_CSS_P_rot
     A_c1 = A_CSS_P @ A_P_SPH1_2
@@ -30,11 +30,11 @@ def c(rx, ry, rz):
 
 def p1(theta):
     A_CCS_lsm_tran = hom_translation_matrix(
-        tx=0.139807669447128, ty=0.0549998406976098, tz=-0.051)
+        t_x=0.139807669447128, t_y=0.0549998406976098, t_z=-0.051)
     A_CCS_lsm_rot = hom_rotation(z_axis_rotation_matrix(radians(-345.0)))
     A_MCS1_JOINT = hom_rotation(z_axis_rotation_matrix(theta))
     A_MCS1_SP11 = hom_translation_matrix(
-        tx=0.085, ty=0, tz=-0.0245)
+        t_x=0.085, t_y=0, t_z=-0.0245)
 
     A_CCS_SP11 = A_CCS_lsm_tran @ A_CCS_lsm_rot @ A_MCS1_JOINT @ A_MCS1_SP11
     return get_translation(A_CCS_SP11)
@@ -42,11 +42,11 @@ def p1(theta):
 
 def p2(theta):
     A_CCS_rsm_tran = hom_translation_matrix(
-        tx=0.139807669447128, ty=-0.0549998406976098, tz=-0.051)
+        t_x=0.139807669447128, t_y=-0.0549998406976098, t_z=-0.051)
     A_CCS_rsm_rot = hom_rotation(z_axis_rotation_matrix(radians(-15.0)))
     A_MCS2_JOINT = hom_rotation(z_axis_rotation_matrix(theta))
     A_MCS2_SP21 = hom_translation_matrix(
-        tx=0.085, ty=0, tz=-0.0245)
+        t_x=0.085, t_y=0, t_z=-0.0245)
 
     A_CSS_SP21 = A_CCS_rsm_tran @ A_CCS_rsm_rot @ A_MCS2_JOINT @ A_MCS2_SP21
     return get_translation(A_CSS_SP21)
