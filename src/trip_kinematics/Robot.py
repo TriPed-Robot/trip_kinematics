@@ -11,13 +11,18 @@ class Robot:
     """A class representing the kinematic model of a robot.
 
     Args:
-        kinematic_chain (List[KinematicGroup]): A list of Kinematic Groups and Transformations with make up the robot.
-                                                Transformations are automatically converted to groups
+        kinematic_chain (List[KinematicGroup]): A list of Kinematic Groups and Transformations
+                                                with make up the robot.
+                                                Transformations are automatically
+                                                converted to groups
 
     Raises:
-        KeyError: "More than one robot actuator has the same name! Please give each actuator a unique name"
-                  if there are actuated states with the same names between the :py:class`KinematicGroup` objects of the :py:class`Robot`
-        KeyError: if there are joints with the same names between the :py:class`KinematicGroup` objects of the :py:class`Robot`
+        KeyError: "More than one robot actuator has the same name!
+                   Please give each actuator a unique name"
+                  if there are actuated states with the same names between the
+                  :py:class`KinematicGroup` objects of the :py:class`Robot`
+        KeyError: if there are joints with the same names between
+                  the :py:class`KinematicGroup` objects of the :py:class`Robot`
     """
 
     def __init__(self, kinematic_chain: List[KinematicGroup]) -> None:
@@ -50,13 +55,15 @@ class Robot:
                 for key in group_actuators:
                     if key in self._actuator_group_mapping.keys():
                         raise KeyError(
-                            "More than one robot actuator has the same name! Please give each actuator a unique name")
+                            "More than one robot actuator has the same name!" +
+                            " Please give each actuator a unique name")
                     self._actuator_group_mapping[key] = str(group)
 
                 for key in group.get_virtual_state().keys():
                     if key in self._virtual_group_mapping.keys():
                         raise KeyError(
-                            "More than one robot transformation of a (virtual) chain has the same name! Please give each transformation a unique name")
+                            "More than one transformation of a virtual chain has the same name!" +
+                            " Please give each virtual transformation of a robot a unique name")
                     self._virtual_group_mapping[key] = str(group)
 
     def get_groups(self):
@@ -83,8 +90,10 @@ class Robot:
         """Sets the virtual state of multiple virtual joints of the robot.
 
         Args:
-            state (Dict[str,Dict[str, float]]): A dictionary containing the members of :py:attr:`__virtual_state` that should be set.
-                                                The new values need to be valid state for the state of the joint.
+            state (Dict[str,Dict[str, float]]): A dictionary containing the members of
+                                                 :py:attr:`__virtual_state` that should be set.
+                                                The new values need to be valid state
+                                                for the state of the joint.
         """
         for key in state.keys():
             virtual_state = {key: state[key]}
@@ -95,7 +104,8 @@ class Robot:
         """Sets the virtual state of multiple actuated joints of the robot.
 
         Args:
-            state (Dict[str, float]):  A dictionary containing the members of :py:attr:`__actuated_state` that should be set.
+            state (Dict[str, float]):  A dictionary containing the members of
+                                        :py:attr:`__actuated_state` that should be set.
         """
         grouping = {}
         for key in state.keys():
@@ -106,7 +116,8 @@ class Robot:
             self._group_dict[key].set_actuated_state(grouping[key])
 
     def get_actuated_state(self):
-        """Returns the actuated state of the :py:class`Robot` comprised of the actuated states of the individual :py:class`KinematicGroup`.
+        """Returns the actuated state of the :py:class`Robot` comprised
+           of the actuated states of the individual :py:class`KinematicGroup`.
 
         Returns:
             Dict[str, float]: combined actuated state of all :py:class`KinematicGroup` objects.
@@ -120,10 +131,12 @@ class Robot:
         return actuated_state
 
     def get_virtual_state(self):
-        """Returns the virtual state of the :py:class`Robot` comprised of the virtual states of the individual :py:class`KinematicGroup`.
+        """Returns the virtual state of the :py:class`Robot` comprised
+           of the virtual states of the individual :py:class`KinematicGroup`.
 
         Returns:
-            Dict[str,Dict[str, float]]: combined virtual state of all :py:class`KinematicGroup` objects.
+            Dict[str,Dict[str, float]]: combined virtual state of all
+                                         :py:class`KinematicGroup` objects.
         """
         virtual_state = {}
         for group_key in self._group_dict.keys():
@@ -137,7 +150,8 @@ class Robot:
         """his Function returnes a symbolic representation of the virtual chain.
 
         Args:
-            endeffector (str):  The name of the group whose virtual chain models the desired endeffector
+            endeffector (str): The name of the group whose virtual chain
+                               models the desired endeffector
 
         Raises:
             KeyError: If the endeffector argument is not the name of a transformation or group
@@ -154,7 +168,8 @@ class Robot:
         group_dict = self.get_groups()
         if endeffector not in group_dict.keys():
             raise KeyError(
-                "The endeffector must be a valid group or transformation name. Valid names for this robot are: "+str(group_dict.keys()))
+                "The endeffector must be a valid group or transformation name." +
+                " Valid names for this robot are: "+str(group_dict.keys()))
 
         endeff_group = group_dict[endeffector]
         current_parent = endeff_group.parent
@@ -209,7 +224,8 @@ def forward_kinematics(robot: Robot, endeffector):
     group_dict = robot.get_groups()
     if endeffector not in group_dict.keys():
         raise KeyError(
-            "The endeffector must be a valid group name. Valid group names for this robot are: "+str(group_dict.keys()))
+            "The endeffector must be a valid group name. Valid group names for this robot are: " +
+            str(group_dict.keys()))
     endeff_group = group_dict[endeffector]
     current_parent = endeff_group.parent
     current_key = endeffector

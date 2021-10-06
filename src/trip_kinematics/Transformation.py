@@ -2,6 +2,7 @@ from typing import Dict, List
 from copy import deepcopy
 
 from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, quat_rotation_matrix
+import trip_kinematics.KinematicGroup
 
 
 def array_find(arr, obj) -> int:
@@ -17,25 +18,34 @@ class Transformation():
     """Initializes the :py:class:`Transformation` class.
 
     Args:
-        name (str): The unique name identifying the . No two :py:class:`Transformation` objects of a :py:class`Robot` should have the same name
+        name (str): The unique name identifying the Transformation.
+                    No two :py:class:`Transformation` objects of a :py:class`Robot`
+                    should have the same name
         values (Dict[str, float]): A parametric description of the transformation.
-        state_variables (List[str], optional): This list describes which state variables are dynamically changable.
-                                               This is the case if the :py:class:`Transformation` represents a joint. Defaults to [].
+        state_variables (List[str], optional): This list describes which state variables are
+                                               dynamically changable.
+                                               This is the case if the :py:class:`Transformation`
+                                               represents a joint. Defaults to [].
 
     Raises:
-        ValueError: A dynamic state was declared that does not correspond to a parameter declared in ``values``.
+        ValueError: A dynamic state was declared that does not
+                    correspond to a parameter declared in ``values``.
     """
 
     @staticmethod
     def get_convention(state: Dict[str, float]):
-        """Returns the connvention which describes how the matrix  of a :py:class:`Transformation` is build from its state.
+        """Returns the connvention which describes how the matrix
+           of a :py:class:`Transformation` is build from its state.
 
         Args:
             state (Dict[str, float]): :py:attr:'state'
 
         Raises:
-            ValueError: "Invalid key." If the dictionary kontains keys that dont correspond to a parameter of the transformation.
-            ValueError: "State can't have euler angles and quaternions!" If the dictionary contains keys correspondig to multiple mutually exclusive conventions.
+            ValueError: "Invalid key." If the dictionary kontains keys that dont
+                        correspond to a parameter of the transformation.
+            ValueError: "State can't have euler angles and quaternions!"
+                        If the dictionary contains keys correspondig
+                        to multiple mutually exclusive conventions.
 
         Returns:
             [type]: A string describing the convention
@@ -66,23 +76,26 @@ class Transformation():
         else:
             return "quaternion"
 
-    def __init__(self, name: str, values: Dict[str, float], state_variables: List[str] = [], parent=None):
+    def __init__(self, name: str, values: Dict[str, float],
+                 state_variables: List[str] = [], parent=None):
 
         self._name = name
         self.children = []
 
         if parent is None:
             self.parent = name
-        # elif isinstance(parent,KinematicGroup) or isinstance(parent,Transformation):
-        else:
+        elif isinstance(parent, (trip_kinematics.KinematicGroup, Transformation)):
             self.parent = str(parent)
             parent.add_children(name)
-        # else:
-        #    raise TypeError("The parent of a group must be a either a KinematicGroup or a Transformation")
+        else:
+            raise TypeError(
+                "The parent of a Transformation must be either " +
+                "a KinematicGroup or a Transformation")
 
         if not set(state_variables) <= set(values.keys()):
             raise ValueError(
-                "Element of state_variables do not correspond to key(s) of values dictionary. This can happen if both follow different conventions")
+                "Element of state_variables do not correspond to key(s) of values dictionary." +
+                " This can happen if both follow different conventions")
 
         constants = {}
         state = {}
@@ -108,20 +121,24 @@ class Transformation():
         for key in state.keys():
             if not key in self._state.keys():
                 raise KeyError(
-                    "The specified keys is not part of the Transformations state. Maybe the Transofmration uses a different convention?")
+                    "The specified keys is not part of the Transformations state." +
+                    "Maybe the Transofmration uses a different convention?")
             self._state[key] = state[key]
 
     def get_name(self):
         return deepcopy(self._name)
 
     def get_transformation_matrix(self):
-        """Returns a homogeneous transformation matrix build from the :py:attr:`state` and :py:attr:`constants`
+        """Returns a homogeneous transformation matrix build
+           from the :py:attr:`state` and :py:attr:`constants`
 
         Raises:
-            RuntimeError: If the convention used in :py:attr:`state` is not supported. Should normally be catched during initialization.
+            RuntimeError: If the convention used in :py:attr:`state` is not supported.
+                          Should normally be catched during initialization.
 
         Returns:
-            [type]: A transformation matrix build using the parameters of the  :py:class:`Transformation` :py:attr:`state`
+            [type]: A transformation matrix build using the parameters
+                    of the :py:class:`Transformation` :py:attr:`state`
         """
 
         # collect transformation parameters from state and constants respectively
@@ -157,7 +174,8 @@ class Transformation():
 
             matrix[:3, :3] = quat_rotation_matrix(q_w, q_x, q_y, q_z)
         else:
-            raise RuntimeError("No Convention. This should normally be catched during initialization. " +
+            raise RuntimeError("No Convention. " +
+                               "This should normally be catched during initialization. " +
                                "Did you retroactively change the keys of the Transformation state?")
 
         return matrix
