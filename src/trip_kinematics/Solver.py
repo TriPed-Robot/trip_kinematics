@@ -62,18 +62,18 @@ class SimpleInvKinSolver:
         virtual_state = {}
         # convert casadi DM to usable datatype
         solver_state = array(solver_state)
-        for i in range(len(solver_state)):
+        for i, solver_state_value in enumerate(solver_state):
             outer_key = self._symbolic_keys[i][0]
             inner_key = self._symbolic_keys[i][1]
             if outer_key not in virtual_state.keys():
                 virtual_state[outer_key] = {}
 
-            virtual_state[outer_key][inner_key] = solver_state[i][0]
+            virtual_state[outer_key][inner_key] = solver_state_value[0]
         return virtual_state
 
     def _virtual_to_solver_state(self, virtual_state):
         solver_state = []
-        for i in range(len(self._symbolic_keys)):
+        for i, key in enumerate(self._symbolic_keys):
             solver_state.append(
-                virtual_state[self._symbolic_keys[i][0]][self._symbolic_keys[i][1]])
+                virtual_state[key[0]][key[1]])
         return solver_state
