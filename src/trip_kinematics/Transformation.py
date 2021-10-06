@@ -1,7 +1,9 @@
 from typing import Dict, List
 from copy import deepcopy
 
-from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, quat_rotation_matrix
+from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matrix
+from trip_kinematics.Utility import y_axis_rotation_matrix, z_axis_rotation_matrix
+from trip_kinematics.Utility import quat_rotation_matrix
 import trip_kinematics.KinematicGroup
 
 
@@ -73,8 +75,7 @@ class Transformation():
 
         if got_euler:
             return "euler"
-        else:
-            return "quaternion"
+        return "quaternion"
 
     def __init__(self, name: str, values: Dict[str, float],
                  state_variables: List[str] = [], parent=None):

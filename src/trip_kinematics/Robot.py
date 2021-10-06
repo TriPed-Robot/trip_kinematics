@@ -30,8 +30,7 @@ class Robot:
         self._group_dict = {}
         self._actuator_group_mapping = {}
         self._virtual_group_mapping = {}
-        for i in range(len(kinematic_chain)):
-            group = kinematic_chain[i]
+        for i, group in enumerate(kinematic_chain):
             if isinstance(group, Transformation):
                 # create group from trafo, lifting the parent and child relations to group level
                 group_children = group.children
@@ -112,8 +111,8 @@ class Robot:
             if self._actuator_group_mapping[key] not in grouping.keys():
                 grouping[self._actuator_group_mapping[key]] = {}
             grouping[self._actuator_group_mapping[key]][key] = state[key]
-        for key in grouping.keys():
-            self._group_dict[key].set_actuated_state(grouping[key])
+        for key, group_state in grouping.items():
+            self._group_dict[key].set_actuated_state(group_state)
 
     def get_actuated_state(self):
         """Returns the actuated state of the :py:class`Robot` comprised
@@ -123,11 +122,11 @@ class Robot:
             Dict[str, float]: combined actuated state of all :py:class`KinematicGroup` objects.
         """
         actuated_state = {}
-        for key in self._group_dict.keys():
-            actuated_group = self._group_dict[key].get_actuated_state()
-            if actuated_group is not None:
-                for actuated_key in actuated_group:
-                    actuated_state[actuated_key] = actuated_group[actuated_key]
+        for group in self._group_dict.values():
+            actuated_group_state = group.get_actuated_state()
+            if actuated_group_state is not None:
+                for actuated_key in actuated_group_state:
+                    actuated_state[actuated_key] = actuated_group_state[actuated_key]
         return actuated_state
 
     def get_virtual_state(self):

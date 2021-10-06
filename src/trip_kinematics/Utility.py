@@ -29,7 +29,10 @@ def quat_rotation_matrix(q_w, q_x, q_y, q_z) -> array:
     Returns:
         numpy.array: A 3x3 rotation matrix
     """
-    return array([[1-2*(q_y**2+q_z**2), 2*(q_x*q_y-q_z*q_w), 2*(q_x*q_z + q_y*q_w)], [2*(q_x*q_y + q_z*q_w), 1-2*(q_x**2+q_z**2), 2*(q_y*q_z - q_x*q_w)], [2*(q_x*q_z-q_y*q_w), 2*(q_y*q_z+q_x*q_w), 1-2*(q_x**2+q_y**2)]], dtype=object)
+    return array([[1-2*(q_y**2+q_z**2), 2*(q_x*q_y-q_z*q_w), 2*(q_x*q_z + q_y*q_w)],
+                 [2*(q_x*q_y + q_z*q_w), 1-2 *
+                     (q_x**2+q_z**2), 2*(q_y*q_z - q_x*q_w)],
+                 [2*(q_x*q_z-q_y*q_w), 2*(q_y*q_z+q_x*q_w), 1-2*(q_x**2+q_y**2)]], dtype=object)
 
 
 def x_axis_rotation_matrix(theta):
@@ -41,7 +44,9 @@ def x_axis_rotation_matrix(theta):
     Returns:
         numpy.array: A 3x3 rotation matrix
     """
-    return array([[1, 0, 0], [0, cos(theta), -sin(theta)], [0, sin(theta), cos(theta)]], dtype=object)
+    return array([[1, 0, 0],
+                  [0, cos(theta), -sin(theta)],
+                  [0, sin(theta), cos(theta)]], dtype=object)
 
 
 def y_axis_rotation_matrix(theta):
@@ -53,7 +58,9 @@ def y_axis_rotation_matrix(theta):
     Returns:
         numpy.array: A 3x3 rotation matrix
     """
-    return array([[cos(theta), 0, sin(theta)], [0, 1, 0], [-sin(theta), 0, cos(theta)]], dtype=object)
+    return array([[cos(theta), 0, sin(theta)],
+                  [0, 1, 0],
+                  [-sin(theta), 0, cos(theta)]], dtype=object)
 
 
 def z_axis_rotation_matrix(theta):
@@ -65,7 +72,9 @@ def z_axis_rotation_matrix(theta):
     Returns:
         numpy.array: A 3x3 rotation matrix
     """
-    return array([[cos(theta), -sin(theta), 0], [sin(theta), cos(theta), 0], [0, 0, 1]], dtype=object)
+    return array([[cos(theta), -sin(theta), 0],
+                  [sin(theta), cos(theta), 0],
+                  [0, 0, 1]], dtype=object)
 
 
 def get_rotation(matrix):
