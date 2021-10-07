@@ -11,5 +11,5 @@ setuptools.setup(
     license='MIT',
     description='...',
     install_requires=[req for req in requirements if req[:2] != "# "],
-    packages=['trip_kinematics','trip_robots']
+    packages=['trip_kinematics', 'trip_robots']
 )
