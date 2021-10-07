@@ -73,7 +73,7 @@ class SimpleInvKinSolver:
 
     def _virtual_to_solver_state(self, virtual_state):
         solver_state = []
-        for i, key in enumerate(self._symbolic_keys):
+        for key in self._symbolic_keys:
             solver_state.append(
                 virtual_state[key[0]][key[1]])
         return solver_state
