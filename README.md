@@ -1,10 +1,13 @@
 ![trip_logo](docs/source/trip_logo_dark.png)
+
+
 # TriP
 TriP is a python library designed to calculate the forward- and inverse-kinematics of rigid mechanisms.
 
 This includes open chains, closed chains, and even combinations of both.
 
-
+[![Code Grade](https://www.code-inspector.com/project/29339/score/svg)](https://frontend.code-inspector.com/project/29339/dashboard)
+[![Documentation Status](https://readthedocs.org/projects/trip-kinematics/badge/?version=main)](https://trip-kinematics.readthedocs.io/en/main/?badge=main)
 
 ## Features
 
@@ -32,7 +35,7 @@ pip install src/
 `
 
 ## Documentation
-The documentation can be found here
+The documentation can be found [here](https://trip-kinematics.readthedocs.io/en/main/)
 
 
  
