@@ -23,17 +23,17 @@ def sphere_centers(r_x, r_y, r_z):
     Returns:
         numpy array, numpy array: Two 3D arrays containing the sphere centers
     """
-    a_ccs_p_trans = hom_translation_matrix(
+    a_ccs_p_trans_m = hom_translation_matrix(
         t_x=0.265, t_y=0, t_z=0.014)
-    a_ccs_p_rot = hom_rotation(x_axis_rotation_matrix(r_x) @
-                               y_axis_rotation_matrix(r_y) @
-                               z_axis_rotation_matrix(r_z))
+    a_ccs_p_rot_m = hom_rotation(x_axis_rotation_matrix(r_x) @
+                                 y_axis_rotation_matrix(r_y) @
+                                 z_axis_rotation_matrix(r_z))
     a_p_sph_1_2 = hom_translation_matrix(
         t_x=0.015, t_y=0.029, t_z=-0.0965)
     a_p_sph_2_2 = hom_translation_matrix(
         t_x=0.015, t_y=-0.029, t_z=-0.0965)
 
-    a_ccs_ = a_ccs_p_trans @ a_ccs_p_rot
+    a_ccs_ = a_ccs_p_trans_m @ a_ccs_p_rot_m
     a_c1 = a_ccs_ @ a_p_sph_1_2
     a_c2 = a_ccs_ @ a_p_sph_2_2
 
@@ -143,12 +143,12 @@ virtual_state = vertcat(gimbal_x, gimbal_y, gimbal_z)
 actuated_state = vertcat(theta_left, theta_right)
 
 opts = {'ipopt.print_level': 0, 'print_time': 0}
-radius = 0.11
+RADIUS = 0.11
 c1, c2 = sphere_centers(r_x=gimbal_x, r_y=gimbal_y, r_z=gimbal_z)
 closing_equation = (((c1-intersection_left(theta_right)).T @ (c1-intersection_left(theta_right)) -
-                    radius**2)**2 +
+                    RADIUS**2)**2 +
                     ((c2-intersection_right(theta_left)).T @ (c2-intersection_right(theta_left)) -
-                    radius**2)**2)
+                    RADIUS**2)**2)
 
 a_ccs_p_trans = Transformation(name='A_ccs_P_trans',
                                values={'tx': 0.265, 'tz': 0.014})
