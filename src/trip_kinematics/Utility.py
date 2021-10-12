@@ -3,15 +3,38 @@ from casadi import cos, sin
 
 
 def identity_transformation():
+    """Returns a 4x4 identity matix
+
+    Returns:
+        numy.array: a 4x4 identity matrix
+    """
     return array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], dtype=object)
 
 
 def hom_translation_matrix(t_x=0, t_y=0, t_z=0):
+    """Returns a homogenous translation matrix
+
+    Args:
+        t_x (int, optional): Translation along the x axis. Defaults to 0.
+        t_y (int, optional): Translation along the y axis. Defaults to 0.
+        t_z (int, optional): Translation along the z axis. Defaults to 0.
+
+    Returns:
+        numpy.array: A 4x4 homogenous translation matrix
+    """
     return array(
         [[1, 0, 0, t_x], [0, 1, 0, t_y], [0, 0, 1, t_z], [0., 0., 0., 1.]], dtype=object)
 
 
 def hom_rotation(rotation_matrix):
+    """Converts a 3x3 rotation matrix into a 4x4 homogenous rotation mtrix
+
+    Args:
+        rotation_matrix (numpy.array): A 3x3 rotation matrix
+
+    Returns:
+        numpy.array:  A 4x4 homogenous rotation matrix
+    """
     matrix = identity_transformation()
     matrix[:3, :3] = rotation_matrix
     return matrix

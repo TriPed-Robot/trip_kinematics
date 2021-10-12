@@ -1,3 +1,4 @@
+from typing import Dict
 from copy import deepcopy
 from casadi import SX, nlpsol, vertcat
 from numpy import array
@@ -6,7 +7,18 @@ from trip_kinematics.Robot import Robot
 
 
 class SimpleInvKinSolver:
-    """[summary]
+    """A Simple Kinematic Solver Class that calculates
+       the inverse kinematics for a given endeffector.
+
+    Args:
+        robot (Robot): The Robot for which the kinematics should be calculated
+        endeffector (str): the name of the endeffector
+        orientation (bool, optional): Boolean flag deciding if inverse kinematics
+                                      targets also specify orientation.
+                                      Defaults to False.
+        update_robot (bool, optional): Boolean flag decding if the inverse kinematics should
+                                       immediately update the robot model.
+                                       Defaults to False.
     """
 
     def __init__(self, robot: Robot, endeffector: str, orientation=False, update_robot=False):
@@ -30,18 +42,42 @@ class SimpleInvKinSolver:
             opts = {'ipopt.print_level': 0, 'print_time': 0}
             self.inv_kin_solver = nlpsol('inv_kin', 'ipopt', nlp, opts)
 
-    def solve_virtual(self, target, initial_tip=None):
+    def solve_virtual(self, target: array, initial_tip=None):
+        """Returns the virtual state needed for the endeffector to be in the target position
+        Args:
+            target (numpy.array): The target state of the endeffector.
+                                  Either a 3 dimensional position or a 4x4 homogenous transformation
+            initial_tip ([type], optional): Initial state of the solver.
+                                            Defaults to None in which case zeros are used.
+
+        Returns:
+            Dict(str,Dict(str,float)): The actuated state leading the endeffector
+                                       to the target position.
+        """
         if initial_tip is None:
-            x0 = [0]*len(self._symbolic_keys)
+            initial_guess = [0]*len(self._symbolic_keys)
         else:
-            x0 = self._virtual_to_solver_state(initial_tip)
-        if len(x0) != len(self._symbolic_keys):
-            raise RuntimeError("The initial state has "+str(len(x0)) +
+            initial_guess = self._virtual_to_solver_state(initial_tip)
+        if len(initial_guess) != len(self._symbolic_keys):
+            raise RuntimeError("The initial state has "+str(len(initial_guess)) +
                                " values, while the solver expected ", str(len(self._symbolic_keys)))
-        solution = self.inv_kin_solver(x0=x0, p=target)
+        solution = self.inv_kin_solver(x0=initial_guess, p=target)
         return self._solver_to_virtual_state(solution['x'])
 
-    def solve_actuated(self, target, initial_tip=None, mapping_argument=None):
+    def solve_actuated(self, target: array, initial_tip=None, mapping_argument=None):
+        """Returns the actuated state needed for the endeffector to be in the target position
+        Args:
+            target (numpy.array): The target state of the endeffector.
+                                  Either a 3 dimensional position or a 4x4 homogenous transformation
+            initial_tip ([type], optional): Initial state of the solver.
+                                            Defaults to None in which case zeros are used.
+            mapping_argument ([type], optional): Optional arguments for the virtual_to_actuated
+                                                 mappings of the robot.
+                                                 Defaults to None.
+
+        Returns:
+            Dict(str,float): The actuated state leading the endeffector to the target position.
+        """
         virtual_state = self.solve_virtual(
             target=target, initial_tip=initial_tip)
         if mapping_argument is not None:
@@ -52,7 +88,7 @@ class SimpleInvKinSolver:
         return actuated_state
 
     def _solver_to_virtual_state(self, solver_state):
-        """This Function maps the solution of a casadi solver to the virtual state of a robot
+        """This function maps the solution of a casadi solver to the virtual state of a robot.
 
         Args:
             solver_state ([type]): A solution of a nlp solver
@@ -71,7 +107,14 @@ class SimpleInvKinSolver:
             virtual_state[outer_key][inner_key] = solver_state_value[0]
         return virtual_state
 
-    def _virtual_to_solver_state(self, virtual_state):
+    def _virtual_to_solver_state(self, virtual_state: Dict[str, Dict[str, float]]):
+        """This function maps the virtual state of a robot to the solution of a casadi solver.
+        Args:
+            virtual_state ( Dict(str,Dict(str,float))): A virtual state of the robot
+
+        Returns:
+            [type]: A solution of a nlp solver
+        """
         solver_state = []
         for key in self._symbolic_keys:
             solver_state.append(
