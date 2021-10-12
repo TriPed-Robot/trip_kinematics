@@ -8,6 +8,12 @@ from trip_robots.triped_leg import swing_to_gimbal, gimbal_to_swing
 
 
 def leg_model(leg_number: str):
+    """Helper function that constructs each TriPed leg as a list of Transformations.
+
+    Args:
+        leg_number (str): The leg number which determins the orientation.
+                          Acceptable values [0,1,2]
+    """
     def rename_swing_to_gimbal(swing: Dict[str, float], tips: Dict[str, float] = None):
         swing = deepcopy(swing)
         swing['swing_left'] = swing[leg_name+'swing_left']
@@ -40,17 +46,17 @@ def leg_model(leg_number: str):
 
     leg_rotation = Transformation(name=leg_name+'leg_rotation',
                                   values={'rz': -1*radians(120)*leg_number})
-    a_css_p_trans = Transformation(name=leg_name+'A_CSS_P_trans',
+    a_ccs_p_trans = Transformation(name=leg_name+'A_ccs_P_trans',
                                    values={'tx': 0.265, 'tz': 0.014},
                                    parent=leg_rotation)
-    a_css_p_rot = Transformation(name=leg_name+'gimbal_joint',
+    a_ccs_p_rot = Transformation(name=leg_name+'gimbal_joint',
                                  values={'rx': 0, 'ry': 0, 'rz': 0},
                                  state_variables=['rx', 'ry', 'rz'],
-                                 parent=a_css_p_trans)
+                                 parent=a_ccs_p_trans)
 
     closed_chain = KinematicGroup(name=leg_name+'closed_chain',
                                   virtual_chain=[leg_rotation,
-                                                 a_css_p_trans, a_css_p_rot],
+                                                 a_ccs_p_trans, a_ccs_p_rot],
                                   actuated_state={
                                       leg_name+'swing_left': 0, leg_name+'swing_right': 0},
                                   actuated_to_virtual=rename_swing_to_gimbal,
