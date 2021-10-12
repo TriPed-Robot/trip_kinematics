@@ -10,7 +10,7 @@ from trip_kinematics.Robot import Robot
 from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matrix, y_axis_rotation_matrix, z_axis_rotation_matrix, hom_rotation, get_translation
 
 
-def c(rx, ry, rz):
+def sphere_centers(rx, ry, rz):
     a_css_p_trans = hom_translation_matrix(
         t_x=0.265, t_y=0, t_z=0.014)
     a_css_p_rot = hom_rotation(x_axis_rotation_matrix(rx) @
@@ -22,13 +22,13 @@ def c(rx, ry, rz):
         t_x=0.015, t_y=-0.029, t_z=-0.0965)
 
     a_css_ = a_css_p_trans @ a_css_p_rot
-    A_c1 = a_css_ @ a_p_sph_1_2
-    A_c2 = a_css_ @ a_p_sph_2_2
+    a_c1 = a_css_ @ a_p_sph_1_2
+    a_c2 = a_css_ @ a_p_sph_2_2
 
-    return get_translation(A_c1), get_translation(A_c2)
+    return get_translation(a_c1), get_translation(a_c2)
 
 
-def p1(theta):
+def intersection_left(theta):
     a_css_lsm_trans = hom_translation_matrix(
         t_x=0.139807669447128, t_y=0.0549998406976098, t_z=-0.051)
     a_css_lsm_rot = hom_rotation(z_axis_rotation_matrix(radians(-345.0)))
@@ -40,7 +40,7 @@ def p1(theta):
     return get_translation(a_ccs_sp_1_1)
 
 
-def p2(theta):
+def intersection_right(theta):
     A_CCS_rsm_tran = hom_translation_matrix(
         t_x=0.139807669447128, t_y=-0.0549998406976098, t_z=-0.051)
     A_CCS_rsm_rot = hom_rotation(z_axis_rotation_matrix(radians(-15.0)))
@@ -92,9 +92,9 @@ actuated_state = vertcat(theta_left, theta_right)
 
 opts = {'ipopt.print_level': 0, 'print_time': 0}
 r = 0.11
-c1, c2 = c(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z)
-closing_equation = ((c1-p1(theta_right)).T @ (c1-p1(theta_right)) - r**2)**2+(
-    (c2-p2(theta_left)).T @ (c2-p2(theta_left)) - r**2)**2
+c1, c2 = sphere_centers(rx=gimbal_x, ry=gimbal_y, rz=gimbal_z)
+closing_equation = ((c1-intersection_left(theta_right)).T @ (c1-intersection_left(theta_right)) - r**2)**2+(
+    (c2-intersection_right(theta_left)).T @ (c2-intersection_right(theta_left)) - r**2)**2
 
 
 a_css_p_trans = Transformation(name='A_CSS_P_trans',
