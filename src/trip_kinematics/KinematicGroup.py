@@ -55,6 +55,14 @@ class KinematicGroup():
 
     @staticmethod
     def object_list_to_key_lists(object_lst):
+        """Helper function which transforms dictionary into list of keys.
+
+        Args:
+            object_lst (Dict): The dictionary to be transformed
+
+        Returns:
+            list(str): A list of keys
+        """
         return list(object_lst.keys())
 
     def __init__(self, name: str, virtual_chain: List[Transformation],
