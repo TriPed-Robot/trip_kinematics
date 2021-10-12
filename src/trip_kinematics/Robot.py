@@ -12,7 +12,7 @@ class Robot:
 
     Args:
         kinematic_chain (List[KinematicGroup]): A list of Kinematic Groups and Transformations
-                                                with make up the robot.
+                                                which make up the robot.
                                                 Transformations are automatically
                                                 converted to groups
 
@@ -67,19 +67,41 @@ class Robot:
 
     def get_groups(self):
         """Returns a dictionary of the py:class`KinematicGroup` managed by the :py:class`Robot`_
+           Since Transformations are internally converted to Groups, this also returns all
+           Transformations.
 
         Returns:
             Dict[str, KinematicGroup]: The dictionary of py:class`KinematicGroup` objects.
         """
         return deepcopy(self._group_dict)
 
-    def pass_group_arg_v_to_a(self, argv_dict):
+    def pass_group_arg_v_to_a(self, argv_dict: Dict):
+        """Passes optional virtual_to_actuated mapping arguments
+           to :py:class`KinematicGroup` objects of the robot.
+
+        Args:
+            argv_dict (Dict): A dictionary containing the mapping arguments keyed with the
+                              :py:class`KinematicGroup` names.
+
+        Raises:
+            KeyError: If no group with the name given in the argument is part of the robot.
+        """
         for key in argv_dict.keys():
             if key not in self._group_dict.keys():
                 raise KeyError("No group with name "+str(key)+"in this robot")
             self._group_dict[key].pass_arg_v_to_a(argv_dict[key])
 
     def pass_group_arg_a_to_v(self, argv_dict):
+        """Passes optional actuated_to_virtual mapping arguments
+           to :py:class`KinematicGroup` objects of the robot.
+
+        Args:
+            argv_dict (Dict): A dictionary containing the mapping arguments keyed with the
+                              :py:class`KinematicGroup` names.
+
+        Raises:
+            KeyError: If no group with the name given in the argument is part of the robot.
+        """
         for key in argv_dict.keys():
             if key not in self._group_dict.keys():
                 raise KeyError("No group with name "+str(key)+"in this robot")
@@ -146,7 +168,7 @@ class Robot:
         return virtual_state
 
     def get_symbolic_rep(self, endeffector: str):
-        """his Function returnes a symbolic representation of the virtual chain.
+        """This Function returnes a symbolic representation of the virtual chain.
 
         Args:
             endeffector (str): The name of the group whose virtual chain
@@ -207,6 +229,14 @@ class Robot:
         return hom_matrix, symbolic_state, symbolic_keys
 
     def get_endeffectors(self):
+        """Returns a list of possible endeffectors.
+           These are the names of all :py:class:`KinematicGroup` objects.
+           Since Transformations are internally converted to Groups,
+           this includes the names of all Transformations.
+
+        Returns:
+            list(str): list of possible endeffectors.
+        """
         return list(self.get_groups().keys())
 
 
