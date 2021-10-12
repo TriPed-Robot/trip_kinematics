@@ -78,7 +78,7 @@ class Transformation():
         return "quaternion"
 
     def __init__(self, name: str, values: Dict[str, float],
-                 state_variables: List[str] = [], parent=None):
+                 state_variables: List[str] = None, parent=None):
 
         self._name = name
         self.children = []
@@ -93,6 +93,8 @@ class Transformation():
                 "The parent of a Transformation must be either " +
                 "a KinematicGroup or a Transformation")
 
+        if state_variables is None:
+            state_variables = []
         if not set(state_variables) <= set(values.keys()):
             raise ValueError(
                 "Element of state_variables do not correspond to key(s) of values dictionary." +
