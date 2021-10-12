@@ -246,7 +246,7 @@ class KinematicGroup():
 
     def get_virtual_state(self):
         """Returns a copy of the :py:attr:`virtual_state`
-           attribute of a :py:class:`KinematicGroup` object.
+           attribute of the :py:class:`KinematicGroup` object.
 
         Returns:
             Dict[str,Dict[str,float]]: a copy of the :py:attr:`virtual_state`
@@ -255,7 +255,7 @@ class KinematicGroup():
 
     def get_actuated_state(self):
         """Returns a copy of the :py:attr:`actuated_state`
-           attribute of a :py:class:`KinematicGroup` object.
+           attribute of the :py:class:`KinematicGroup` object.
 
         Returns:
             Dict[str,float]: a copy of the :py:attr:`actuated_state`
