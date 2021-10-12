@@ -11,45 +11,45 @@ from trip_kinematics.Utility import hom_translation_matrix, x_axis_rotation_matr
 
 
 def c(rx, ry, rz):
-    A_CSS_P_trans = hom_translation_matrix(
+    a_css_p_trans = hom_translation_matrix(
         t_x=0.265, t_y=0, t_z=0.014)
-    A_CSS_P_rot = hom_rotation(x_axis_rotation_matrix(rx) @
+    a_css_p_rot = hom_rotation(x_axis_rotation_matrix(rx) @
                                y_axis_rotation_matrix(ry) @
                                z_axis_rotation_matrix(rz))
-    A_P_SPH1_2 = hom_translation_matrix(
+    a_p_sph_1_2 = hom_translation_matrix(
         t_x=0.015, t_y=0.029, t_z=-0.0965)
-    A_P_SPH2_2 = hom_translation_matrix(
+    a_p_sph_2_2 = hom_translation_matrix(
         t_x=0.015, t_y=-0.029, t_z=-0.0965)
 
-    A_CSS_P = A_CSS_P_trans @ A_CSS_P_rot
-    A_c1 = A_CSS_P @ A_P_SPH1_2
-    A_c2 = A_CSS_P @ A_P_SPH2_2
+    a_css_ = a_css_p_trans @ a_css_p_rot
+    A_c1 = a_css_ @ a_p_sph_1_2
+    A_c2 = a_css_ @ a_p_sph_2_2
 
     return get_translation(A_c1), get_translation(A_c2)
 
 
 def p1(theta):
-    A_CCS_lsm_tran = hom_translation_matrix(
+    a_css_lsm_trans = hom_translation_matrix(
         t_x=0.139807669447128, t_y=0.0549998406976098, t_z=-0.051)
-    A_CCS_lsm_rot = hom_rotation(z_axis_rotation_matrix(radians(-345.0)))
-    A_MCS1_JOINT = hom_rotation(z_axis_rotation_matrix(theta))
-    A_MCS1_SP11 = hom_translation_matrix(
+    a_css_lsm_rot = hom_rotation(z_axis_rotation_matrix(radians(-345.0)))
+    a_mcs_1_joint = hom_rotation(z_axis_rotation_matrix(theta))
+    a_mcs_1_sp_1_1 = hom_translation_matrix(
         t_x=0.085, t_y=0, t_z=-0.0245)
 
-    A_CCS_SP11 = A_CCS_lsm_tran @ A_CCS_lsm_rot @ A_MCS1_JOINT @ A_MCS1_SP11
-    return get_translation(A_CCS_SP11)
+    a_ccs_sp_1_1 = a_css_lsm_trans @ a_css_lsm_rot @ a_mcs_1_joint @ a_mcs_1_sp_1_1
+    return get_translation(a_ccs_sp_1_1)
 
 
 def p2(theta):
     A_CCS_rsm_tran = hom_translation_matrix(
         t_x=0.139807669447128, t_y=-0.0549998406976098, t_z=-0.051)
     A_CCS_rsm_rot = hom_rotation(z_axis_rotation_matrix(radians(-15.0)))
-    A_MCS2_JOINT = hom_rotation(z_axis_rotation_matrix(theta))
-    A_MCS2_SP21 = hom_translation_matrix(
+    a_mcs_2_joint = hom_rotation(z_axis_rotation_matrix(theta))
+    a_mcs_2_sp_2_1 = hom_translation_matrix(
         t_x=0.085, t_y=0, t_z=-0.0245)
 
-    A_CSS_SP21 = A_CCS_rsm_tran @ A_CCS_rsm_rot @ A_MCS2_JOINT @ A_MCS2_SP21
-    return get_translation(A_CSS_SP21)
+    a_ccs_sp_2_1 = A_CCS_rsm_tran @ A_CCS_rsm_rot @ a_mcs_2_joint @ a_mcs_2_sp_2_1
+    return get_translation(a_ccs_sp_2_1)
 
 
 def swing_to_gimbal(state: Dict[str, float], tips: Dict[str, float] = None):
@@ -97,35 +97,35 @@ closing_equation = ((c1-p1(theta_right)).T @ (c1-p1(theta_right)) - r**2)**2+(
     (c2-p2(theta_left)).T @ (c2-p2(theta_left)) - r**2)**2
 
 
-A_CSS_P_trans = Transformation(name='A_CSS_P_trans',
+a_css_p_trans = Transformation(name='A_CSS_P_trans',
                                values={'tx': 0.265, 'tz': 0.014})
-A_CSS_P_rot = Transformation(name='gimbal_joint',
+a_css_p_rot = Transformation(name='gimbal_joint',
                              values={'rx': 0, 'ry': 0, 'rz': 0},
                              state_variables=['rx', 'ry', 'rz'],
-                             parent=A_CSS_P_trans)
+                             parent=a_css_p_trans)
 
 closed_chain = KinematicGroup(name='closed_chain',
-                              virtual_chain=[A_CSS_P_trans, A_CSS_P_rot],
+                              virtual_chain=[a_css_p_trans, a_css_p_rot],
                               actuated_state={
                                   'swing_left': 0, 'swing_right': 0},
                               actuated_to_virtual=swing_to_gimbal,
                               virtual_to_actuated=gimbal_to_swing)
 
-A_P_LL = Transformation(name='A_P_LL',
+a_p_ll = Transformation(name='A_P_LL',
                         values={'tx': 1.640, 'tz': -0.037, },
                         parent=closed_chain)
-A_LL_LL_zero = Transformation(name='zero_angle_convention',
-                              values={'ry': radians(-3)},
-                              parent=A_P_LL)
-A_LL_zero_LL_joint = Transformation(name='extend_joint',
+a_ll_zero = Transformation(name='zero_angle_convention',
+                           values={'ry': radians(-3)},
+                           parent=a_p_ll)
+a_ll_zero_ll_joint = Transformation(name='extend_joint',
                                     values={'ry': 0},
                                     state_variables=['ry'],
-                                    parent=A_LL_LL_zero)
-A_LL_Joint_FCS = Transformation(name='A_LL_Joint_FCS',
+                                    parent=a_ll_zero)
+a_ll_joint_fcs = Transformation(name='A_LL_Joint_FCS',
                                 values={'tx': -1.5},
-                                parent=A_LL_zero_LL_joint)
+                                parent=a_ll_zero_ll_joint)
 
 
-triped_leg = Robot([closed_chain, A_P_LL, A_LL_LL_zero,
-                   A_LL_zero_LL_joint, A_LL_Joint_FCS])
+triped_leg = Robot([closed_chain, a_p_ll, a_ll_zero,
+                   a_ll_zero_ll_joint, a_ll_joint_fcs])
 triped_leg.set_actuated_state({'swing_left': 0, 'swing_right': 0})
