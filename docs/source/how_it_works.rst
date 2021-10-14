@@ -368,10 +368,15 @@ For more complicated robots this might be more complex, a general rule of thumb 
 
 
 
+
 ******
 Robots
 ******
 
+The Robot class is the centerpiece of TriP, they encapsulate  :class:`.Transormation`s and :class:`.KinematicGroup`s of a Robot.
+
 .. TODO beschreiben das transformation intern auch zu gruppen werden. -> hat virtuellen und aktuierten state!
-.. TODO symbolische beschreibung!
+.. TODO symbolische beschreibung -> was kann man damit machen?
+
+.. TODO endeffector beschreiben!
 
