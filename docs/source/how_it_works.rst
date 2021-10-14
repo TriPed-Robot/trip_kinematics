@@ -58,7 +58,11 @@ rz         rotates the coordinate system around the z axis
 
 This transformation is captured by the following transformation matrix:
 
-.. TODO hier bild der Matrix hin.
+.. math::
+    \begin{pmatrix} \cos{rz}\cos{ry} & \cos{rz}\sin{ry}\sin{rx} - \sin{rz}\cos{rx} & \cos{rz}\sin{ry}\cos{rx} + \sin{rz}\sin{rx} & t_x \\
+                    \sin{rz}\cos{ry} & \sin{rz}\sin{ry}\sin{rx} + \cos{rz}\cos{rx} & \sin{rz}\sin{ry}\cos{rx} - \cos{rz}\sin{rx} & t_y \\
+                    -\sin{ry}        & \cos{ry}\sin{rx}                            & \cos{ry}\cos{rx}                            & t_z \\
+                    0                & 0                                           & 0                                           & 1 \end{pmatrix}
 
 The definition of joints in this convention is very straight forward, below is a sample list of different joints:
 
@@ -70,7 +74,7 @@ Note that while all nonspecified parameters are assumed to be zero, the value of
 Translation with Quaternion rotation
 ------------------------------------
 Quaternions are an alternative 4 dimensional description of rotation.
-They have many advantages compared to euler angles, that are explained `here <https://en.wikipedia.org/wiki/Quaternion>`_
+They have many advantages compared to euler angles, that are explained `here <https://en.wikipedia.org/wiki/Quaternion>`_ .
 However they trade these advantages for an intuitive interpretation.
 
 ========== ===============================================
@@ -88,7 +92,12 @@ qz         fourth quaternion, also called d.
 
 The cooresponding matrix is:
 
-.. TODO bild der matrix hier hin
+.. math::
+    \begin{pmatrix} 1-2(q_y^2+q_z^2) & 2(q_xq_y-q_zq_w) &  2(q_xq_z + q_yq_w) & t_x \\
+                    2(q_xq_y + q_zq_w) & 1-2(q_x^2+q_z^2) &  2(q_yq_z - q_xq_w) & t_y \\
+                    2(q_xq_z-q_yq_w)   & 2(q_yq_z+q_xq_w) &  1-2(q_x^2+q_y^2)  & t_z \\
+                    0                & 0                  & 0                   & 1 \end{pmatrix}
+
 
 
 .. important:: 
@@ -121,25 +130,66 @@ alpha      rotates the coordinate system around the x axis
 
 The denavit hartenberg transformation is captured by the following matrix:
 
-.. TODO hier bild der matrix hin.
+.. math::
+    \left(\begin{array}{cccc}
+    {\cos \theta} & {-\sin \theta \cos \alpha} & {\sin \theta \sin \alpha} & {a \cos \theta} \\
+    {\sin \theta} & {\cos \theta \cos \alpha} & {-\cos \theta \sin \alpha} & {a \sin \theta} \\
+    {0} & {\sin \alpha} & {\cos \alpha} & {d} \\
+    {0} & {0} & {0} & {1}
+    \end{array}\right)
 
 
 Transformation trees
 --------------------
 
+To fully specify the kinematic model of a robot not only the transformations are needet but also
+how they are connected.
+This is described by the so called transformation tree.
+Conventionally nodes of this tree describe coordinate frames while its edged describe transformations.
+An example can be seen down below:
 
-.. TODO describe children an parent as well as tree structure.
+.. image:: images/trafo_tree_coords.png
+ :alt: transformation tree with coordinate frames
 
-.. TODO exmaple of open chain transformations mit Robot außenrum und referenz zum Robot kapitel. 
-.. Dann erwähnen das das nicht immer funktioniert und nächstes kapitel das dann erklärt.
+Here the cursive graph nodes are coordinate frames while the edges are the transformations between them.
+Since TriP only models transformations and not coordinate frames in TriP the name of a coordinate frame is synonymous with the name of the transformation leading to it.
+This leads to the following simplified transformation tree:
 
+.. image:: images/trafo_tree.png
+ :alt: transformation tree
+
+In this tree the edge and the node it leads to refer to the transformation.
+TriP builds this simplified transformation tree by specifying the parent of each transformations.
+The parent is in this case the transformation that preceded the current transformation.
+For the example transformation tree this would look like this:
+::
+    to_joint_1 = Transformation(name="To Join1")
+    joint_1    = Transormation(name="Joint1",values={'ry': 0},state_variables=['ry'],parent=to_joint_1)
+
+    to_joint_2 = Transformation(name="To Joint2",values={'tx':1},parent=joint_1)
+    joint_2    = Transormation(name="Joint2",values={'ry': 0},state_variables=['ry'],parent=to_joint_2)
+    to_joint_3 = Transformation(name="To Joint3",values={'tx':1},parent=joint_2)
+    joint_3    = Transormation(name="Joint3",values={'ry': 0},state_variables=['ry'],parent=to_joint_3)
+
+    to_joint_4 = Transformation(name="To Joint4",values={'tx':1},parent=joint_1)
+    joint_4    = Transormation(name="Joint4",values={'ry': 0},state_variables=['ry'],parent=to_joint_4)
+    to_joint_5 = Transformation(name="To Joint5",values={'tx':1},parent=joint_4)
+    joint_5    = Transormation(name="Joint5",values={'ry': 0},state_variables=['ry'],parent=to_joint_5)
+
+.. important::
+    Transformations with no parent are considered connected to the base Frame. Since for most robots this is where they are connected this frame is also called Ground.
+    This can be seen in transformation ```to_joint_1```. Note that strictly speaking this transformation is necessairy since its transformation is a identity matrix.
+    It is only included for clarity.
+
+The transformation tree building concept does not work if more than one transformation leads to the same frame.
+Here one would have to distinguish between the transformations leading to the frame and the frame itself.
+Such a situation is refered to as a closed kinematic chain, the next section will explain how they are modeled in TriP.
 
 Kinematic Groups
 ================
 
-Most kinematic libraries rely only on such transformation objects because they only model open chains.
-An example for this is `IKPY<https://github.com/Phylliade/ikpy> `_ . 
-
+Most kinematic libraries rely only transformation objects because they only model open chains.
+An example for this is `IKPY <https://github.com/Phylliade/ikpy>`_ . 
 In an open chain, the position and orientation of a coordinate system depend only on one transformation from its parent.
 
 
