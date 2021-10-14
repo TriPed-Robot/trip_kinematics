@@ -1,12 +1,14 @@
+######################
 How TriP models Robots
-**********************
+######################
 
 This page describes how TriP models robots.
 It is advised to read this page before building your robot.
 Especially if the hybrid contains hybrid chains.
 
+****************
 Transformations
-===============
+****************
 
 A Kinematic model is made up of Coordinate systems.
 These coordinate systems are connected by transformations.
@@ -19,6 +21,9 @@ Dynamic transformations change depending on an internal state thereby modeling t
 .. TODO zuerst mehr auf Struktur der Transformation class eingehen!
 
 The :class:`.Transormation` class has an attribute that manages the internal state.
+
+Transformation Descriptions
+===========================
 
 In general, states can influence the transformation in arbitrary ways.
 Yet robotics uses several standard conventions.
@@ -140,7 +145,7 @@ The denavit hartenberg transformation is captured by the following matrix:
 
 
 Transformation trees
---------------------
+====================
 
 To fully specify the kinematic model of a robot not only the transformations are needet but also
 how they are connected.
@@ -185,8 +190,9 @@ The transformation tree building concept does not work if more than one transfor
 Here one would have to distinguish between the transformations leading to the frame and the frame itself.
 Such a situation is refered to as a closed kinematic chain, the next section will explain how they are modeled in TriP.
 
+****************
 Kinematic Groups
-================
+****************
 
 Most kinematic libraries rely only transformation objects because they only model open chains.
 An example for this is `IKPY <https://github.com/Phylliade/ikpy>`_ . 
@@ -230,7 +236,7 @@ The mappings convert between the state of the `virtual_chain`, called `virtual_s
     The reasons for this will be discussed in the next section
 
 divide a robot into groups
---------------------------
+==========================
 In the example above the excavator is modeled as a single group.
 However, it is also possible to divide the excavator into multiple groups.
 These groups can then be combined just like transformations.
@@ -292,7 +298,7 @@ The corresponding code looks like this:
 
 
 actuated state vs virtual state
--------------------------------
+===============================
 If one looks at the code above one can see that the dictionary values of the actuated state in lines 26 and 36 are float values, 
 while the values of the virtual states in lines 32 and 39 are dictionaries.
 
@@ -312,7 +318,7 @@ Below are a few examples of joints and how their actuated and virtual states wou
 
 
 Using closure equations
------------------------
+=======================
 While direct mappings are always preferable it is not always possible to find a direct function.
 In this case, one can always resort to the closure equation.
 Since TriP is based on mappings the closure equation is used to set up mapping functions that solve the closure equation.
@@ -336,8 +342,36 @@ The solving of the closure equation can be performed by casadi, which TriP also 
 
 
 Defining virtual chains
---------------------------------
+=======================
+In the vast majority of cases the specification of the virtual chain is straightforward.
+One simply uses a single chain of transformations that goes from one end of the group to the other.
+However in some cases this can lead to unintendet or suboptimal results.
 
-.. TODO example von vorne zeigen, mitvirtueller kette als part, dann 6dof joint (constrained), dann constrained joint (nur orientierung)
+As a simple example of this problem think of the excavator arm from above.
+Assuming that it had a spherical joint at the elbow, the system would still not be able to move any differently.
+However, the virtual open chain which neglects the hydraulic cylinders would suddenly behave much differently.
 
+A inverse kinematics solvers might now try to find open chain configurations that are not possible with the full mechanism.
+
+
+.. warning::
+    Since TriP currently does not support Joint limits, it can not detect which open chain configurations are not possible.
+    This can lead to solvers failing outright.
+
+This problem can be avoided by designing a custom virtual open chain.
+In the case of the excavator this is very simple, just substitute the spherical joint with a revolute joint.
+For more complicated robots this might be more complex, a general rule of thumb is:
+
+.. important::
+    The virtual open chain should offer the same degrees of freedom as the full mechanism.
+    Ideally the correspondence between virtual joints and actuated joints should be as simple as possible.
+
+
+
+******
+Robots
+******
+
+.. TODO beschreiben das transformation intern auch zu gruppen werden. -> hat virtuellen und aktuierten state!
+.. TODO symbolische beschreibung!
 
