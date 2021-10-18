@@ -2,9 +2,14 @@
 How TriP models Robots
 ######################
 
-This page describes how TriP models robots.
-It is advised to read this page before building your robot.
-Especially if the hybrid contains hybrid chains.
+TriP models robots using the :class:`Robot` class.
+A robot object is made up of :class:`Transformation` and :class:`KinematicGroup` objects.
+The :class:`KinematicGroup` objects are used to model closed chains.
+
+The following sections will explain the :class:`Transformation`, :class:`KinematicGroup` and :class:`Robot` objects in more detail.
+It is advised to read these sections before using them to modell robots.
+
+The last section also explains how Kinematic Solvers work.
 
 ****************
 Transformations
@@ -210,9 +215,10 @@ In this example, multiple coordinate systems have more than one parent since the
 
 Such a loop is called a closed kinematic chain.
 
-.. TODO describe what the classical appoach its
+Classically closed chains are modeled using a algebraic closure equation :math:`g(q) = 0`.
+The closure equation couples all joint states :math:`q` so that multi transformations leading to the same frame all agree on the state of the frame.
 
-In practice, this is computationally expensive and unnecessary.
+In practice, this is computationally expensive and often entirely unnecessary.
 
 .. important::
     To simplify the system one could treat the system as if the hinges of the excavator's arm were directly actuated.
@@ -380,3 +386,8 @@ The Robot class is the centerpiece of TriP, they encapsulate  :class:`.Transorma
 
 .. TODO endeffector beschreiben!
 
+*******
+Solvers
+*******
+
+.. TODO unterscheiden zwischen dem implementierten Solver und prinzipiellen Solvern (was müssen die leisten?)
