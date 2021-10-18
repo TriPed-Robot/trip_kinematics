@@ -3,9 +3,9 @@ Tutorials
 
 .. toctree::
    :hidden:
-   
 
-   
+
+
 Building a Robot Model
 ======================
 
@@ -27,7 +27,7 @@ TriP uses Groups to model closed kinematic chains.
 These are structures where multiple moving parts converge in a single location forming one or more loops.
 Some examples can be seen down below:
 
-## TODO 
+## TODO
 
 These closed chains will either be connected directly to each other or using a series of other moving parts.
 Such a series is called a open kinematic chain.
@@ -51,7 +51,7 @@ Building open chains
 
 Groups handle closed chains by abstracting them into a virtual open chains that models how group moves combined with two mapping functions from these virtual joints to the actual actuated joints and back.
 This means that for both the open and the closed chain, a chain has to be build.
-The precise transformations depend on the type of robot and its conventions. 
+The precise transformations depend on the type of robot and its conventions.
 The kinematic transformations of the TriPed are described here: `here <https://triped-robot.github.io/docs/kinematics/>`_  .
 This leads to the following virtual open chain:
 
@@ -69,11 +69,11 @@ And the corresponding transformations for the open chain:
 
 
 Note that both chains are made up of transformations without `state_variables`.
-Such transformations are 'static' and dont represent a joint. 
+Such transformations are 'static' and dont represent a joint.
 It is possible to construct open chains without such transformations (see the `denavit hartenberg <https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters/>`_ convention for example).
 In practice however they are handy to specify the position of a joint at a specified angle.
 This allows the joint angles to be interpretable.
-This can be seen with the `A_LL_LL_zero` transformation. It ensures that a `extend_joint` angle corresponds to the foot of the leg being completely retracted. 
+This can be seen with the `a_ll_zero` transformation. It ensures that a `extend_joint` angle corresponds to the foot of the leg being completely retracted.
 
 
 Create Mappings
@@ -123,7 +123,7 @@ Combining groups to a robot
 The last step is to combine the group and transformations into a robot object:
 ::
 
-    triped_leg     = Robot([closed_chain,A_P_LL,A_LL_LL_zero,A_LL_zero_LL_joint,A_LL_Joint_FCS])
+    triped_leg     = Robot([closed_chain,a_p_ll,a_ll_zero,a_ll_zero_ll_joint,a_ll_joint_fcs])
 
 Building the complete robot
 ---------------------------

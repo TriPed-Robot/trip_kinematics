@@ -14,21 +14,22 @@ class KinematicGroup():
                     same name
         virtual_chain (List[Transformation]): A list of :py:class:`Transformation`
                                               objects forming a serial Kinematic chain.
-        actuated_state (List[Dict[str, float]], optional): The State of the Groups actuated joints.
-                                                           Defaults to None.
-        actuated_to_virtual (Callable, optional): Maps the :py:attr:`actuated_state` to the
-                                                  :py:attr:`virtual_state` of the
-                                                  :py:attr:`virtual_chain`. Defaults to None.
-        virtual_to_actuated (Callable, optional): Maps the :py:attr:`virtual_state` of the
-                                                  :py:attr:`virtual_chain` to the
-                                                  :py:attr:`actuated_state`.
+        actuated_state (List[Dict[str, float]]): The State of the Groups actuated joints.
+        actuated_to_virtual (Callable): Maps the :py:attr:`actuated_state` to the
+                                        :py:attr:`virtual_state` of the :py:attr:`virtual_chain`.
+        virtual_to_actuated (Callable): Maps the :py:attr:`virtual_state` of the
+                                        :py:attr:`virtual_chain` to the
+                                        :py:attr:`actuated_state`.
         act_to_virt_args ([type], optional): Arguments that can be passed to
                                              :py:attr:`actuated_to_virtual` during the initial
                                              testing of the function. Defaults to None.
         virt_to_act_args ([type], optional): Arguments that can be passed to
                                              :py:attr:`virtual_to_actuated` during the initial
                                              testing of the function. Defaults to None.
-        parent ([type], optional): [description]. Defaults to None.
+        parent (Union(Transformation,KinematicGroup), optional): The transformation or group
+                                                                 preceding the
+                                                                 :py:class:`KinematicGroup`.
+                                                                 Defaults to None.
 
     Raises:
         ValueError: 'Error: Actuated state is missing.
@@ -54,6 +55,14 @@ class KinematicGroup():
 
     @staticmethod
     def object_list_to_key_lists(object_lst):
+        """Helper function which transforms dictionary into list of keys.
+
+        Args:
+            object_lst (Dict): The dictionary to be transformed
+
+        Returns:
+            list(str): A list of keys
+        """
         return list(object_lst.keys())
 
     def __init__(self, name: str, virtual_chain: List[Transformation],
@@ -174,11 +183,11 @@ class KinematicGroup():
 
     def set_virtual_state(self, state: Dict[str, Dict[str, float]]):
         """Sets the :py:attr:`virtual_state` of the Group and
-           automatically updates the corresponding :py:attr:`actuated_state`
+           automatically updates the corresponding :py:attr:`actuated_state`.
 
         Args:
-            state (Dict[str,Dict[str, float]]): A dictionary containing the members of :
-                                                py:attr:`virtual_state` that should be set.
+            state (Dict[str,Dict[str, float]]): A dictionary containing the members of
+                                                :py:attr:`virtual_state` that should be set.
                                                 The new values need to be valid state
                                                 for the state of the joint.
 
@@ -203,7 +212,7 @@ class KinematicGroup():
 
     def set_actuated_state(self, state: Dict[str, float]):
         """Sets the :py:attr:`actuated_state` of the Group and
-           automatically updates the corresponding :py:attr:`virtual_state`
+           automatically updates the corresponding :py:attr:`virtual_state`.
 
         Args:
             state (Dict[str, float]): A dictionary containing the members
@@ -236,12 +245,29 @@ class KinematicGroup():
         return self._name
 
     def get_name(self):
+        """Returns the :py:attr:`_name` of the :py:class:`KinematicGroup`
+
+        Returns:
+            str: the :py:attr:`_name` attribute
+        """
         return deepcopy(self._name)
 
     def get_virtual_state(self):
+        """Returns a copy of the :py:attr:`virtual_state`
+           attribute of the :py:class:`KinematicGroup` object.
+
+        Returns:
+            Dict[str,Dict[str,float]]: a copy of the :py:attr:`virtual_state`
+        """
         return deepcopy(self.virtual_state)
 
     def get_actuated_state(self):
+        """Returns a copy of the :py:attr:`actuated_state`
+           attribute of the :py:class:`KinematicGroup` object.
+
+        Returns:
+            Dict[str,float]: a copy of the :py:attr:`actuated_state`
+        """
         if self.actuated_state:
             return deepcopy(self.actuated_state)
         return None
@@ -252,7 +278,7 @@ class KinematicGroup():
 
         Returns:
             array: The homogenous transformation matrix from
-            the start of the virtual chain to its endeffector.
+                   the start of the virtual chain to its endeffector.
         """
 
         # Identity matrix
@@ -266,28 +292,68 @@ class KinematicGroup():
         return transformation
 
     def get_virtual_chain(self):
+        """Returns a copy of the :py:attr:`_virtual_chain`
+           attribute of a :py:class:`KinematicGroup` object.
+
+        Returns:
+            Dict[str,Transformation]: a copy of the :py:attr:`_virtual_chain`
+        """
         return deepcopy(self._virtual_chain)
 
     def _update_chain(self):
-        """propagates changes from the :py:attr:`virtual_state`
+        """Propagates changes from the :py:attr:`virtual_state`
            to the underlying :py:class:`Transformation` objects.
         """
         for key in self.virtual_state.keys():
             self._virtual_chain[key].set_state(self.virtual_state[key])
 
     def add_children(self, child: str):
+        """Adds the name of a :py:class:`KinematicGroup` or :py:class:`Transformation`
+           as a child.
+
+        Args:
+            child (str): the name of a :py:class:`KinematicGroup` or :py:class:`Transformation`
+        """
         self.children.append(child)
 
     def pass_arg_v_to_a(self, argv):
+        """Allows arguments to be passed the :py:attr:`virtual_to_actuated` mapping.
+
+        Args:
+            argv ([type]): arguments to be passed.
+        """
         g_map = self._original_virtual_to_actuated
         self._virtual_to_actuated = lambda state: g_map(state, *argv)
 
     def pass_arg_a_to_v(self, argv):
+        """Allows arguments to be passed the :py:attr:`actuated_to_virtual` mapping.
+
+        Args:
+            argv ([type]): arguments to be passed.
+        """
         f_map = self._original_actuated_to_virtual
         self._actuated_to_virtual = lambda state: f_map(state, *argv)
 
 
 class OpenKinematicGroup(KinematicGroup):
+    """A subclass of the :py:class:`KinematicGroup` that assumes that all states
+       of the virtual_chain are actuated and automatically generates mappings.
+       Typically only used internally by the :py:class`Robot` class to convert
+       :py:class`Transformation` objects to :py:class`KinematicGroup`s.
+
+    Args:
+        name (str): The unique name identifying the group.
+                    No two :py:class:`KinematicGroup` objects of a :py:class`Robot` should have the
+                    same name
+        virtual_chain (List[Transformation]): A list of :py:class:`Transformation`
+                                              objects forming a serial Kinematic chain.
+        parent (Union(Transformation,KinematicGroup), optional): The transformation or group
+                                                                 preceding the
+                                                                 :py:class:`KinematicGroup`.
+                                                                 Defaults to None.
+
+    """
+
     def __init__(self, name: str, virtual_chain: List[Transformation], parent=None):
         virtual_state = {}
         virtual_trafo_dict = {}

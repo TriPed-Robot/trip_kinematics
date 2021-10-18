@@ -8,6 +8,12 @@ from trip_robots.triped_leg import swing_to_gimbal, gimbal_to_swing
 
 
 def leg_model(leg_number: str):
+    """Helper function that constructs each TriPed leg as a list of Transformations.
+
+    Args:
+        leg_number (str): The leg number which determins the orientation.
+                          Acceptable values [0,1,2]
+    """
     def rename_swing_to_gimbal(swing: Dict[str, float], tips: Dict[str, float] = None):
         swing = deepcopy(swing)
         swing['swing_left'] = swing[leg_name+'swing_left']
@@ -40,37 +46,37 @@ def leg_model(leg_number: str):
 
     leg_rotation = Transformation(name=leg_name+'leg_rotation',
                                   values={'rz': -1*radians(120)*leg_number})
-    A_CSS_P_trans = Transformation(name=leg_name+'A_CSS_P_trans',
+    a_ccs_p_trans = Transformation(name=leg_name+'A_ccs_P_trans',
                                    values={'tx': 0.265, 'tz': 0.014},
                                    parent=leg_rotation)
-    A_CSS_P_rot = Transformation(name=leg_name+'gimbal_joint',
+    a_ccs_p_rot = Transformation(name=leg_name+'gimbal_joint',
                                  values={'rx': 0, 'ry': 0, 'rz': 0},
                                  state_variables=['rx', 'ry', 'rz'],
-                                 parent=A_CSS_P_trans)
+                                 parent=a_ccs_p_trans)
 
     closed_chain = KinematicGroup(name=leg_name+'closed_chain',
                                   virtual_chain=[leg_rotation,
-                                                 A_CSS_P_trans, A_CSS_P_rot],
+                                                 a_ccs_p_trans, a_ccs_p_rot],
                                   actuated_state={
                                       leg_name+'swing_left': 0, leg_name+'swing_right': 0},
                                   actuated_to_virtual=rename_swing_to_gimbal,
                                   virtual_to_actuated=rename_gimbal_to_swing)
 
-    A_P_LL = Transformation(name=leg_name+'A_P_LL',
+    a_p_ll = Transformation(name=leg_name+'A_P_LL',
                             values={'tx': 1.640, 'tz': -0.037, },
                             parent=closed_chain)
-    A_LL_LL_zero = Transformation(name=leg_name+'zero_angle_convention',
-                                  values={'ry': radians(-3)},
-                                  parent=A_P_LL)
-    A_LL_zero_LL_joint = Transformation(name=leg_name+'extend_joint',
+    a_ll_zero = Transformation(name=leg_name+'zero_angle_convention',
+                               values={'ry': radians(-3)},
+                               parent=a_p_ll)
+    a_ll_zero_ll_joint = Transformation(name=leg_name+'extend_joint',
                                         values={'ry': 0},
                                         state_variables=['ry'],
-                                        parent=A_LL_LL_zero)
-    A_LL_Joint_FCS = Transformation(name=leg_name+'A_LL_Joint_FCS',
+                                        parent=a_ll_zero)
+    a_ll_joint_fcs = Transformation(name=leg_name+'A_LL_Joint_FCS',
                                     values={'tx': -1.5},
-                                    parent=A_LL_zero_LL_joint)
+                                    parent=a_ll_zero_ll_joint)
 
-    return [closed_chain, A_LL_zero_LL_joint, A_LL_Joint_FCS, A_P_LL, A_LL_LL_zero]
+    return [closed_chain, a_ll_zero_ll_joint, a_ll_joint_fcs, a_p_ll, a_ll_zero]
 
 
 triped = Robot(leg_model(0)+leg_model(1)+leg_model(2))

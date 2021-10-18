@@ -8,6 +8,16 @@ import trip_kinematics.KinematicGroup
 
 
 def array_find(arr, obj) -> int:
+    """A helpher function which finds the index of an object in an array.
+       Instead of throwing an error when no index can be found it returns -1.
+
+    Args:
+        arr : the array to be searched
+        obj : the object whose index is to be found.
+
+    Returns:
+        int: The index of obj in the array. -1 if the object is not in the array
+    """
     index = -1
     try:
         index = arr.index(obj)
@@ -78,7 +88,7 @@ class Transformation():
         return "quaternion"
 
     def __init__(self, name: str, values: Dict[str, float],
-                 state_variables: List[str] = [], parent=None):
+                 state_variables: List[str] = None, parent=None):
 
         self._name = name
         self.children = []
@@ -93,6 +103,8 @@ class Transformation():
                 "The parent of a Transformation must be either " +
                 "a KinematicGroup or a Transformation")
 
+        if state_variables is None:
+            state_variables = []
         if not set(state_variables) <= set(values.keys()):
             raise ValueError(
                 "Element of state_variables do not correspond to key(s) of values dictionary." +
@@ -116,9 +128,25 @@ class Transformation():
         return self._name
 
     def get_state(self):
+        """Returns a copy of the :py:attr:`_state`
+           attribute of the :py:class:`Transformation` object.
+
+        Returns:
+            Dict[str,float]: a copy of the :py:attr:`_state`
+        """
         return deepcopy(self._state)
 
     def set_state(self, state: Dict[str, float]):
+        """Sets the state of the :py:class:`Transformation` object.
+
+
+        Args:
+            state (Dict[str, float]): Dictionary with states that should be set.
+                                      Does not have to be the full state.
+
+        Raises:
+            KeyError: If a key in the argument is not valid state parameter name.
+        """
         for key in state.keys():
             if not key in self._state.keys():
                 raise KeyError(
@@ -127,6 +155,11 @@ class Transformation():
             self._state[key] = state[key]
 
     def get_name(self):
+        """Returns the :py:attr:`_name` of the :py:class:`Transformation`
+
+        Returns:
+            str: a copy the :py:attr:`_name` attribute
+        """
         return deepcopy(self._name)
 
     def get_transformation_matrix(self):
@@ -182,4 +215,10 @@ class Transformation():
         return matrix
 
     def add_children(self, child: str):
+        """Adds the name of a :py:class:`KinematicGroup` or :py:class:`Transformation`
+           as a child.
+
+        Args:
+            child (str): the name of a :py:class:`KinematicGroup` or :py:class:`Transformation`
+        """
         self.children.append(child)
