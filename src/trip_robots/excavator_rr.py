@@ -28,8 +28,7 @@ link_1 = Transformation(name="link_1",
                         parent=virtual_joint_1)
 virtual_joint_2 = Transformation(name="q_2",
                                  values={'ry': radians(-90)},
-                                 state_variables=['ry'],
-                                 parent=link_1)
+                                 state_variables=['ry'])
 link_2 = Transformation(name="link_2",
                         values={'tx': l_5},
                         parent=virtual_joint_2)
