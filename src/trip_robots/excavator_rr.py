@@ -24,12 +24,14 @@ virtual_joint_1 = Transformation(name="q_1",
                                  values={'ry': 0},
                                  state_variables=['ry'])
 link_1 = Transformation(name="link_1",
-                        values={'tx': l_1+l_3+0.4})
+                        values={'tx': l_1+l_3+0.4},
+                        parent=virtual_joint_1)
 virtual_joint_2 = Transformation(name="q_2",
                                  values={'ry': radians(-90)},
                                  state_variables=['ry'])
 link_2 = Transformation(name="link_2",
-                        values={'tx': l_5})
+                        values={'tx': l_5},
+                        parent=virtual_joint_2)
 
 
 ################################################
