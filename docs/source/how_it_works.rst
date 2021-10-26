@@ -48,7 +48,7 @@ In this convention, the transformation is specified using 6 parameters `[tx ty t
 These parameters have the following interpretation:
 
 ========== ===============================================
-parameter interpretation
+parameter  interpretation
 ========== ===============================================
 tx         moves the coordinate system along the x-axis
 ty         moves the coordinate system along the y-axis
@@ -88,7 +88,7 @@ They have many advantages compared to Euler angles, which are explained `here <h
 However, they trade these advantages for an intuitive interpretation.
 
 ========== ===============================================
-parameter interpretation
+parameter  interpretation
 ========== ===============================================
 tx         moves the coordinate system along the x-axis
 ty         moves the coordinate system along the y-axis
@@ -122,7 +122,7 @@ It requires only 4 parameters to describe a transformation.
 This makes the transformation numerically efficient for inverse kinematic solvers.
 
 ========== ===============================================
-parameter interpretation
+parameter  interpretation
 ========== ===============================================
 theta      rotates the coordinate system around the z-axis
 d          moves the coordinate system along the z-axis
@@ -379,8 +379,8 @@ For more complicated robots this might be more complex, a general rule of thumb 
 Robots
 ******
 
-The Robot class is the centerpiece of TriP, they encapsulate  :class:`.Transormation`s and :class:`.KinematicGroup`s of a Robot.
-The fact that robots are made up of :class:`.KinematicGroup`s and :class:`.Transformation`s causes some problems.
+The Robot class is the centerpiece of TriP, they encapsulate  :class:`.Transormation`  and :class:`.KinematicGroup` objects of a Robot.
+This causes some problems.
 Groups distinguish between actuated_states and virtual_states while for a transformation these are the same.´
 
 .. important::
@@ -414,6 +414,7 @@ The robot class is capable of generating symbolic representations of end effecto
 This means it can describe the state of and end effector frame as a mathematical function :math:`\tilde{p}(\tilde{q})` whose input is the virtual state :math:`\tilde{q}`.
 
 This is handy for several reasons:
+
 - It allows for quick calculations of the end effector position without needing matrix multiplication at every step
 - It allows automatic mathematical derivation to calculate the Jacobi matrix and generally analyze the virtual chain
 - It allows the setup of mathematical solvers which can compute the inverse kinematics for a given end effector.
@@ -432,6 +433,19 @@ However if one does use casadi like functions TriP can also be used to analyze h
 
 In general, the symbolic representation returns a casadi object on which the full`casadi feature pallet can be used.
 This includes the setup of numerical solvers which are used to calculate the inverse kinematics.
+
+
+Forward kinematics
+==================
+
+The calculation of forward kinematics is done using the `forward_kinematic` function.
+The general procedure can be seen in the image below:
+
+.. image:: images/forward_kinematics_procedure.png
+ :alt: inverse_kinematics_procedure
+
+The forward kinematics of the virtual_chain are in this case calculated by multiypling the transformation matrices of the virtual_chain together.
+This results in a 4x4 transformation matrix describing the state of the end effector.
 
 *******
 Solvers
