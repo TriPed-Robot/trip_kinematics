@@ -1,4 +1,4 @@
-![trip_logo](docs/source/trip_logo_dark.png)
+![trip_logo](docs/source/trip_logo.svg)
 
 [![Code Grade](https://www.code-inspector.com/project/29339/score/svg)](https://frontend.code-inspector.com/project/29339/dashboard) 
 [![codecov](https://codecov.io/gh/TriPed-Robot/TriP/branch/main/graph/badge.svg?token=T6TMY8CD8M)](https://codecov.io/gh/TriPed-Robot/TriP)
