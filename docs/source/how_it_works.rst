@@ -295,12 +295,12 @@ The mappings for each group can be calculated using trigonometry:
 .. image:: images/geometric_mapping.png
     :alt: geometric_mapping
 
-The corresponding code looks like this:
+The full code for the excavator looks like this:
 
 .. literalinclude:: ../../src/trip_robots/excavator_rr.py
    :language: python
    :linenos:
-   :lines: 11-62
+   :lines: 13-75
 
 
 actuated state vs virtual state
@@ -343,7 +343,7 @@ The solving of the closure equation can be performed by casadi, which TriP also 
 .. literalinclude:: ../../src/trip_robots/excavator_rr.py
    :language: python
    :linenos:
-   :lines: 67-143
+   :lines: 78-143
 
 .. _virtual_chain_reference_label:
 
