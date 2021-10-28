@@ -24,16 +24,16 @@ This includes open chains, closed chains, and even combinations of both.
 
 ## Installation
 
-Using PyPI (recommended):
-`
-pip install trip_kinematics
-`
+
 
 Installing from Source:
 `
 git clone https://github.com/TriPed-Robot/TriP
+
 cd TriP
+
 pip install src/
+
 `
 
 ## Documentation
