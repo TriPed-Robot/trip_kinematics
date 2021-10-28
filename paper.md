@@ -14,13 +14,12 @@ tags:
   - name: Torben Miller^[co-first author]
     affiliation: 2
 affiliations:
- - name: Heidelberg University
-   index: 1
- - name: Independent Researcher
-   index: 2
+  - name: Heidelberg University
+    index: 1
+  - name: Independent Researcher
+    index: 2
 date: 28 October 2021
 bibliography: paper.bib
-
 ---
 
 # Summary
@@ -30,7 +29,7 @@ However, with the advent of 3D printing more and more combinations of both can b
 These hybrid chains have excellent stiffness, payload to weight ratio, and a decent workspace \cite{survey}.
 The price to be paid for these improvements is modeling complexity.
 Finding an explicit solution for the inverse or forward kinematics is often not possible and has to be solved as a constrained optimization problem.
-Most of the established robotics modeling software’s are out of the box not possible to perform these calculations. #TODO citation needed
+Most of the established robotics modeling software’s are out of the box not possible to perform these calculations. #TODO citation needed (thesis on modular and analytic methods for solving kinematics and dynamics of series parallel hybrid robots (kumar) )
 
 TriP is a python package designed to close this gap using a modular modeling framework akin to the one proposed by #TODO cite appropriate paper.
 It allows the modeling of arbitrary kinematic topologies and is capable of calculating their forward and inverse kinematics.
@@ -70,12 +69,11 @@ where one is green and the other one is blue.
 
 The figure also demonstrates the mappings, the virtual chain treats the excavator as if his hinges are directly actuated.
 The groups also contain a mapping that map the hinge state onto the state of the hydraulic cylinder.
-In this case such a mapping can be trigonometric, however using casadi #TODO cite casadi
-it is also possible to solve the closure equation of the parallel manipulator.
+In this case such a mapping can be trigonometric, however it is also possible to compute the mapping by solving the closure equation of the parallel manipulator.
 
 Both groups and transfromations can be connected to form transformation trees, this is done by specifying the parent child relationship on initialization.
 
-To solve the inverse kinematics for a given end-effector, TriP can generate a symbolic representation using casadi #TODO cite casadi
+To solve the inverse kinematics for a given end-effector, TriP can generate a symbolic representation using casadi \cite{casadi}
 This symbolic representation can be used to set up a solver object that then solves the inverse kinematics.
 While the library already implements a simple inverse kinematics solver the symbolic representation makes it easy to implement custom solvers.
 
