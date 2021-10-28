@@ -1,0 +1,635 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Tutorials &mdash; TriP 0.9 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Code Documentation" href="code_docu.html" />
+    <link rel="prev" title="How TriP models Robots" href="how_it_works.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2f4858" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/trip_logo_dark.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="how_it_works.html">How TriP models Robots</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-a-robot-model">Building a Robot Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#building-open-chains">Building open chains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-mappings">Create Mappings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-the-group">Building the group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#combining-groups-to-a-robot">Combining groups to a robot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-the-complete-robot">Building the complete robot</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="code_docu.html">Code Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TriP</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Tutorials</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/tutorials.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tutorials">
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="building-a-robot-model">
+<h2>Building a Robot Model<a class="headerlink" href="#building-a-robot-model" title="Permalink to this headline">¶</a></h2>
+<p>Before TriPs functionality can be used on a robot, it first has to be build within TriP.
+This Tutorial will show how to build the <a class="reference external" href="https://triped-robot.github.io/docs/robot/">TriPed robot</a>  shown below:</p>
+<img alt="triped" src="https://user-images.githubusercontent.com/22688144/124489566-6d70f000-ddb1-11eb-9f57-6a2d9e374fcc.png?raw=true" />
+<p>Here each leg was highlighted in a different color.
+Since all legs are identicall, this tutorial will start with a single leg.
+More information about the triped legs can be found <a class="reference external" href="https://triped-robot.github.io/docs/legs/">here</a> .</p>
+<p>The first step in setting up a robot is identifying the groups and transformations.
+TriP uses Groups to model closed kinematic chains.
+These are structures where multiple moving parts converge in a single location forming one or more loops.
+Some examples can be seen down below:</p>
+<p>## TODO</p>
+<p>These closed chains will either be connected directly to each other or using a series of other moving parts.
+Such a series is called a open kinematic chain.
+Open Kinematic chains are handled using a series of transformations.</p>
+<p>In the case of the TriPed the following chains can be identified:</p>
+<img alt="triped-hybrid_chain" src="_images/triped_hybrid_chain.png" />
+<p>This in turn means that the leg of the TriPed contains one kinematic group and a number of transformations representing the open chain.</p>
+<p>Once each group has been identified the group construction worklow goes like this:</p>
+<img alt="trip_sample_workflow" src="_images/trip_sameple_workflow.png" />
+<div class="section" id="building-open-chains">
+<h3>Building open chains<a class="headerlink" href="#building-open-chains" title="Permalink to this headline">¶</a></h3>
+<p>Groups handle closed chains by abstracting them into a virtual open chains that models how group moves combined with two mapping functions from these virtual joints to the actual actuated joints and back.
+This means that for both the open and the closed chain, a chain has to be build.
+The precise transformations depend on the type of robot and its conventions.
+The kinematic transformations of the TriPed are described here: <a class="reference external" href="https://triped-robot.github.io/docs/kinematics/">here</a>  .
+This leads to the following virtual open chain:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">A_CSS_P_trans</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A_CSS_P_trans&#39;</span><span class="p">,</span>
+                               <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tx&#39;</span><span class="p">:</span> <span class="mf">0.265</span><span class="p">,</span> <span class="s1">&#39;tz&#39;</span><span class="p">:</span> <span class="mf">0.014</span><span class="p">})</span>
+<span class="n">A_CSS_P_rot</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">,</span>
+                             <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;rx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;ry&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;rz&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                             <span class="n">state_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;rx&#39;</span><span class="p">,</span> <span class="s1">&#39;ry&#39;</span><span class="p">,</span> <span class="s1">&#39;rz&#39;</span><span class="p">],</span>
+</pre></div>
+</td></tr></table></div>
+<p>And the corresponding transformations for the open chain:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span>                              <span class="n">virtual_to_actuated</span><span class="o">=</span><span class="n">gimbal_to_swing</span><span class="p">)</span>
+
+<span class="n">A_P_LL</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A_P_LL&#39;</span><span class="p">,</span>
+                        <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tx&#39;</span><span class="p">:</span> <span class="mf">1.640</span><span class="p">,</span> <span class="s1">&#39;tz&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.037</span><span class="p">,</span> <span class="p">},</span>
+                        <span class="n">parent</span><span class="o">=</span><span class="n">closed_chain</span><span class="p">)</span>
+<span class="n">A_LL_LL_zero</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;zero_angle_convention&#39;</span><span class="p">,</span>
+                              <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;ry&#39;</span><span class="p">:</span> <span class="n">radians</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)},</span>
+                              <span class="n">parent</span><span class="o">=</span><span class="n">A_P_LL</span><span class="p">)</span>
+<span class="n">A_LL_zero_LL_joint</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;extend_joint&#39;</span><span class="p">,</span>
+</pre></div>
+</td></tr></table></div>
+<p>Note that both chains are made up of transformations without <cite>state_variables</cite>.
+Such transformations are ‘static’ and dont represent a joint.
+It is possible to construct open chains without such transformations (see the <a class="reference external" href="https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters/">denavit hartenberg</a> convention for example).
+In practice however they are handy to specify the position of a joint at a specified angle.
+This allows the joint angles to be interpretable.
+This can be seen with the <cite>A_LL_LL_zero</cite> transformation. It ensures that a <cite>extend_joint</cite> angle corresponds to the foot of the leg being completely retracted.</p>
+</div>
+<div class="section" id="create-mappings">
+<h3>Create Mappings<a class="headerlink" href="#create-mappings" title="Permalink to this headline">¶</a></h3>
+<p>For the kinematic group a mapping from the actuated swing_joints to the virtual gimbal joint have to be provided. These joints can be seen down below:</p>
+<img alt="triped_mapping" src="_images/triped_mapping.png" />
+<p>The mapping between these joints can be computet by solving a geometric closing equation. As pictured above, the tip <span class="math notranslate nohighlight">\(x_i\)</span> the output lever connected to the actuated joints  <span class="math notranslate nohighlight">\(i\)</span>
+alwas intersects the sphere at position <span class="math notranslate nohighlight">\(c_i\)</span> where <span class="math notranslate nohighlight">\(i\)</span> is either 1 or 2.</p>
+<p>Mathematically this can be described using:</p>
+<div class="math notranslate nohighlight">
+\[\sum_{i=1}^2||(c_i(rx,ry,rz^v)-p_{_i}(rz_i^a))^T(c_i(rx,ry,rz^v)-p_{i}(rz_i^a))-r^2||^2 = 0\]</div>
+<p>Where <span class="math notranslate nohighlight">\(rx,ry,rz\)</span> are the rotation around the x, y and z axis and the suberscript :math:<a href="#id2"><span class="problematic" id="id3">`</span></a>v,~a`denotes the virtual and actuated state respectively.</p>
+<p>The virtual_to_actuated and actuated_to_virtual mappings can now be defined as the virtual or actuated state that solves the closure equation assuming the other state as a fixed value.
+This can be done using casadis nonelinear programming solver.
+The final code can be seen down below:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span>
+<span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span><span class="p">):</span>
+    <span class="n">A_CSS_P_trans</span> <span class="o">=</span> <span class="n">hom_translation_matrix</span><span class="p">(</span>
+        <span class="n">t_x</span><span class="o">=</span><span class="mf">0.265</span><span class="p">,</span> <span class="n">t_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">t_z</span><span class="o">=</span><span class="mf">0.014</span><span class="p">)</span>
+    <span class="n">A_CSS_P_rot</span> <span class="o">=</span> <span class="n">hom_rotation</span><span class="p">(</span><span class="n">x_axis_rotation_matrix</span><span class="p">(</span><span class="n">rx</span><span class="p">)</span> <span class="o">@</span>
+                               <span class="n">y_axis_rotation_matrix</span><span class="p">(</span><span class="n">ry</span><span class="p">)</span> <span class="o">@</span>
+                               <span class="n">z_axis_rotation_matrix</span><span class="p">(</span><span class="n">rz</span><span class="p">))</span>
+    <span class="n">A_P_SPH1_2</span> <span class="o">=</span> <span class="n">hom_translation_matrix</span><span class="p">(</span>
+        <span class="n">t_x</span><span class="o">=</span><span class="mf">0.015</span><span class="p">,</span> <span class="n">t_y</span><span class="o">=</span><span class="mf">0.029</span><span class="p">,</span> <span class="n">t_z</span><span class="o">=-</span><span class="mf">0.0965</span><span class="p">)</span>
+    <span class="n">A_P_SPH2_2</span> <span class="o">=</span> <span class="n">hom_translation_matrix</span><span class="p">(</span>
+        <span class="n">t_x</span><span class="o">=</span><span class="mf">0.015</span><span class="p">,</span> <span class="n">t_y</span><span class="o">=-</span><span class="mf">0.029</span><span class="p">,</span> <span class="n">t_z</span><span class="o">=-</span><span class="mf">0.0965</span><span class="p">)</span>
+
+    <span class="n">A_CSS_P</span> <span class="o">=</span> <span class="n">A_CSS_P_trans</span> <span class="o">@</span> <span class="n">A_CSS_P_rot</span>
+    <span class="n">A_c1</span> <span class="o">=</span> <span class="n">A_CSS_P</span> <span class="o">@</span> <span class="n">A_P_SPH1_2</span>
+    <span class="n">A_c2</span> <span class="o">=</span> <span class="n">A_CSS_P</span> <span class="o">@</span> <span class="n">A_P_SPH2_2</span>
+
+    <span class="k">return</span> <span class="n">get_translation</span><span class="p">(</span><span class="n">A_c1</span><span class="p">),</span> <span class="n">get_translation</span><span class="p">(</span><span class="n">A_c2</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">p1</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+    <span class="n">A_CCS_lsm_tran</span> <span class="o">=</span> <span class="n">hom_translation_matrix</span><span class="p">(</span>
+        <span class="n">t_x</span><span class="o">=</span><span class="mf">0.139807669447128</span><span class="p">,</span> <span class="n">t_y</span><span class="o">=</span><span class="mf">0.0549998406976098</span><span class="p">,</span> <span class="n">t_z</span><span class="o">=-</span><span class="mf">0.051</span><span class="p">)</span>
+    <span class="n">A_CCS_lsm_rot</span> <span class="o">=</span> <span class="n">hom_rotation</span><span class="p">(</span><span class="n">z_axis_rotation_matrix</span><span class="p">(</span><span class="n">radians</span><span class="p">(</span><span class="o">-</span><span class="mf">345.0</span><span class="p">)))</span>
+    <span class="n">A_MCS1_JOINT</span> <span class="o">=</span> <span class="n">hom_rotation</span><span class="p">(</span><span class="n">z_axis_rotation_matrix</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span>
+    <span class="n">A_MCS1_SP11</span> <span class="o">=</span> <span class="n">hom_translation_matrix</span><span class="p">(</span>
+        <span class="n">t_x</span><span class="o">=</span><span class="mf">0.085</span><span class="p">,</span> <span class="n">t_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">t_z</span><span class="o">=-</span><span class="mf">0.0245</span><span class="p">)</span>
+
+    <span class="n">A_CCS_SP11</span> <span class="o">=</span> <span class="n">A_CCS_lsm_tran</span> <span class="o">@</span> <span class="n">A_CCS_lsm_rot</span> <span class="o">@</span> <span class="n">A_MCS1_JOINT</span> <span class="o">@</span> <span class="n">A_MCS1_SP11</span>
+    <span class="k">return</span> <span class="n">get_translation</span><span class="p">(</span><span class="n">A_CCS_SP11</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">p2</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+    <span class="n">A_CCS_rsm_tran</span> <span class="o">=</span> <span class="n">hom_translation_matrix</span><span class="p">(</span>
+        <span class="n">t_x</span><span class="o">=</span><span class="mf">0.139807669447128</span><span class="p">,</span> <span class="n">t_y</span><span class="o">=-</span><span class="mf">0.0549998406976098</span><span class="p">,</span> <span class="n">t_z</span><span class="o">=-</span><span class="mf">0.051</span><span class="p">)</span>
+    <span class="n">A_CCS_rsm_rot</span> <span class="o">=</span> <span class="n">hom_rotation</span><span class="p">(</span><span class="n">z_axis_rotation_matrix</span><span class="p">(</span><span class="n">radians</span><span class="p">(</span><span class="o">-</span><span class="mf">15.0</span><span class="p">)))</span>
+    <span class="n">A_MCS2_JOINT</span> <span class="o">=</span> <span class="n">hom_rotation</span><span class="p">(</span><span class="n">z_axis_rotation_matrix</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span>
+    <span class="n">A_MCS2_SP21</span> <span class="o">=</span> <span class="n">hom_translation_matrix</span><span class="p">(</span>
+        <span class="n">t_x</span><span class="o">=</span><span class="mf">0.085</span><span class="p">,</span> <span class="n">t_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">t_z</span><span class="o">=-</span><span class="mf">0.0245</span><span class="p">)</span>
+
+    <span class="n">A_CSS_SP21</span> <span class="o">=</span> <span class="n">A_CCS_rsm_tran</span> <span class="o">@</span> <span class="n">A_CCS_rsm_rot</span> <span class="o">@</span> <span class="n">A_MCS2_JOINT</span> <span class="o">@</span> <span class="n">A_MCS2_SP21</span>
+    <span class="k">return</span> <span class="n">get_translation</span><span class="p">(</span><span class="n">A_CSS_SP21</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">swing_to_gimbal</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">tips</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">x_0</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">tips</span><span class="p">:</span>
+        <span class="n">x_0</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">tips</span><span class="p">[</span><span class="s1">&#39;rx&#39;</span><span class="p">]</span>
+        <span class="n">x_0</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">tips</span><span class="p">[</span><span class="s1">&#39;ry&#39;</span><span class="p">]</span>
+        <span class="n">x_0</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">tips</span><span class="p">[</span><span class="s1">&#39;rz&#39;</span><span class="p">]</span>
+
+    <span class="n">nlp</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">virtual_state</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="n">closing_equation</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">actuated_state</span><span class="p">}</span>
+    <span class="n">nlp_solver</span> <span class="o">=</span> <span class="n">nlpsol</span><span class="p">(</span><span class="s1">&#39;swing_to_gimbal&#39;</span><span class="p">,</span> <span class="s1">&#39;ipopt&#39;</span><span class="p">,</span> <span class="n">nlp</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+    <span class="n">solution</span> <span class="o">=</span> <span class="n">nlp_solver</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">x_0</span><span class="p">,</span>
+                          <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;swing_left&#39;</span><span class="p">],</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;swing_right&#39;</span><span class="p">]])</span>
+    <span class="n">sol_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;rx&#39;</span><span class="p">:</span> <span class="n">sol_vector</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;ry&#39;</span><span class="p">:</span> <span class="n">sol_vector</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;rz&#39;</span><span class="p">:</span> <span class="n">sol_vector</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]}}</span>
+
+
+<span class="k">def</span> <span class="nf">gimbal_to_swing</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span> <span class="n">tips</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">x_0</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">tips</span><span class="p">:</span>
+        <span class="n">x_0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">tips</span><span class="p">[</span><span class="s1">&#39;swing_left&#39;</span><span class="p">]</span>
+        <span class="n">x_0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tips</span><span class="p">[</span><span class="s1">&#39;swing_right&#39;</span><span class="p">]</span>
+
+    <span class="n">nlp</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">actuated_state</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="n">closing_equation</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">virtual_state</span><span class="p">}</span>
+    <span class="n">nlp_solver</span> <span class="o">=</span> <span class="n">nlpsol</span><span class="p">(</span><span class="s1">&#39;gimbal_to_swing&#39;</span><span class="p">,</span> <span class="s1">&#39;ipopt&#39;</span><span class="p">,</span> <span class="n">nlp</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+    <span class="n">solution</span> <span class="o">=</span> <span class="n">nlp_solver</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="n">x_0</span><span class="p">,</span>
+                          <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">][</span><span class="s1">&#39;rx&#39;</span><span class="p">],</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">][</span><span class="s1">&#39;ry&#39;</span><span class="p">],</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">][</span><span class="s1">&#39;rz&#39;</span><span class="p">]])</span>
+    <span class="n">sol_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;swing_left&#39;</span><span class="p">:</span> <span class="n">sol_vector</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;swing_right&#39;</span><span class="p">:</span> <span class="n">sol_vector</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]}</span>
+
+
+<span class="n">theta_left</span> <span class="o">=</span> <span class="n">SX</span><span class="o">.</span><span class="n">sym</span><span class="p">(</span><span class="s1">&#39;theta_left&#39;</span><span class="p">)</span>
+<span class="n">theta_right</span> <span class="o">=</span> <span class="n">SX</span><span class="o">.</span><span class="n">sym</span><span class="p">(</span><span class="s1">&#39;theta_right&#39;</span><span class="p">)</span>
+<span class="n">gimbal_x</span> <span class="o">=</span> <span class="n">SX</span><span class="o">.</span><span class="n">sym</span><span class="p">(</span><span class="s1">&#39;gimbal_x&#39;</span><span class="p">)</span>
+<span class="n">gimbal_y</span> <span class="o">=</span> <span class="n">SX</span><span class="o">.</span><span class="n">sym</span><span class="p">(</span><span class="s1">&#39;gimbal_y&#39;</span><span class="p">)</span>
+<span class="n">gimbal_z</span> <span class="o">=</span> <span class="n">SX</span><span class="o">.</span><span class="n">sym</span><span class="p">(</span><span class="s1">&#39;gimbal_z&#39;</span><span class="p">)</span>
+
+<span class="n">virtual_state</span> <span class="o">=</span> <span class="n">vertcat</span><span class="p">(</span><span class="n">gimbal_x</span><span class="p">,</span> <span class="n">gimbal_y</span><span class="p">,</span> <span class="n">gimbal_z</span><span class="p">)</span>
+<span class="n">actuated_state</span> <span class="o">=</span> <span class="n">vertcat</span><span class="p">(</span><span class="n">theta_left</span><span class="p">,</span> <span class="n">theta_right</span><span class="p">)</span>
+
+<span class="n">opts</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ipopt.print_level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;print_time&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+<span class="n">r</span> <span class="o">=</span> <span class="mf">0.11</span>
+<span class="n">c1</span><span class="p">,</span> <span class="n">c2</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="n">rx</span><span class="o">=</span><span class="n">gimbal_x</span><span class="p">,</span> <span class="n">ry</span><span class="o">=</span><span class="n">gimbal_y</span><span class="p">,</span> <span class="n">rz</span><span class="o">=</span><span class="n">gimbal_z</span><span class="p">)</span>
+<span class="n">closing_equation</span> <span class="o">=</span> <span class="p">((</span><span class="n">c1</span><span class="o">-</span><span class="n">p1</span><span class="p">(</span><span class="n">theta_right</span><span class="p">))</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span><span class="n">c1</span><span class="o">-</span><span class="n">p1</span><span class="p">(</span><span class="n">theta_right</span><span class="p">))</span> <span class="o">-</span> <span class="n">r</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="building-the-group">
+<h3>Building the group<a class="headerlink" href="#building-the-group" title="Permalink to this headline">¶</a></h3>
+<p>Using both the mappings and the virtual open chain, the group can be build:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span>
+<span class="n">closed_chain</span> <span class="o">=</span> <span class="n">KinematicGroup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;closed_chain&#39;</span><span class="p">,</span>
+                              <span class="n">virtual_chain</span><span class="o">=</span><span class="p">[</span><span class="n">A_CSS_P_trans</span><span class="p">,</span> <span class="n">A_CSS_P_rot</span><span class="p">],</span>
+                              <span class="n">actuated_state</span><span class="o">=</span><span class="p">{</span>
+                                  <span class="s1">&#39;swing_left&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;swing_right&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+</pre></div>
+</td></tr></table></div>
+<p>Note that the closed chain specifies no parent since it is located directly at the robots base and the open chain specifies no mappings since these are autogenerated.</p>
+</div>
+<div class="section" id="combining-groups-to-a-robot">
+<h3>Combining groups to a robot<a class="headerlink" href="#combining-groups-to-a-robot" title="Permalink to this headline">¶</a></h3>
+<p>The last step is to combine the group and transformations into a robot object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">triped_leg</span>     <span class="o">=</span> <span class="n">Robot</span><span class="p">([</span><span class="n">closed_chain</span><span class="p">,</span><span class="n">A_P_LL</span><span class="p">,</span><span class="n">A_LL_LL_zero</span><span class="p">,</span><span class="n">A_LL_zero_LL_joint</span><span class="p">,</span><span class="n">A_LL_Joint_FCS</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-the-complete-robot">
+<h3>Building the complete robot<a class="headerlink" href="#building-the-complete-robot" title="Permalink to this headline">¶</a></h3>
+<p>Since the TriPed has three legs, the above process has to be repeated three times.
+Each time the joints and actuated state need their own unique names.</p>
+<p>Since this would be tedious to do by hand, a function can be written that returns the full transformation of a single leg.
+This functions then follows the above steps, only appending the initial kinematic group with a transformation to the start position of each leg.</p>
+<p>This function can be seen here:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">leg_model</span><span class="p">(</span><span class="n">leg_number</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">rename_swing_to_gimbal</span><span class="p">(</span><span class="n">swing</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">tips</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">swing</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">swing</span><span class="p">)</span>
+        <span class="n">swing</span><span class="p">[</span><span class="s1">&#39;swing_left&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">swing</span><span class="p">[</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;swing_left&#39;</span><span class="p">]</span>
+        <span class="n">swing</span><span class="p">[</span><span class="s1">&#39;swing_right&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">swing</span><span class="p">[</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;swing_right&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">swing</span><span class="p">[</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;swing_left&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">swing</span><span class="p">[</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;swing_right&#39;</span><span class="p">]</span>
+
+        <span class="n">gimbal</span> <span class="o">=</span> <span class="n">swing_to_gimbal</span><span class="p">(</span><span class="n">swing</span><span class="p">,</span> <span class="n">tips</span><span class="p">)</span>
+
+        <span class="n">gimbal</span><span class="p">[</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gimbal</span><span class="p">[</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">gimbal</span><span class="p">[</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">gimbal</span>
+
+    <span class="k">def</span> <span class="nf">rename_gimbal_to_swing</span><span class="p">(</span><span class="n">gimbal</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">tips</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">gimbal</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">gimbal</span><span class="p">)</span>
+        <span class="n">gimbal</span><span class="p">[</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gimbal</span><span class="p">[</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">gimbal</span><span class="p">[</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">]</span>
+
+        <span class="n">swing</span> <span class="o">=</span> <span class="n">gimbal_to_swing</span><span class="p">(</span><span class="n">gimbal</span><span class="p">,</span> <span class="n">tips</span><span class="p">)</span>
+
+        <span class="n">swing</span><span class="p">[</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;swing_left&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">swing</span><span class="p">[</span><span class="s1">&#39;swing_left&#39;</span><span class="p">]</span>
+        <span class="n">swing</span><span class="p">[</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;swing_right&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">swing</span><span class="p">[</span><span class="s1">&#39;swing_right&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">swing</span><span class="p">[</span><span class="s1">&#39;swing_left&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">swing</span><span class="p">[</span><span class="s1">&#39;swing_right&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">swing</span>
+
+    <span class="n">leg_name</span> <span class="o">=</span> <span class="s1">&#39;leg&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">leg_number</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;_&#39;</span>
+
+    <span class="n">leg_rotation</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;leg_rotation&#39;</span><span class="p">,</span>
+                                  <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;rz&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">radians</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span><span class="o">*</span><span class="n">leg_number</span><span class="p">})</span>
+    <span class="n">A_CSS_P_trans</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;A_CSS_P_trans&#39;</span><span class="p">,</span>
+                                   <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tx&#39;</span><span class="p">:</span> <span class="mf">0.265</span><span class="p">,</span> <span class="s1">&#39;tz&#39;</span><span class="p">:</span> <span class="mf">0.014</span><span class="p">},</span>
+                                   <span class="n">parent</span><span class="o">=</span><span class="n">leg_rotation</span><span class="p">)</span>
+    <span class="n">A_CSS_P_rot</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;gimbal_joint&#39;</span><span class="p">,</span>
+                                 <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;rx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;ry&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;rz&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                                 <span class="n">state_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;rx&#39;</span><span class="p">,</span> <span class="s1">&#39;ry&#39;</span><span class="p">,</span> <span class="s1">&#39;rz&#39;</span><span class="p">],</span>
+                                 <span class="n">parent</span><span class="o">=</span><span class="n">A_CSS_P_trans</span><span class="p">)</span>
+
+    <span class="n">closed_chain</span> <span class="o">=</span> <span class="n">KinematicGroup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;closed_chain&#39;</span><span class="p">,</span>
+                                  <span class="n">virtual_chain</span><span class="o">=</span><span class="p">[</span><span class="n">leg_rotation</span><span class="p">,</span>
+                                                 <span class="n">A_CSS_P_trans</span><span class="p">,</span> <span class="n">A_CSS_P_rot</span><span class="p">],</span>
+                                  <span class="n">actuated_state</span><span class="o">=</span><span class="p">{</span>
+                                      <span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;swing_left&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;swing_right&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                                  <span class="n">actuated_to_virtual</span><span class="o">=</span><span class="n">rename_swing_to_gimbal</span><span class="p">,</span>
+                                  <span class="n">virtual_to_actuated</span><span class="o">=</span><span class="n">rename_gimbal_to_swing</span><span class="p">)</span>
+
+    <span class="n">A_P_LL</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;A_P_LL&#39;</span><span class="p">,</span>
+                            <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tx&#39;</span><span class="p">:</span> <span class="mf">1.640</span><span class="p">,</span> <span class="s1">&#39;tz&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.037</span><span class="p">,</span> <span class="p">},</span>
+                            <span class="n">parent</span><span class="o">=</span><span class="n">closed_chain</span><span class="p">)</span>
+    <span class="n">A_LL_LL_zero</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;zero_angle_convention&#39;</span><span class="p">,</span>
+                                  <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;ry&#39;</span><span class="p">:</span> <span class="n">radians</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)},</span>
+                                  <span class="n">parent</span><span class="o">=</span><span class="n">A_P_LL</span><span class="p">)</span>
+    <span class="n">A_LL_zero_LL_joint</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;extend_joint&#39;</span><span class="p">,</span>
+                                        <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;ry&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+</pre></div>
+</td></tr></table></div>
+<p>The final TriPed robot can then be build using:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span>    <span class="n">A_LL_Joint_FCS</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">leg_name</span><span class="o">+</span><span class="s1">&#39;A_LL_Joint_FCS&#39;</span><span class="p">,</span>
+                                    <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tx&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">},</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="code_docu.html" class="btn btn-neutral float-right" title="Code Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="how_it_works.html" class="btn btn-neutral float-left" title="How TriP models Robots" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

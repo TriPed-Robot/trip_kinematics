@@ -1,0 +1,30 @@
+\indexentry{module@\spxentry{module}!trip\_kinematics.HomogenTransformationMatrix@\spxentry{trip\_kinematics.HomogenTransformationMatrix}|hyperpage}{1}
+\indexentry{trip\_kinematics.HomogenTransformationMatrix@\spxentry{trip\_kinematics.HomogenTransformationMatrix}!module@\spxentry{module}|hyperpage}{1}
+\indexentry{TransformationMatrix (class in trip\_kinematics.HomogenTransformationMatrix)@\spxentry{TransformationMatrix}\spxextra{class in trip\_kinematics.HomogenTransformationMatrix}|hyperpage}{1}
+\indexentry{get\_rotation() (trip\_kinematics.HomogenTransformationMatrix.TransformationMatrix method)@\spxentry{get\_rotation()}\spxextra{trip\_kinematics.HomogenTransformationMatrix.TransformationMatrix method}|hyperpage}{1}
+\indexentry{get\_translation() (trip\_kinematics.HomogenTransformationMatrix.TransformationMatrix method)@\spxentry{get\_translation()}\spxextra{trip\_kinematics.HomogenTransformationMatrix.TransformationMatrix method}|hyperpage}{1}
+\indexentry{quat\_rotation\_matrix() (in module trip\_kinematics.HomogenTransformationMatrix)@\spxentry{quat\_rotation\_matrix()}\spxextra{in module trip\_kinematics.HomogenTransformationMatrix}|hyperpage}{2}
+\indexentry{x\_axis\_rotation\_matrix() (in module trip\_kinematics.HomogenTransformationMatrix)@\spxentry{x\_axis\_rotation\_matrix()}\spxextra{in module trip\_kinematics.HomogenTransformationMatrix}|hyperpage}{2}
+\indexentry{y\_axis\_rotation\_matrix() (in module trip\_kinematics.HomogenTransformationMatrix)@\spxentry{y\_axis\_rotation\_matrix()}\spxextra{in module trip\_kinematics.HomogenTransformationMatrix}|hyperpage}{2}
+\indexentry{z\_axis\_rotation\_matrix() (in module trip\_kinematics.HomogenTransformationMatrix)@\spxentry{z\_axis\_rotation\_matrix()}\spxextra{in module trip\_kinematics.HomogenTransformationMatrix}|hyperpage}{2}
+\indexentry{module@\spxentry{module}!trip\_kinematics.KinematicGroup@\spxentry{trip\_kinematics.KinematicGroup}|hyperpage}{2}
+\indexentry{trip\_kinematics.KinematicGroup@\spxentry{trip\_kinematics.KinematicGroup}!module@\spxentry{module}|hyperpage}{2}
+\indexentry{KinematicGroup (class in trip\_kinematics.KinematicGroup)@\spxentry{KinematicGroup}\spxextra{class in trip\_kinematics.KinematicGroup}|hyperpage}{2}
+\indexentry{get\_transformation\_matrix() (trip\_kinematics.KinematicGroup.KinematicGroup method)@\spxentry{get\_transformation\_matrix()}\spxextra{trip\_kinematics.KinematicGroup.KinematicGroup method}|hyperpage}{3}
+\indexentry{set\_actuated\_state() (trip\_kinematics.KinematicGroup.KinematicGroup method)@\spxentry{set\_actuated\_state()}\spxextra{trip\_kinematics.KinematicGroup.KinematicGroup method}|hyperpage}{3}
+\indexentry{set\_virtual\_state() (trip\_kinematics.KinematicGroup.KinematicGroup method)@\spxentry{set\_virtual\_state()}\spxextra{trip\_kinematics.KinematicGroup.KinematicGroup method}|hyperpage}{4}
+\indexentry{Transformation (class in trip\_kinematics.KinematicGroup)@\spxentry{Transformation}\spxextra{class in trip\_kinematics.KinematicGroup}|hyperpage}{4}
+\indexentry{get\_convention() (trip\_kinematics.KinematicGroup.Transformation static method)@\spxentry{get\_convention()}\spxextra{trip\_kinematics.KinematicGroup.Transformation static method}|hyperpage}{4}
+\indexentry{get\_transformation\_matrix() (trip\_kinematics.KinematicGroup.Transformation method)@\spxentry{get\_transformation\_matrix()}\spxextra{trip\_kinematics.KinematicGroup.Transformation method}|hyperpage}{4}
+\indexentry{module@\spxentry{module}!trip\_kinematics.Robot@\spxentry{trip\_kinematics.Robot}|hyperpage}{5}
+\indexentry{trip\_kinematics.Robot@\spxentry{trip\_kinematics.Robot}!module@\spxentry{module}|hyperpage}{5}
+\indexentry{Robot (class in trip\_kinematics.Robot)@\spxentry{Robot}\spxextra{class in trip\_kinematics.Robot}|hyperpage}{5}
+\indexentry{get\_actuated\_state() (trip\_kinematics.Robot.Robot method)@\spxentry{get\_actuated\_state()}\spxextra{trip\_kinematics.Robot.Robot method}|hyperpage}{5}
+\indexentry{get\_groups() (trip\_kinematics.Robot.Robot method)@\spxentry{get\_groups()}\spxextra{trip\_kinematics.Robot.Robot method}|hyperpage}{5}
+\indexentry{get\_symbolic\_rep() (trip\_kinematics.Robot.Robot method)@\spxentry{get\_symbolic\_rep()}\spxextra{trip\_kinematics.Robot.Robot method}|hyperpage}{5}
+\indexentry{get\_virtual\_state() (trip\_kinematics.Robot.Robot method)@\spxentry{get\_virtual\_state()}\spxextra{trip\_kinematics.Robot.Robot method}|hyperpage}{5}
+\indexentry{set\_actuated\_state() (trip\_kinematics.Robot.Robot method)@\spxentry{set\_actuated\_state()}\spxextra{trip\_kinematics.Robot.Robot method}|hyperpage}{5}
+\indexentry{set\_virtual\_state() (trip\_kinematics.Robot.Robot method)@\spxentry{set\_virtual\_state()}\spxextra{trip\_kinematics.Robot.Robot method}|hyperpage}{5}
+\indexentry{solver\_to\_virtual\_state() (trip\_kinematics.Robot.Robot static method)@\spxentry{solver\_to\_virtual\_state()}\spxextra{trip\_kinematics.Robot.Robot static method}|hyperpage}{5}
+\indexentry{forward\_kinematics() (in module trip\_kinematics.Robot)@\spxentry{forward\_kinematics()}\spxextra{in module trip\_kinematics.Robot}|hyperpage}{6}
+\indexentry{inverse\_kinematics() (in module trip\_kinematics.Robot)@\spxentry{inverse\_kinematics()}\spxextra{in module trip\_kinematics.Robot}|hyperpage}{6}

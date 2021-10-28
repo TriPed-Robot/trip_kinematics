@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>trip_kinematics.Robot &mdash; TriP 0.9 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2f4858" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/trip_logo_dark.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../how_it_works.html">How TriP models Robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code_docu.html">Code Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TriP</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>trip_kinematics.Robot</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for trip_kinematics.Robot</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">casadi</span> <span class="kn">import</span> <span class="n">SX</span>
+
+<span class="kn">from</span> <span class="nn">trip_kinematics.Utility</span> <span class="kn">import</span> <span class="n">identity_transformation</span>
+<span class="kn">from</span> <span class="nn">trip_kinematics.KinematicGroup</span> <span class="kn">import</span> <span class="n">KinematicGroup</span><span class="p">,</span> <span class="n">OpenKinematicGroup</span>
+<span class="kn">from</span> <span class="nn">trip_kinematics.Transformation</span> <span class="kn">import</span> <span class="n">Transformation</span>
+
+
+<div class="viewcode-block" id="Robot"><a class="viewcode-back" href="../../code_docu.html#trip_kinematics.Robot.Robot">[docs]</a><span class="k">class</span> <span class="nc">Robot</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A class representing the kinematic model of a robot.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        kinematic_chain (List[KinematicGroup]): A list of Kinematic Groups and Transformations</span>
+<span class="sd">                                                with make up the robot.</span>
+<span class="sd">                                                Transformations are automatically</span>
+<span class="sd">                                                converted to groups</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        KeyError: &quot;More than one robot actuator has the same name!</span>
+<span class="sd">                   Please give each actuator a unique name&quot;</span>
+<span class="sd">                  if there are actuated states with the same names between the</span>
+<span class="sd">                  :py:class`KinematicGroup` objects of the :py:class`Robot`</span>
+<span class="sd">        KeyError: if there are joints with the same names between</span>
+<span class="sd">                  the :py:class`KinematicGroup` objects of the :py:class`Robot`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinematic_chain</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">KinematicGroup</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_actuator_group_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_virtual_group_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kinematic_chain</span><span class="p">)):</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">kinematic_chain</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">Transformation</span><span class="p">):</span>
+                <span class="c1"># create group from trafo, lifting the parent and child relations to group level</span>
+                <span class="n">group_children</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">children</span>
+                <span class="n">group_parent</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">parent</span>
+
+                <span class="c1"># KinematicGroup expects endeffector of virtual children to have no children</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="c1"># KinematicGroup expects root of virtual children to have itself as a parent</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+
+                <span class="n">group</span> <span class="o">=</span> <span class="n">OpenKinematicGroup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="n">virtual_chain</span><span class="o">=</span><span class="p">[</span><span class="n">group</span><span class="p">],</span>
+                                           <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">kinematic_chain</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])])</span>
+
+                <span class="c1"># carefull this circumvents the usual checks for correct group and parent names!</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="n">group_children</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">group_parent</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">group</span><span class="p">)]</span> <span class="o">=</span> <span class="n">group</span>
+            <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">get_virtual_state</span><span class="p">()</span> <span class="o">!=</span> <span class="p">{}:</span>
+                <span class="n">group_actuators</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get_actuated_state</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">group_actuators</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_actuator_group_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                            <span class="s2">&quot;More than one robot actuator has the same name! Please give each actuator a unique name&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_actuator_group_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">get_virtual_state</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_virtual_group_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                            <span class="s2">&quot;More than one robot transformation of a (virtual) chain has the same name! Please give each transformation a unique name&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_virtual_group_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Robot.get_groups"><a class="viewcode-back" href="../../code_docu.html#trip_kinematics.Robot.Robot.get_groups">[docs]</a>    <span class="k">def</span> <span class="nf">get_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a dictionary of the py:class`KinematicGroup` managed by the :py:class`Robot`_</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, KinematicGroup]: The dictionary of py:class`KinematicGroup` objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">pass_group_arg_v_to_a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv_dict</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">argv_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No group with name &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;in this robot&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">pass_arg_v_to_a</span><span class="p">(</span><span class="n">argv_dict</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">pass_group_arg_a_to_v</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv_dict</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">argv_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No group with name &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;in this robot&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">pass_arg_a_to_v</span><span class="p">(</span><span class="n">argv_dict</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Robot.set_virtual_state"><a class="viewcode-back" href="../../code_docu.html#trip_kinematics.Robot.Robot.set_virtual_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_virtual_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the virtual state of multiple virtual joints of the robot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state (Dict[str,Dict[str, float]]): A dictionary containing the members of</span>
+<span class="sd">                                                 :py:attr:`__virtual_state` that should be set.</span>
+<span class="sd">                                                The new values need to be valid state</span>
+<span class="sd">                                                for the state of the joint.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">virtual_state</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">]}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_virtual_group_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                             <span class="p">]</span><span class="o">.</span><span class="n">set_virtual_state</span><span class="p">(</span><span class="n">virtual_state</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Robot.set_actuated_state"><a class="viewcode-back" href="../../code_docu.html#trip_kinematics.Robot.Robot.set_actuated_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_actuated_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the virtual state of multiple actuated joints of the robot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state (Dict[str, float]):  A dictionary containing the members of</span>
+<span class="sd">                                        :py:attr:`__actuated_state` that should be set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">grouping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_actuator_group_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">grouping</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_actuator_group_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">grouping</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_actuator_group_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">grouping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">set_actuated_state</span><span class="p">(</span><span class="n">grouping</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Robot.get_actuated_state"><a class="viewcode-back" href="../../code_docu.html#trip_kinematics.Robot.Robot.get_actuated_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_actuated_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the actuated state of the :py:class`Robot` comprised</span>
+<span class="sd">           of the actuated states of the individual :py:class`KinematicGroup`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, float]: combined actuated state of all :py:class`KinematicGroup` objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">actuated_state</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">actuated_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get_actuated_state</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">actuated_group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">actuated_key</span> <span class="ow">in</span> <span class="n">actuated_group</span><span class="p">:</span>
+                    <span class="n">actuated_state</span><span class="p">[</span><span class="n">actuated_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">actuated_group</span><span class="p">[</span><span class="n">actuated_key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">actuated_state</span></div>
+
+<div class="viewcode-block" id="Robot.get_virtual_state"><a class="viewcode-back" href="../../code_docu.html#trip_kinematics.Robot.Robot.get_virtual_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_virtual_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the virtual state of the :py:class`Robot` comprised</span>
+<span class="sd">           of the virtual states of the individual :py:class`KinematicGroup`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str,Dict[str, float]]: combined virtual state of all</span>
+<span class="sd">                                         :py:class`KinematicGroup` objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">virtual_state</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">group_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">group_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_dict</span><span class="p">[</span><span class="n">group_key</span><span class="p">]</span><span class="o">.</span><span class="n">get_virtual_state</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">group_state</span> <span class="o">!=</span> <span class="p">{}:</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">group_state</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">virtual_state</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">group_state</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">virtual_state</span></div>
+
+<div class="viewcode-block" id="Robot.get_symbolic_rep"><a class="viewcode-back" href="../../code_docu.html#trip_kinematics.Robot.Robot.get_symbolic_rep">[docs]</a>    <span class="k">def</span> <span class="nf">get_symbolic_rep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endeffector</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;his Function returnes a symbolic representation of the virtual chain.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            endeffector (str): The name of the group whose virtual chain</span>
+<span class="sd">                               models the desired endeffector</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: If the endeffector argument is not the name of a transformation or group</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SX: A 4x4 symbolic casadi matrix containing the transformation from base to endeffector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">identity_transformation</span><span class="p">()</span>
+
+        <span class="n">symbolic_state</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">symbolic_keys</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">group_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_groups</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">endeffector</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s2">&quot;The endeffector must be a valid group or transformation name. Valid names for this robot are: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">group_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="n">endeff_group</span> <span class="o">=</span> <span class="n">group_dict</span><span class="p">[</span><span class="n">endeffector</span><span class="p">]</span>
+        <span class="n">current_parent</span> <span class="o">=</span> <span class="n">endeff_group</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">current_key</span> <span class="o">=</span> <span class="n">endeffector</span>
+        <span class="n">group_key_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">endeffector</span><span class="p">]</span>
+
+        <span class="k">while</span> <span class="n">current_parent</span> <span class="o">!=</span> <span class="n">current_key</span><span class="p">:</span>
+            <span class="n">next_group</span> <span class="o">=</span> <span class="n">group_dict</span><span class="p">[</span><span class="n">current_parent</span><span class="p">]</span>
+            <span class="n">current_key</span> <span class="o">=</span> <span class="n">current_parent</span>
+            <span class="n">current_parent</span> <span class="o">=</span> <span class="n">next_group</span><span class="o">.</span><span class="n">parent</span>
+            <span class="n">group_key_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_key</span><span class="p">)</span>
+
+        <span class="n">group_key_list</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">group_key</span> <span class="ow">in</span> <span class="n">group_key_list</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">group_dict</span><span class="p">[</span><span class="n">group_key</span><span class="p">]</span>
+            <span class="n">virtual_trafo</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get_virtual_chain</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">virtual_key</span> <span class="ow">in</span> <span class="n">virtual_trafo</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">virtual_transformation</span> <span class="o">=</span> <span class="n">virtual_trafo</span><span class="p">[</span><span class="n">virtual_key</span><span class="p">]</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">virtual_transformation</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">state</span> <span class="o">!=</span> <span class="p">{}:</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">SX</span><span class="o">.</span><span class="n">sym</span><span class="p">(</span><span class="n">virtual_key</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">key</span><span class="p">)</span>
+                        <span class="n">symbolic_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                        <span class="n">symbolic_keys</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">virtual_key</span><span class="p">,</span> <span class="n">key</span><span class="p">])</span>
+
+                <span class="n">hmt</span> <span class="o">=</span> <span class="n">virtual_transformation</span><span class="o">.</span><span class="n">get_transformation_matrix</span><span class="p">()</span>
+                <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span> <span class="o">@</span> <span class="n">hmt</span>
+
+        <span class="n">hom_matrix</span> <span class="o">=</span> <span class="n">SX</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">hom_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">hom_matrix</span><span class="p">,</span> <span class="n">symbolic_state</span><span class="p">,</span> <span class="n">symbolic_keys</span></div>
+
+    <span class="k">def</span> <span class="nf">get_endeffectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_groups</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="forward_kinematics"><a class="viewcode-back" href="../../code_docu.html#trip_kinematics.Robot.forward_kinematics">[docs]</a><span class="k">def</span> <span class="nf">forward_kinematics</span><span class="p">(</span><span class="n">robot</span><span class="p">:</span> <span class="n">Robot</span><span class="p">,</span> <span class="n">endeffector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates a robots transformation from base to endeffector using its current state</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        robot (Robot): The robot for which the forward kinematics should be computed</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.array : The Transformation from base to endeffector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transformation</span> <span class="o">=</span> <span class="n">identity_transformation</span><span class="p">()</span>
+    <span class="n">group_dict</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">get_groups</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">endeffector</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="s2">&quot;The endeffector must be a valid group name. Valid group names for this robot are: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">group_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="n">endeff_group</span> <span class="o">=</span> <span class="n">group_dict</span><span class="p">[</span><span class="n">endeffector</span><span class="p">]</span>
+    <span class="n">current_parent</span> <span class="o">=</span> <span class="n">endeff_group</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">current_key</span> <span class="o">=</span> <span class="n">endeffector</span>
+    <span class="n">group_key_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">endeffector</span><span class="p">]</span>
+    <span class="k">while</span> <span class="n">current_parent</span> <span class="o">!=</span> <span class="n">current_key</span><span class="p">:</span>
+        <span class="n">next_group</span> <span class="o">=</span> <span class="n">group_dict</span><span class="p">[</span><span class="n">current_parent</span><span class="p">]</span>
+        <span class="n">current_key</span> <span class="o">=</span> <span class="n">current_parent</span>
+        <span class="n">current_parent</span> <span class="o">=</span> <span class="n">next_group</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">group_key_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_key</span><span class="p">)</span>
+
+    <span class="n">group_key_list</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">group_key</span> <span class="ow">in</span> <span class="n">group_key_list</span><span class="p">:</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">group_dict</span><span class="p">[</span><span class="n">group_key</span><span class="p">]</span>
+        <span class="n">hmt</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get_transformation_matrix</span><span class="p">()</span>
+        <span class="n">transformation</span> <span class="o">=</span> <span class="n">transformation</span> <span class="o">@</span> <span class="n">hmt</span>
+    <span class="k">return</span> <span class="n">transformation</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
