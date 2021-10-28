@@ -27,13 +27,11 @@ This includes open chains, closed chains, and even combinations of both.
 
 
 Installing from Source:
-`
+```
 git clone https://github.com/TriPed-Robot/TriP
-
 cd TriP
-
 pip install src/
-`
+```
 
 ## Documentation
 The documentation can be found [here](https://trip-kinematics.readthedocs.io/en/main/)
