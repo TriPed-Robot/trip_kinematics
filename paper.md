@@ -54,13 +54,23 @@ A Robot object is made up of Transformation and KinematicGroup objects. The Kine
 
 Transformations can be specified using different conventions, currently roll, pitch, and yaw angles, as well as quaternions, are supported. #TODO cite both
 Transformations can be either dynamic or static with dynamic transformations implementing joints.
+A few examples can be seen in figure \ref{sample_trafo}.
+
+![Sample Joints using the Transformation class \label{sample_trafo}](sample_transformations.png)
 
 # TODO add joint examples figure with a short explanation
 
 Groups use the decomposition approach described in #TODO cite appropriate paper
-Here the parallel kinematic is treated as a serial manipulator whose joint state can be mapped to the true joint state of the parallel manipulator.
+Here the parallel kinematic is treated as serial manipulator whose joint state can be mapped to the true joint state of the parallel manipulator.
 
- # TODO describe excavator example and how it is divided into groups -> show group graphics with two groups marked
+For an example of a excavator with two hydraulic cylinders this results in two groups. Both can be seen in figure #TODO properly cite image
+where one is green and the other one is blue.
+The figure also demonstrates the mappings, the virtual chain treats the excavator as if his hinges are directly actuated.
+The groups also contain a mapping that map the hinge state onto the state of the hydraulic cylinder.
+In this case such a mapping can be trigonometric, however using casadi #TODO cite casadi
+it is also possible to solve the closure equation of the parallel manipulator.
+
+Both groups and transfromations can be connected to form transformation trees, this is done by specifying the parent child relationship on initialization.
 
 To solve the inverse kinematics for a given end-effector, TriP can generate a symbolic representation using casadi #TODO cite casadi
 This symbolic representation can be used to set up a solver object that then solves the inverse kinematics.
@@ -68,3 +78,4 @@ While the library already implements a simple inverse kinematics solver the symb
 
 All features of TriP are thoroughly documented with tutorials and examples to help people get started.
 
+# References
