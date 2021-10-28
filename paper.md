@@ -7,7 +7,7 @@ tags:
   - kinematics
   - parallel manipulator
   - serial manipulator
-  authors:
+authors:
   - name: Jan Baumgärtner^[co-first author]
     orcid: 0000-0002-7825-3476
     affiliation: 1
@@ -31,13 +31,13 @@ The price to be paid for these improvements is modeling complexity.
 Finding an explicit solution for the inverse or forward kinematics is often not possible and has to be solved as a constrained optimization problem.
 Most of the established robotics modeling software’s are out of the box not possible to perform these calculations. #TODO citation needed (thesis on modular and analytic methods for solving kinematics and dynamics of series parallel hybrid robots (kumar) )
 
-TriP is a python package designed to close this gap using a modular modeling framework akin to the one proposed by #TODO cite appropriate paper.
+TriP is a python package designed to close this gap using a modular modeling framework akin to the one proposed by \cite{model_protoype}.
 It allows the modeling of arbitrary kinematic topologies and is capable of calculating their forward and inverse kinematics.
 It does so using a symbolic framework that makes it easy to implement custom case-dependent mathematical solvers.
 
 # Statement of need
 
-While a huge number of researchers use hybrid robots #TODO cite researchers (and robots?)
+While a huge number of researchers use hybrid seriell parallel systems such as \cite{PISLA}, \cite{verne} or \cite{berkley}
 most robotics frameworks only support kinematic calculations for open chains. #TODO cite such frameworks and say "frameworks such as..."
 This requires developers to either shoehorn their robots into such a framework # TODO cite example
 or are left to implement their kinematic calculations from scratch.
