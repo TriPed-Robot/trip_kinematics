@@ -33,11 +33,11 @@ Finding an explicit solution for the inverse or forward kinematics is often impo
 Instead, numerical approaches have to be used which solve constrained optimization problems.
 It has been shown by @kumar that most robotics frameworks are not equipped to solve these problems for parallel robots let alone hybrid robots.
 
-TriP is a python package designed to close this gap using a modular modeling framework akin to the one proposed by @model_protoype.
+TriP is a python package designed to close this gap using a modular modeling framework akin to the one described by @survey .
 It allows the modeling of arbitrary kinematic topologies and is capable of calculating their forward and inverse kinematics.
 It does so using a symbolic framework that makes it easy to implement custom case-dependent mathematical solvers.
 
-# Statement of need
+# Statement of Need
 
 While a huge number of researchers use hybrid serial parallel systems such as @PISLA, @verne or @berkley
 most robotics frameworks such as openrave @openrave  or the matlab robotics toolbox @matlabrobot only support kinematic calculations for open chains.
@@ -46,23 +46,24 @@ This leaves developers to either shoehorn their hybrid robots into a framework n
 
 Especially during rapid prototyping, both can be tedious and time-consuming.  
 TriP is a lightweight and easy-to-use package designed to simplify this process by directly modeling hybrid systems and calculating their kinematics.
+It is thus primarily aimed at reasearchers and engineers who quickly want to build kinematic models in order to test their mechanical designs.
 
 # Overview
 
-TriP models robots using the Robot class.
-A Robot object is made up of Transformation and KinematicGroup objects. The KinematicGroup objects are used to model parallel-kinematics while the Transformation objects model serial kinematic. See Figure \ref{hybrid_chain_taxonomy_groups} for reference.
+TriP models robots using its Robot class.
+A Robot object is made up of Transformation and KinematicGroup objects. The KinematicGroup objects are used to model parallel-kinematics while the Transformation objects model serial kinematic. See Figure \ref{hybrid_chain_taxonomy_groups} for reference where the links of each robot is colored according to its group or transformation.
 
 ![Different Hybrid Robot types and their object structure \label{hybrid_chain_taxonomy_groups}](hybrid_chain_taxonomy_groups.png)
 
-Transformations can be specified using different conventions, currently, roll, pitch, and yaw angles, as well as quaternions, are supported. #TODO cite both
+Transformations can be specified using different conventions, currently, roll, pitch, and yaw angles, as well as quaternions, are supported.
 Transformations can be either dynamic or static with dynamic transformations implementing joints.
 A few examples can be seen in Figure \ref{sample_trafo}.
 
 ![Sample Joints using the Transformation class \label{sample_trafo}](sample_transformations.png)
 
 
-Groups use the decomposition approach described in #TODO cite appropriate paper
-Here the parallel kinematic is treated as a serial manipulator whose joint state can be mapped to the true joint state of the parallel manipulator.
+Groups implement the abstraction approach described by  @survey .
+Here the parallel kinematic is abstracted as a serial manipulator whose joint state can be mapped to the true joint state of the parallel manipulator.
 
 For an excavator with two hydraulic cylinders, this results in two groups. Both can be seen in Figure \ref{group_structure}
 where one is green and the other one is blue.
