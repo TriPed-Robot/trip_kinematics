@@ -37,7 +37,7 @@ The :class:`.Transormation` class currently supports the following conventions:
 
 * translation with Euler angle rotation
 * translation with quaternion rotation
-* Denavit Hartenberg 
+.. * Denavit Hartenberg 
 
 
 
@@ -114,39 +114,39 @@ The corresponding matrix is:
     The matrix only describes a rotation if all quaternions are normalized, meaning :math:`qw^2+qx^2+qy^2+qz^2=1`.
     Since the current inverse kinematics solver does not support constraints this means that quaternions are not supported when calculating inverse kinematics.
 
+..
+    Denavit Hartenberg
+    ------------------
+    The Denavit Hartenberg is a popular although limited description format.
+    It requires only 4 parameters to describe a transformation.
+    This makes the transformation numerically efficient for inverse kinematic solvers.
 
-Denavit Hartenberg
-------------------
-The Denavit Hartenberg is a popular although limited description format.
-It requires only 4 parameters to describe a transformation.
-This makes the transformation numerically efficient for inverse kinematic solvers.
+    ========== ===============================================
+    parameter  interpretation
+    ========== ===============================================
+    theta      rotates the coordinate system around the z-axis
+    d          moves the coordinate system along the z-axis
+    a          moves the coordinate system along the x-axis
+    alpha      rotates the coordinate system around the x-axis
+    ========== ===============================================
 
-========== ===============================================
-parameter  interpretation
-========== ===============================================
-theta      rotates the coordinate system around the z-axis
-d          moves the coordinate system along the z-axis
-a          moves the coordinate system along the x-axis
-alpha      rotates the coordinate system around the x-axis
-========== ===============================================
+    .. important::
+        While these parameters perform the same functions as in the first convention the transformations are applied in a different order.
+        Namely, the system first rotates around the z-axis, then it moves along it, then it moves along the x-axis, and then it rotates around it.
 
-.. important::
-    While these parameters perform the same functions as in the first convention the transformations are applied in a different order.
-    Namely, the system first rotates around the z-axis, then it moves along it, then it moves along the x-axis, and then it rotates around it.
-
-    The Denavit Hartenberg formulation only works for robots with only one branch from start to finish.
-    This includes most robotic arms but excludes for example humanoid robots as each limb is a separate branch. For more information see the next subsection.
+        The Denavit Hartenberg formulation only works for robots with only one branch from start to finish.
+        This includes most robotic arms but excludes for example humanoid robots as each limb is a separate branch. For more information see the next subsection.
 
 
-The Denavit Hartenberg transformation is captured by the following matrix:
+    The Denavit Hartenberg transformation is captured by the following matrix:
 
-.. math::
-    \left(\begin{array}{cccc}
-    {\cos \theta} & {-\sin \theta \cos \alpha} & {\sin \theta \sin \alpha} & {a \cos \theta} \\
-    {\sin \theta} & {\cos \theta \cos \alpha} & {-\cos \theta \sin \alpha} & {a \sin \theta} \\
-    {0} & {\sin \alpha} & {\cos \alpha} & {d} \\
-    {0} & {0} & {0} & {1}
-    \end{array}\right)
+    .. math::
+        \left(\begin{array}{cccc}
+        {\cos \theta} & {-\sin \theta \cos \alpha} & {\sin \theta \sin \alpha} & {a \cos \theta} \\
+        {\sin \theta} & {\cos \theta \cos \alpha} & {-\cos \theta \sin \alpha} & {a \sin \theta} \\
+        {0} & {\sin \alpha} & {\cos \alpha} & {d} \\
+        {0} & {0} & {0} & {1}
+        \end{array}\right)
 
 
 Transformation trees
