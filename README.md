@@ -33,7 +33,6 @@ git clone https://github.com/TriPed-Robot/TriP
 cd TriP
 
 pip install src/
-
 `
 
 ## Documentation
