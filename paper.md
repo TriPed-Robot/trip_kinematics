@@ -50,7 +50,9 @@ TriP is designed to simplify this process by directly modeling hybrid systems an
 # Overview
 
 TriP models robots using the Robot class.
-A Robot object is made up of Transformation and KinematicGroup objects. The KinematicGroup objects are used to model parallel-kinematics while the Transformation objects model serial kinematic.
+A Robot object is made up of Transformation and KinematicGroup objects. The KinematicGroup objects are used to model parallel-kinematics while the Transformation objects model serial kinematic. See figure \ref{hybrid_chain_taxonomy_groups} for reference.
+
+![Different Hybrid Robot types and their object structure \label{hybrid_chain_taxonomy_groups}](hybrid_chain_taxonomy_groups.png)
 
 Transformations can be specified using different conventions, currently roll, pitch, and yaw angles, as well as quaternions, are supported. #TODO cite both
 Transformations can be either dynamic or static with dynamic transformations implementing joints.
@@ -58,13 +60,15 @@ A few examples can be seen in figure \ref{sample_trafo}.
 
 ![Sample Joints using the Transformation class \label{sample_trafo}](sample_transformations.png)
 
-# TODO add joint examples figure with a short explanation
 
 Groups use the decomposition approach described in #TODO cite appropriate paper
 Here the parallel kinematic is treated as serial manipulator whose joint state can be mapped to the true joint state of the parallel manipulator.
 
-For an example of a excavator with two hydraulic cylinders this results in two groups. Both can be seen in figure #TODO properly cite image
+For an example of a excavator with two hydraulic cylinders this results in two groups. Both can be seen in figure \ref{group_structure}
 where one is green and the other one is blue.
+
+![Excavator Arm build from two Groups (green and blue) \label{group_structure}](group_structure.png)
+
 The figure also demonstrates the mappings, the virtual chain treats the excavator as if his hinges are directly actuated.
 The groups also contain a mapping that map the hinge state onto the state of the hydraulic cylinder.
 In this case such a mapping can be trigonometric, however using casadi #TODO cite casadi
