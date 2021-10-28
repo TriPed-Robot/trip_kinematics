@@ -7,7 +7,6 @@ tags:
   - kinematics
   - parallel manipulator
   - serial manipulator
-
   authors:
   - name: Jan Baumgärtner^[co-first author]
     orcid: 0000-0002-7825-3476
@@ -28,7 +27,7 @@ bibliography: paper.bib
 
 The domain of robotics has long been dominated by either serial manipulator arms or parallel robots.
 However, with the advent of 3D printing more and more combinations of both can be seen.
-These hybrid chains have excellent stiffness, payload to weight ratio, and a decent workspace. #TODO citation needed
+These hybrid chains have excellent stiffness, payload to weight ratio, and a decent workspace \cite{survey}.
 The price to be paid for these improvements is modeling complexity.
 Finding an explicit solution for the inverse or forward kinematics is often not possible and has to be solved as a constrained optimization problem.
 Most of the established robotics modeling software’s are out of the box not possible to perform these calculations. #TODO citation needed
