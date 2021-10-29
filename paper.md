@@ -47,17 +47,16 @@ This makes it easy for users to implement custom case-dependent mathematical sol
 
 # Statement of Need
 While a huge number of researchers use hybrid serial parallel systems such as @PISLA, @verne or @berkley , most modern kinematics frameworks still lack support.
-
-Instead robotics frameworks only support serial or branching manipulators.
-Examples include openrave (@openrave ) used in in the moveit stack (@moveit )  or the matlab robotics toolbox (@matlabrobot ).
-​This often leaves developers with essentially two choices:
+Examples include openrave (@openrave ) used in in the moveit stack (@moveit )  or the matlab robotics toolbox (@matlabrobot ) which only support serial mechnisms.
+​This lack of support often leaves developers with essentially two choices:
 
 Either shoehorn their hybrid robots into a framework not designed to handle them or be left to implement their own kinematic solvers.
 In both cases common practices can be observed which are reimplemented each time.
 These are reported by @survey .
 
 ​TriP is a lightweight and easy-to-use package directly modeling hybrid mechanisms and calculating their kinematics.
-​It is primarily aimed at researchers and engineers who quickly want to build kinematic models in order to test their mechanical designs.
+Allthough TriP is fast for a python package it is not build for robust hard-realtime control applications.
+Instead it is aimed at researchers and engineers who quickly want to build kinematic models in order to test their mechanical designs.
 
 # Overview
 
