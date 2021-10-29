@@ -24,7 +24,7 @@ bibliography: paper.bib
 
 # Summary
 
-​Robotics literature and practice have long been dominated by two types of robots.
+​Robotics literature and practice have long been dominated by two types of mechanisms.
 When a large workspace is required serial or branching manipulators are used.
 If structural strength and high stiffness are instead required parallel robots are used.
 
@@ -38,7 +38,7 @@ According to @survey both requirements can be satisfied using hybrids between se
 Using numerical approaches instead leads to complicated constrained optimization problems. ​
 
 It has been shown by ​@​kumar​ that most robotics frameworks are not equipped to solve these problems for parallel robots let alone hybrid robots.
-​TriP is a python package designed to close this gap using a modular modeling framework akin to the one described by ​@​survey​ .
+​TriP is a python package designed to close this gap using a modular modeling framework akin to the one described by ​@survey​ .
 ​It allows the modeling of arbitrary kinematic topologies and is capable of calculating forward and inverse kinematics.
 
 The calculations are performed using a symbolic framework.
@@ -46,9 +46,9 @@ This makes it easy for users to implement custom case-dependent mathematical sol
 
 # Statement of Need
 
-​While a huge number of researchers use hybrid serial-parallel systems such as ​@​PISLA​, ​@​verne​ or ​@​berkley
-​most robotics frameworks such as openrave ​@​openrave​  or the Matlab robotics toolbox ​@​matlabrobot​ only support kinematic calculations for serial or branching manipulators.
-​Frameworks that do support inverse kinematics calculations for parallel or hybrid mechanisms, like copeliasim ​@​coppeliaSim​ , are often commercial products.
+​While a huge number of researchers use hybrid serial-parallel systems such as ​@​PISLA​, ​@verne​ or ​@​berkley
+​most robotics frameworks such as openrave ​@openrave​  or the Matlab robotics toolbox ​@​matlabrobot​ only support kinematic calculations for serial or branching manipulators.
+​Frameworks that do support inverse kinematics calculations for parallel or hybrid mechanisms, like copeliasim ​@coppeliaSim​ , are often commercial products.
 ​This leaves developers to either shoehorn their hybrid robots into a framework not designed to handle them or be left to implement their own kinematic solvers.
 ​Especially during rapid prototyping, both can be tedious and time-consuming.
 ​TriP is a lightweight and easy-to-use package designed to simplify this process by directly modeling hybrid mechanisms and calculating their kinematics.
@@ -66,7 +66,7 @@ As seen in Figure \ref{hybrid_chain_taxonomy_groups} both groups and transformat
 ​![​Sample Joints using the Transformation class \label{sample_trafo}​](sample_transformations.png)
 While all example joints use Euler angles in roll pitch yaw convention for rotation, quaternions are also supported.
 
-​Groups model parallel mechanisms using the abstraction approach described by  ​@​survey​ .
+​Groups model parallel mechanisms using the abstraction approach described by  ​@survey​ .
 ​It models a parallel manipulator as a virtual serial manipulator whose virtual joint state can be mapped to the true actuated joint state of the parallel manipulator.
 An illustrative example of this model is an excavator with two hydraulic cylinders.
 Each cylinder is part of a parallel mechanism resulting in two groups. Both can be seen in Figure ​\r​ef{group_structure}
