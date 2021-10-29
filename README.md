@@ -25,6 +25,10 @@ This includes open chains, closed chains, and even combinations of both.
 
 ## Installation
 
+You can install the library using pip by calling
+```
+pip install trip_kinematics
+```
 
 
 Installing from Source:
