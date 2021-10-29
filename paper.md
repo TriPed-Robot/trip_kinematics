@@ -46,10 +46,12 @@ The calculations are performed using a symbolic framework.
 This makes it easy for users to implement custom case-dependent mathematical solvers.
 
 # Statement of Need
-While a huge number of researchers use hybrid serial parallel systems such as @PISLA, @verne or @berkley most modern kinematics frameworks still lack support.
+While a huge number of researchers use hybrid serial parallel systems such as @PISLA, @verne or @berkley , most modern kinematics frameworks still lack support.
+
 Instead robotics frameworks only support serial or branching manipulators.
 Examples include openrave (@openrave ) used in in the moveit stack (@moveit )  or the matlab robotics toolbox (@matlabrobot ).
 ​This often leaves developers with essentially two choices:
+
 Either shoehorn their hybrid robots into a framework not designed to handle them or be left to implement their own kinematic solvers.
 In both cases common practices can be observed which are reimplemented each time.
 These are reported by @survey .
@@ -75,6 +77,7 @@ While all example joints use Euler angles in roll pitch yaw convention for rotat
 
 ​Groups model parallel mechanisms using the abstraction approach described by  ​@survey​ .
 ​It models a parallel manipulator as a virtual serial manipulator whose virtual joint state can be mapped to the true actuated joint state of the parallel manipulator.
+
 An illustrative example of this model is an excavator with two hydraulic cylinders.
 Each cylinder is part of a parallel mechanism resulting in two groups. Both can be seen in Figure \ref{group_structure}
 ​where one is green and the other one is blue.
