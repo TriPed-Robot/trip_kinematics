@@ -59,12 +59,16 @@ This makes it easy for users to implement custom case-dependent mathematical sol
 
 ​TriP models robots using its Robot class.
 ​A Robot object is made up of Transformation and KinematicGroup objects. The KinematicGroup objects are used to model parallel-kinematics while the Transformation objects model serial kinematic. See Figure ​\r​ef{hybrid_chain_taxonomy_groups} for reference. Here the links of each robot are colored according to the group or transformation it belongs to.
-​![​Different Hybrid Robot types and their object structure \label{hybrid_chain_taxonomy_groups}​](hybrid_chain_taxonomy_groups.png)
+
+![Different Hybrid Robot types and their object structure \label{hybrid_chain_taxonomy_groups}](hybrid_chain_taxonomy_groups.png)
+
 As seen in Figure \ref{hybrid_chain_taxonomy_groups} both groups and transformations can be connected to form branching mechanisms.
 
 ​Transformations can be either dynamic or static with dynamic transformations implementing joints.
 ​A few example joints can be seen in Figure ​\r​ef{sample_trafo} .
+
 ​![​Sample Joints using the Transformation class \label{sample_trafo}​](sample_transformations.png)
+
 While all example joints use Euler angles in roll pitch yaw convention for rotation, quaternions are also supported.
 
 ​Groups model parallel mechanisms using the abstraction approach described by  ​@survey​ .
