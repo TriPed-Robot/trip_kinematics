@@ -24,23 +24,23 @@ bibliography: paper.bib
 
 # Summary
 
-​Robotics literature and frameworks have long been dominated by serial and parallel mechanisms.
-Serial mechanisms are often used when a large workspace is required, meaning the robot needs a long reach.
-Parallel mechanisms on the other hand are structurally stronger and stiffer.
+​Robots can be classified according to their mechanical structure.
+Serial mechanisms like robotic arms are mechanisms where each moving part (called a link) is connected to only the one before and after it.
+They are often used when a large workspace is required, meaning the robot needs a long reach.
+In parallel mechanisms, the links of the robot form loops causing them to be structurally stronger and stiffer.
 
-However, sometimes both a large workspace and structural strength are required.
- @survey offer a great overview over example robots.
-In order to provide both strength and decent workspace, hybrids between serial and parallel mechanisms are used.
+If both a large workspace and structural strength are required, hybrids between serial and parallel mechanisms are used.
+These mechanisms contain both serial and parallel mechanisms.
+While hybrid mechanisms combine the mechanical advantages of both parallel and serial mechanisms they also combine their modeling disadvantages.
 
-
-​The price to be paid for these improvements is often modeling complexity.
-​Finding an explicit solution for the inverse or forward kinematics is often impossible.
-
+​Finding an explicit solution for either forward or inverse kinematics is often impossible.
 Using numerical approaches instead leads to complicated constrained optimization problems. ​
 
-It has been shown by @​kumar​ that most robotics frameworks are not equipped to solve these problems for parallel robots let alone hybrid robots.
+While serial mechanisms are very well supported by current robotic frameworks, parallel mechanisms and hybrid mechanisms especially are often not supported at all.
+A great overview of the supported robot types for different robotic frameworks was compiled by @kumar .
+
 ​TriP is a python package designed to close this gap using a modular modeling framework akin to the one described by ​@survey​ .
-​It allows the modeling of arbitrary kinematic topologies and is capable of calculating forward and inverse kinematics.
+​It allows the modeling of arbitrary hybrid mechanisms and is capable of calculating forward and inverse kinematics.
 
 The calculations are performed using a symbolic framework.
 This makes it easy for users to implement custom case-dependent mathematical solvers.
