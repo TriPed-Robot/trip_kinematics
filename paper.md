@@ -24,13 +24,14 @@ bibliography: paper.bib
 
 # Summary
 
-​Robotics literature and practice have long been dominated by two types of mechanisms.
-When a large workspace is required serial or branching manipulators are used.
-If structural strength and high stiffness are instead required parallel robots are used.
+​Robotics literature and frameworks have long been dominated by serial and parallel mechanisms.
+Serial mechanisms are often used when a large workspace is required, meaning the robot needs a long reach.
+Parallel mechanisms on the other hand are structurally stronger and stiffer.
 
 However, sometimes both a large workspace and structural strength are required.
-This can commonly be seen in 3d printed robots that rely on weaker actuators and don't employ gear trains.
-According to @survey both requirements can be satisfied using hybrids between serial and parallel mechanisms.
+ @survey offer a great overview over example robots.
+In order to provide both strength and decent workspace, hybrids between serial and parallel mechanisms are used.
+
 
 ​The price to be paid for these improvements is often modeling complexity.
 ​Finding an explicit solution for the inverse or forward kinematics is often impossible.
@@ -45,23 +46,25 @@ The calculations are performed using a symbolic framework.
 This makes it easy for users to implement custom case-dependent mathematical solvers.
 
 # Statement of Need
-While a huge number of researchers use hybrid serial parallel systems such as @PISLA, @verne or @berkley
-most robotics frameworks such as openrave @openrave  or the matlab robotics toolbox @matlabrobot only support kinematic calculations for serial or branching manipulators.
-​Frameworks that do support inverse kinematics calculations for parallel or hybrid mechanisms, like copeliasim ​@coppeliaSim​ , are often commercial products.
-​This leaves developers to either shoehorn their hybrid robots into a framework not designed to handle them or be left to implement their own kinematic solvers.
-​Especially during rapid prototyping, both can be tedious and time-consuming.
+While a huge number of researchers use hybrid serial parallel systems such as @PISLA, @verne or @berkley most modern kinematics frameworks still lack support.
+Instead robotics frameworks only support serial or branching manipulators.
+Examples include openrave (@openrave ) used in in the moveit stack (@moveit )  or the matlab robotics toolbox (@matlabrobot ).
+​This often leaves developers with essentially two choices:
+Either shoehorn their hybrid robots into a framework not designed to handle them or be left to implement their own kinematic solvers.
+In both cases common practices can be observed which are reimplemented each time.
+These are reported by @survey .
 
-​TriP is a lightweight and easy-to-use package designed to simplify this process by directly modeling hybrid mechanisms and calculating their kinematics.
-​It is thus primarily aimed at researchers and engineers who quickly want to build kinematic models in order to test their mechanical designs.
+​TriP is a lightweight and easy-to-use package directly modeling hybrid mechanisms and calculating their kinematics.
+​It is primarily aimed at researchers and engineers who quickly want to build kinematic models in order to test their mechanical designs.
 
 # Overview
 
 ​TriP models robots using its Robot class.
-​A Robot object is made up of Transformation and KinematicGroup objects. The KinematicGroup objects are used to model parallel-kinematics while the Transformation objects model serial kinematic. See Figure ​\ref{hybrid_chain_taxonomy_groups} for reference. Here the links of each robot are colored according to the group or transformation it belongs to.
+​A Robot object is made up of Transformation and KinematicGroup objects. The KinematicGroup objects are used to model parallel mechanisms while the Transformation objects model serial mechanisms. See Figure ​\ref{hybrid_chain_taxonomy_groups} for reference. Here the links of each robot are colored according to the group or transformation it belongs to.
 
 ![Different Hybrid Robot types and their object structure \label{hybrid_chain_taxonomy_groups}](hybrid_chain_taxonomy_groups.png)
 
-As seen in Figure \ref{hybrid_chain_taxonomy_groups} both groups and transformations can be connected to form branching mechanisms.
+Voth groups and transformations can be connected to form branching mechanisms as indicated in Figure \ref{hybrid_chain_taxonomy_groups} .
 
 ​Transformations can be either dynamic or static with dynamic transformations implementing joints.
 ​A few example joints can be seen in Figure ​​\ref{sample_trafo} .
