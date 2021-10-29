@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/TriPed-Robot/TriP/branch/main/graph/badge.svg?token=T6TMY8CD8M)](https://codecov.io/gh/TriPed-Robot/TriP)
 [![Documentation Status](https://readthedocs.org/projects/trip-kinematics/badge/?version=main)](https://trip-kinematics.readthedocs.io/en/main/?badge=main)
 ![example workflow](https://github.com/TriPed-Robot/TriP/actions/workflows/python-package.yml//badge.svg)
+[![DOI](https://zenodo.org/badge/350709377.svg)](https://zenodo.org/badge/latestdoi/350709377)
 # TriP
 TriP is a python library designed to calculate the forward- and inverse-kinematics of rigid mechanisms.
 
