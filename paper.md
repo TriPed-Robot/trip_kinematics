@@ -46,11 +46,12 @@ This makes it easy for users to implement custom case-dependent mathematical sol
 
 # Statement of Need
 
-​While a huge number of researchers use hybrid serial-parallel systems such as ​@​PISLA​, ​@verne​ or ​@​berkley
+​While a huge number of researchers use hybrid serial-parallel systems such as ​@PISLA​, ​@verne​ or ​@​berkley
 ​most robotics frameworks such as openrave ​@openrave​  or the Matlab robotics toolbox ​@​matlabrobot​ only support kinematic calculations for serial or branching manipulators.
 ​Frameworks that do support inverse kinematics calculations for parallel or hybrid mechanisms, like copeliasim ​@coppeliaSim​ , are often commercial products.
 ​This leaves developers to either shoehorn their hybrid robots into a framework not designed to handle them or be left to implement their own kinematic solvers.
 ​Especially during rapid prototyping, both can be tedious and time-consuming.
+
 ​TriP is a lightweight and easy-to-use package designed to simplify this process by directly modeling hybrid mechanisms and calculating their kinematics.
 ​It is thus primarily aimed at researchers and engineers who quickly want to build kinematic models in order to test their mechanical designs.
 
