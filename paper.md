@@ -45,9 +45,8 @@ The calculations are performed using a symbolic framework.
 This makes it easy for users to implement custom case-dependent mathematical solvers.
 
 # Statement of Need
-
-​While a huge number of researchers use hybrid serial-parallel systems such as ​@PISLA​, ​@verne​ or ​@​berkley
-​most robotics frameworks such as openrave ​@openrave​  or the Matlab robotics toolbox ​@​matlabrobot​ only support kinematic calculations for serial or branching manipulators.
+While a huge number of researchers use hybrid serial parallel systems such as @PISLA, @verne or @berkley
+most robotics frameworks such as openrave @openrave  or the matlab robotics toolbox @matlabrobot only support kinematic calculations for serial or branching manipulators.
 ​Frameworks that do support inverse kinematics calculations for parallel or hybrid mechanisms, like copeliasim ​@coppeliaSim​ , are often commercial products.
 ​This leaves developers to either shoehorn their hybrid robots into a framework not designed to handle them or be left to implement their own kinematic solvers.
 ​Especially during rapid prototyping, both can be tedious and time-consuming.
@@ -67,7 +66,7 @@ As seen in Figure \ref{hybrid_chain_taxonomy_groups} both groups and transformat
 ​Transformations can be either dynamic or static with dynamic transformations implementing joints.
 ​A few example joints can be seen in Figure ​\r​ef{sample_trafo} .
 
-​![​Sample Joints using the Transformation class \label{sample_trafo}​](sample_transformations.png)
+![Sample Joints using the Transformation class \label{sample_trafo}](sample_transformations.png)
 
 While all example joints use Euler angles in roll pitch yaw convention for rotation, quaternions are also supported.
 
@@ -76,13 +75,15 @@ While all example joints use Euler angles in roll pitch yaw convention for rotat
 An illustrative example of this model is an excavator with two hydraulic cylinders.
 Each cylinder is part of a parallel mechanism resulting in two groups. Both can be seen in Figure ​\r​ef{group_structure}
 ​where one is green and the other one is blue.
-​![​Excavator Arm build from two Groups (green and blue) \label{group_structure}​](group_structure.png)
+
+![Excavator Arm build from two Groups (green and blue) \label{group_structure}](group_structure.png)
+
 the abstraction approach models the excavator as an serial manipulator where the joints are directly actuated.
 Using two mappings to convert the state of the hydraulic cylinders to the state of the joints and vise versa it is possible to calculate both forward and inverse kinematics.
 ​In this example, the mapping between cylinders and joints can be expressed using trigonometry.
 Since an explicit formulation of the mappings might not always be possible TriP can also compute the mapping by solving the closure equation of the parallel manipulator.
 
-TriP can generate symbolic representations of robots using casadi ​@​casadi .
+TriP can generate symbolic representations of robots using casadi ​@casadi .
 ​This symbolic representation can be used to set up a solver object that then solves the inverse kinematics.
 ​While the library already implements a simple inverse kinematics solver the symbolic representation makes it easy to implement custom solvers.
 ​All features of TriP are thoroughly documented with tutorials and examples to help people get started.
