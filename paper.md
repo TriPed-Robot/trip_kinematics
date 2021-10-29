@@ -38,7 +38,7 @@ In order to provide both strength and decent workspace, hybrids between serial a
 
 Using numerical approaches instead leads to complicated constrained optimization problems. ​
 
-It has been shown by ​@​kumar​ that most robotics frameworks are not equipped to solve these problems for parallel robots let alone hybrid robots.
+It has been shown by @​kumar​ that most robotics frameworks are not equipped to solve these problems for parallel robots let alone hybrid robots.
 ​TriP is a python package designed to close this gap using a modular modeling framework akin to the one described by ​@survey​ .
 ​It allows the modeling of arbitrary kinematic topologies and is capable of calculating forward and inverse kinematics.
 
