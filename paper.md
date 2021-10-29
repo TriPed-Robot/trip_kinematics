@@ -22,7 +22,7 @@ date: 28 October 2021
 bibliography: paper.bib
 ---
 
-#​ ​Summary
+# Summary
 
 ​Robotics literature and practice have long been dominated by two types of robots.
 When a large workspace is required serial or branching manipulators are used.
@@ -44,7 +44,7 @@ It has been shown by ​@​kumar​ that most robotics frameworks are not equip
 The calculations are performed using a symbolic framework.
 This makes it easy for users to implement custom case-dependent mathematical solvers.
 
-​#​ ​Statement of Need
+# Statement of Need
 
 ​While a huge number of researchers use hybrid serial-parallel systems such as ​@​PISLA​, ​@​verne​ or ​@​berkley
 ​most robotics frameworks such as openrave ​@​openrave​  or the Matlab robotics toolbox ​@​matlabrobot​ only support kinematic calculations for serial or branching manipulators.
@@ -54,7 +54,7 @@ This makes it easy for users to implement custom case-dependent mathematical sol
 ​TriP is a lightweight and easy-to-use package designed to simplify this process by directly modeling hybrid mechanisms and calculating their kinematics.
 ​It is thus primarily aimed at researchers and engineers who quickly want to build kinematic models in order to test their mechanical designs.
 
-​#​ ​Overview
+# Overview
 
 ​TriP models robots using its Robot class.
 ​A Robot object is made up of Transformation and KinematicGroup objects. The KinematicGroup objects are used to model parallel-kinematics while the Transformation objects model serial kinematic. See Figure ​\r​ef{hybrid_chain_taxonomy_groups} for reference. Here the links of each robot are colored according to the group or transformation it belongs to.
@@ -62,7 +62,7 @@ This makes it easy for users to implement custom case-dependent mathematical sol
 As seen in Figure \ref{hybrid_chain_taxonomy_groups} both groups and transformations can be connected to form branching mechanisms.
 
 ​Transformations can be either dynamic or static with dynamic transformations implementing joints.
-​A few example joints can be seen in Figure ​\r​ef{sample_trafo}.
+​A few example joints can be seen in Figure ​\r​ef{sample_trafo} .
 ​![​Sample Joints using the Transformation class \label{sample_trafo}​](sample_transformations.png)
 While all example joints use Euler angles in roll pitch yaw convention for rotation, quaternions are also supported.
 
