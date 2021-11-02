@@ -279,14 +279,14 @@ These considerations lead to the following guidelines for building hybrid robots
 .. important::
     Every closed chain should be modeled by a Group. 
     Every open chain should be modeled by Transformations.  
-    For example:
+    Se the following robots as an example:
 
     .. image:: images/hybrid_chain_taxonomy_groups.png
         :alt: group_partitoning
 
 
 The excavator has two actuated states and two virtual states.
-These are the lengths of hydraulic cylinders :math:`a_1`,:math:`a_2` and the arm angles :math:`q_1`,:math:`q_2`.
+These are the lengths of hydraulic cylinders :math:`a_1`, :math:`a_2` and the arm angles :math:`q_1`, :math:`q_2`.
 Since each cylinder length :math:`a_i` controls one arm angle :math:`q_i`, the excavator can be divided into two groups.
 These are visualized by the green and blue parts respectively.
 
