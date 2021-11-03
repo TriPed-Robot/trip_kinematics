@@ -119,16 +119,20 @@ def gimbal_to_swing(state: Dict[str, Dict[str, float]], tips: Dict[str, float] =
         Dict[str, float]: the correspdonding actuated state
     """
     x_0 = [0, 0]
+    continuity = 0
     if tips:
         x_0[0] = tips['swing_left']
         x_0[1] = tips['swing_right']
+        continuity = (x_0-actuated_state).T @ (x_0-actuated_state)
 
-    nlp = {'x': actuated_state, 'f': closing_equation, 'p': virtual_state}
+    nlp = {'x': actuated_state, 'f': closing_equation+continuity, 'p': virtual_state,
+           'g': actuated_state[0]*actuated_state[1]}
     nlp_solver = nlpsol('gimbal_to_swing', 'ipopt', nlp, opts)
     solution = nlp_solver(x0=x_0,
                           p=[state['gimbal_joint']['rx'],
                              state['gimbal_joint']['ry'],
-                             state['gimbal_joint']['rz']])
+                             state['gimbal_joint']['rz']],
+                          ubg=0)
     sol_vector = np.array(solution['x'])
     return {'swing_left': sol_vector[0][0], 'swing_right': sol_vector[1][0]}
 

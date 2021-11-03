@@ -22,7 +22,8 @@ def test_triped(inverse_kinematic_solver):
         'tests', 'experiments', robot_type, 'reference_solution', 'joint_values.csv')
 
     inverse_calculated = os.path.join('tests', 'experiments', robot_type,
-                                      'inverse_kinematics', inverse_kinematic_solver.__name__, 'joint_values.csv')
+                                      'inverse_kinematics', inverse_kinematic_solver.__name__,
+                                      'joint_values.csv')
 
     inv_kin_solver = [inverse_kinematic_solver(triped, 'leg0_A_LL_Joint_FCS', update_robot=False),
                       inverse_kinematic_solver(
@@ -63,13 +64,11 @@ def test_triped(inverse_kinematic_solver):
             tip['swing_right'] = input_t2_tip[i][leg_number]
             tip['ry'] = input_e_tip[i][leg_number]
 
-            triped.set_actuated_state({'leg'+str(leg_number)+'_extend_joint_ry': tip['ry'],
-                                       'leg'+str(leg_number)+'_swing_left': tip['swing_left'],
-                                       'leg'+str(leg_number)+'_swing_right': tip['swing_right']})
-
-            leg_row = inv_kin_solver[leg_number].solve_actuated(target=[input_x[i][leg_number], input_y[i][leg_number], input_z[i][leg_number]],
-                                                                initial_tip=triped.get_virtual_state(),
-                                                                mapping_argument={'leg'+str(leg_number)+'_closed_chain': [tip]})
+            leg_row = inv_kin_solver[leg_number].solve_actuated(
+                target=[input_x[i][leg_number],
+                        input_y[i][leg_number],
+                        input_z[i][leg_number]],
+                mapping_argument={'leg'+str(leg_number)+'_closed_chain': [tip]})
 
             row.extend([leg_row['leg'+str(leg_number)+'_swing_left'],
                        leg_row['leg'+str(leg_number)+'_extend_joint_ry'],
