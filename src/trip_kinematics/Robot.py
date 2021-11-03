@@ -217,8 +217,10 @@ class Robot:
                         state[key] = SX.sym(virtual_key+'_'+key)
                         symbolic_state.append(state[key])
                         symbolic_keys.append([virtual_key, key])
+                symbolic_transformation = deepcopy(virtual_transformation)
+                symbolic_transformation.set_state(state)
 
-                hmt = virtual_transformation.get_transformation_matrix()
+                hmt = symbolic_transformation.get_transformation_matrix()
                 matrix = matrix @ hmt
 
         hom_matrix = SX.zeros(4, 4)
