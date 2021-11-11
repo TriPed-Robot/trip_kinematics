@@ -27,7 +27,7 @@ This includes open chains, closed chains, and even combinations of both.
 
 Installing the latest release (recommended):
 ```
-pip install trip_kinematics
+pip install trip-kinematics
 ```
 
 Installing the lnewest version from source:
