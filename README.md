@@ -25,8 +25,12 @@ This includes open chains, closed chains, and even combinations of both.
 
 ## Installation
 
+Installing the latest release (recommended):
+```
+pip install trip_kinematics
+```
 
-Installing from Source:
+Installing the lnewest version from source:
 ```
 git clone https://github.com/TriPed-Robot/TriP
 cd TriP
