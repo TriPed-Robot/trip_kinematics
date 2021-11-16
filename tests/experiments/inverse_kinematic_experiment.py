@@ -25,10 +25,10 @@ def test_triped(inverse_kinematic_solver):
                                       'inverse_kinematics', inverse_kinematic_solver.__name__,
                                       'joint_values.csv')
 
-    inv_kin_solver = [inverse_kinematic_solver(triped, 'leg0_A_LL_Joint_FCS', update_robot=False),
+    inv_kin_solver = [inverse_kinematic_solver(triped, 'leg_0_A_LL_Joint_FCS', update_robot=False),
                       inverse_kinematic_solver(
-                          triped, 'leg1_A_LL_Joint_FCS', update_robot=False),
-                      inverse_kinematic_solver(triped, 'leg2_A_LL_Joint_FCS', update_robot=False)]
+                          triped, 'leg_1_A_LL_Joint_FCS', update_robot=False),
+                      inverse_kinematic_solver(triped, 'leg_2_A_LL_Joint_FCS', update_robot=False)]
 
     input_x = []
     input_y = []
@@ -68,11 +68,11 @@ def test_triped(inverse_kinematic_solver):
                 target=[input_x[i][leg_number],
                         input_y[i][leg_number],
                         input_z[i][leg_number]],
-                mapping_argument={'leg'+str(leg_number)+'_closed_chain': [tip]})
+                mapping_argument={'leg_'+str(leg_number)+'_closed_chain': [tip]})
 
-            row.extend([leg_row['leg'+str(leg_number)+'_swing_left'],
-                       leg_row['leg'+str(leg_number)+'_extend_joint_ry'],
-                       leg_row['leg'+str(leg_number)+'_swing_right']])
+            row.extend([leg_row['leg_'+str(leg_number)+'_swing_left'],
+                       leg_row['leg_'+str(leg_number)+'_extend_joint_ry'],
+                       leg_row['leg_'+str(leg_number)+'_swing_right']])
         inverse_rows.append(row)
 
     stop_time = time.time()

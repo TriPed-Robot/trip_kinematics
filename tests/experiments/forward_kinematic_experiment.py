@@ -47,12 +47,12 @@ def test_triped_leg():
             state['swing_right'] = input_t2[i][leg_number]
             state['ry'] = input_e[i][leg_number]
 
-            triped.set_actuated_state({'leg'+str(leg_number)+'_extend_joint_ry': state['ry'],
-                                       'leg'+str(leg_number)+'_swing_left': state['swing_left'],
-                                       'leg'+str(leg_number)+'_swing_right': state['swing_right']})
+            triped.set_actuated_state({'leg_'+str(leg_number)+'_extend_joint_ry': state['ry'],
+                                       'leg_'+str(leg_number)+'_swing_left': state['swing_left'],
+                                       'leg_'+str(leg_number)+'_swing_right': state['swing_right']})
 
             leg_row = forward_kinematics(
-                triped, 'leg'+str(leg_number)+'_A_LL_Joint_FCS')
+                triped, 'leg_'+str(leg_number)+'_A_LL_Joint_FCS')
             row.extend(get_translation(leg_row))
         forward_rows.append(row)
 

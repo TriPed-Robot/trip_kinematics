@@ -42,7 +42,7 @@ def leg_model(leg_number: str):
 
         return swing
 
-    leg_name = 'leg'+str(leg_number)+'_'
+    leg_name = 'leg_'+str(leg_number)+'_'
 
     leg_rotation = Transformation(name=leg_name+'leg_rotation',
                                   values={'rz': -1*radians(120)*leg_number})
@@ -80,4 +80,4 @@ def leg_model(leg_number: str):
 
 
 triped = Robot(leg_model(0)+leg_model(1)+leg_model(2))
-triped.set_actuated_state({'leg0_swing_left': 0, 'leg0_swing_right': 0})
+triped.set_actuated_state({'leg_0_swing_left': 0, 'leg_0_swing_right': 0})
