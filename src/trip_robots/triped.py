@@ -21,6 +21,11 @@ def leg_model(leg_number: str):
         del swing[leg_name+'swing_left']
         del swing[leg_name+'swing_right']
 
+        if tips is not None:
+            tips = deepcopy(tips)
+            tips['gimbal_joint'] = tips[leg_name+'gimbal_joint']
+            del tips[leg_name+'gimbal_joint']
+
         gimbal = swing_to_gimbal(swing, tips)
 
         gimbal[leg_name+'gimbal_joint'] = gimbal['gimbal_joint']
@@ -32,6 +37,13 @@ def leg_model(leg_number: str):
         gimbal = deepcopy(gimbal)
         gimbal['gimbal_joint'] = gimbal[leg_name+'gimbal_joint']
         del gimbal[leg_name+'gimbal_joint']
+
+        if tips is not None:
+            tips = deepcopy(tips)
+            tips['swing_left'] = tips[leg_name+'swing_left']
+            tips['swing_right'] = tips[leg_name+'swing_right']
+            del tips[leg_name+'swing_left']
+            del tips[leg_name+'swing_right']
 
         swing = gimbal_to_swing(gimbal, tips)
 

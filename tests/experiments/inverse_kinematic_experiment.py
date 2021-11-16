@@ -60,9 +60,10 @@ def test_triped(inverse_kinematic_solver):
     for i in range(len(input_x)):
         row = []
         for leg_number in [0, 1, 2]:
-            tip['swing_left'] = input_t1_tip[i][leg_number]
-            tip['swing_right'] = input_t2_tip[i][leg_number]
-            tip['ry'] = input_e_tip[i][leg_number]
+            tip['leg_'+str(leg_number) +
+                '_swing_left'] = input_t1_tip[i][leg_number]
+            tip['leg_'+str(leg_number) +
+                '_swing_right'] = input_t2_tip[i][leg_number]
 
             leg_row = inv_kin_solver[leg_number].solve_actuated(
                 target=[input_x[i][leg_number],
