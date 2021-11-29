@@ -1,5 +1,5 @@
 ---
-title: 'TriP: A Python package for the kinematic modeling of seriell-parallel hybrid robots'
+title: 'TriP: A Python package for the kinematic modeling of serial-parallel hybrid robots'
 tags:
   - Python
   - robotics
