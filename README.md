@@ -1,6 +1,6 @@
 ![trip_logo](docs/source/trip_logo.svg)
 
-[![Code Grade](https://api.codiga.io/project/29339/score/svg](https://frontend.code-inspector.com/project/29339/dashboard) 
+[![Code Grade](https://api.codiga.io/project/29339/score/svg)](https://frontend.code-inspector.com/project/29339/dashboard) 
 [![codecov](https://codecov.io/gh/TriPed-Robot/TriP/branch/main/graph/badge.svg?token=T6TMY8CD8M)](https://codecov.io/gh/TriPed-Robot/TriP)
 [![Documentation Status](https://readthedocs.org/projects/trip-kinematics/badge/?version=main)](https://trip-kinematics.readthedocs.io/en/main/?badge=main)
 ![example workflow](https://github.com/TriPed-Robot/TriP/actions/workflows/python-package.yml//badge.svg)
