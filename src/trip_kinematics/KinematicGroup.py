@@ -167,10 +167,10 @@ class KinematicGroup():
 
             # Check if inital values fit actuated_to_virtual's
             # and virtual_to_actuated's calculated values.
-            for key in actuated_to_virtual_to_check.keys():
+            for key in actuated_to_virtual_to_check:
                 state = actuated_to_virtual_to_check[key]
                 init_values_do_not_match = False
-                for state_key in state.keys():
+                for state_key in state:
                     if state[state_key] != virtual_state[key][state_key]:
                         init_values_do_not_match = True
             if init_values_do_not_match:
@@ -201,8 +201,8 @@ class KinematicGroup():
             raise RuntimeError(
                 "This is a static group! There is no state to be set")
 
-        if all(key in self.virtual_state.keys()for key in state.keys()):
-            for key in state.keys():
+        if all(key in self.virtual_state for key in state):
+            for key in state:
                 self.virtual_state[key] = state[key]
             self._update_chain()
             self.actuated_state = self._virtual_to_actuated(self.virtual_state)
@@ -229,11 +229,11 @@ class KinematicGroup():
             raise RuntimeError(
                 "This is a static group! There is no state to be set.")
 
-        if all(key in self.actuated_state.keys()for key in state.keys()):
-            for key in state.keys():
+        if all(key in self.actuated_state for key in state):
+            for key in state:
                 self.actuated_state[key] = state[key]
             new_virtual_state = self._actuated_to_virtual(self.actuated_state)
-            for key in new_virtual_state.keys():
+            for key in new_virtual_state:
                 self.virtual_state[key] = new_virtual_state[key]
             self._update_chain()
         else:
@@ -304,7 +304,7 @@ class KinematicGroup():
         """Propagates changes from the :py:attr:`virtual_state`
            to the underlying :py:class:`Transformation` objects.
         """
-        for key in self.virtual_state.keys():
+        for key in self.virtual_state:
             self._virtual_chain[key].set_state(self.virtual_state[key])
 
     def add_children(self, child: str):
@@ -386,9 +386,9 @@ class OpenKinematicGroup(KinematicGroup):
 
             def trivial_virtual_to_actuated(states):
                 out = {}
-                for virtual_key in states.keys():
+                for virtual_key in states:
                     transformation = states[virtual_key]
-                    for key in transformation.keys():
+                    for key in transformation:
                         combined_key = (key, virtual_key)
                         new_key = g_map[combined_key]
                         out[new_key] = states[virtual_key][key]

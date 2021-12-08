@@ -71,7 +71,7 @@ class Transformation():
         got_quaternion = False
         got_euler = False
 
-        for key in state.keys():
+        for key in state:
             if array_find(valid_keys, key) == -1:
                 raise ValueError(
                     "Invalid key, acceptable keys are: "+str(valid_keys))
@@ -115,7 +115,7 @@ class Transformation():
 
         self.convention = Transformation.get_convention(values)
 
-        for key in values.keys():
+        for key in values:
             if array_find(state_variables, key) != -1:
                 state.setdefault(key, values.get(key))
             else:
@@ -147,8 +147,8 @@ class Transformation():
         Raises:
             KeyError: If a key in the argument is not valid state parameter name.
         """
-        for key in state.keys():
-            if not key in self._state.keys():
+        for key in state:
+            if not key in self._state:
                 raise KeyError(
                     "The specified keys is not part of the Transformations state." +
                     "Maybe the Transofmration uses a different convention?")
@@ -177,34 +177,34 @@ class Transformation():
 
         # collect transformation parameters from state and constants respectively
         t_x = self._constants.get(
-            'tx') if 'tx' in self._constants.keys() else self._state.get('tx', 0)
+            'tx') if 'tx' in self._constants else self._state.get('tx', 0)
         t_y = self._constants.get(
-            'ty') if 'ty' in self._constants.keys() else self._state.get('ty', 0)
+            'ty') if 'ty' in self._constants else self._state.get('ty', 0)
         t_z = self._constants.get(
-            'tz') if 'tz' in self._constants.keys() else self._state.get('tz', 0)
+            'tz') if 'tz' in self._constants else self._state.get('tz', 0)
 
         matrix = hom_translation_matrix(t_x, t_y, t_z)
 
         if self.convention == 'euler':
             r_x = self._constants.get(
-                'rx') if 'rx' in self._constants.keys() else self._state.get('rx', 0)
+                'rx') if 'rx' in self._constants else self._state.get('rx', 0)
             r_y = self._constants.get(
-                'ry') if 'ry' in self._constants.keys() else self._state.get('ry', 0)
+                'ry') if 'ry' in self._constants else self._state.get('ry', 0)
             r_z = self._constants.get(
-                'rz') if 'rz' in self._constants.keys() else self._state.get('rz', 0)
+                'rz') if 'rz' in self._constants else self._state.get('rz', 0)
 
             matrix[:3, :3] = x_axis_rotation_matrix(
                 r_x) @ y_axis_rotation_matrix(r_y) @ z_axis_rotation_matrix(r_z)
 
         elif self.convention == 'quaternion':
             q_w = self._constants.get(
-                'qw') if 'qw' in self._constants.keys() else self._state.get('qw', 0)
+                'qw') if 'qw' in self._constants else self._state.get('qw', 0)
             q_x = self._constants.get(
-                'qx') if 'qx' in self._constants.keys() else self._state.get('qx', 0)
+                'qx') if 'qx' in self._constants else self._state.get('qx', 0)
             q_y = self._constants.get(
-                'qy') if 'qy' in self._constants.keys() else self._state.get('qy', 0)
+                'qy') if 'qy' in self._constants else self._state.get('qy', 0)
             q_z = self._constants.get(
-                'qz') if 'qz' in self._constants.keys() else self._state.get('qz', 0)
+                'qz') if 'qz' in self._constants else self._state.get('qz', 0)
 
             matrix[:3, :3] = quat_rotation_matrix(q_w, q_x, q_y, q_z)
         else:

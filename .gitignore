@@ -9,3 +9,5 @@ src/trip_kinematics/scratch_pad.py
 *.pyc
 *.swp
 .cache/*
+
+.vscode/
