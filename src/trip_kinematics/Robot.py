@@ -52,14 +52,14 @@ class Robot:
             if group.get_virtual_state() != {}:
                 group_actuators = group.get_actuated_state().keys()
                 for key in group_actuators:
-                    if key in self._actuator_group_mapping.keys():
+                    if key in self._actuator_group_mapping:
                         raise KeyError(
                             "More than one robot actuator has the same name!" +
                             " Please give each actuator a unique name")
                     self._actuator_group_mapping[key] = str(group)
 
-                for key in group.get_virtual_state().keys():
-                    if key in self._virtual_group_mapping.keys():
+                for key in group.get_virtual_state():
+                    if key in self._virtual_group_mapping:
                         raise KeyError(
                             "More than one transformation of a virtual chain has the same name!" +
                             " Please give each virtual transformation of a robot a unique name")
@@ -86,8 +86,8 @@ class Robot:
         Raises:
             KeyError: If no group with the name given in the argument is part of the robot.
         """
-        for key in argv_dict.keys():
-            if key not in self._group_dict.keys():
+        for key in argv_dict:
+            if key not in self._group_dict:
                 raise KeyError("No group with name "+str(key)+"in this robot")
             self._group_dict[key].pass_arg_v_to_a(argv_dict[key])
 
@@ -102,8 +102,8 @@ class Robot:
         Raises:
             KeyError: If no group with the name given in the argument is part of the robot.
         """
-        for key in argv_dict.keys():
-            if key not in self._group_dict.keys():
+        for key in argv_dict:
+            if key not in self._group_dict:
                 raise KeyError("No group with name "+str(key)+"in this robot")
             self._group_dict[key].pass_arg_a_to_v(argv_dict[key])
 
@@ -116,7 +116,7 @@ class Robot:
                                                 The new values need to be valid state
                                                 for the state of the joint.
         """
-        for key in state.keys():
+        for key in state:
             virtual_state = {key: state[key]}
             self._group_dict[self._virtual_group_mapping[key]
                              ].set_virtual_state(virtual_state)
@@ -129,8 +129,8 @@ class Robot:
                                         :py:attr:`__actuated_state` that should be set.
         """
         grouping = {}
-        for key in state.keys():
-            if self._actuator_group_mapping[key] not in grouping.keys():
+        for key in state:
+            if self._actuator_group_mapping[key] not in grouping:
                 grouping[self._actuator_group_mapping[key]] = {}
             grouping[self._actuator_group_mapping[key]][key] = state[key]
         for key, group_state in grouping.items():
@@ -160,10 +160,10 @@ class Robot:
                                          :py:class`KinematicGroup` objects.
         """
         virtual_state = {}
-        for group_key in self._group_dict.keys():
+        for group_key in self._group_dict:
             group_state = self._group_dict[group_key].get_virtual_state()
             if group_state != {}:
-                for key in group_state.keys():
+                for key in group_state:
                     virtual_state[key] = group_state[key]
         return virtual_state
 
@@ -187,7 +187,7 @@ class Robot:
         symbolic_keys = []
 
         group_dict = self.get_groups()
-        if endeffector not in group_dict.keys():
+        if endeffector not in group_dict:
             raise KeyError(
                 "The endeffector must be a valid group or transformation name." +
                 " Valid names for this robot are: "+str(group_dict.keys()))
@@ -208,12 +208,12 @@ class Robot:
             group = group_dict[group_key]
             virtual_trafo = group.get_virtual_chain()
 
-            for virtual_key in virtual_trafo.keys():
+            for virtual_key in virtual_trafo:
                 virtual_transformation = virtual_trafo[virtual_key]
                 state = virtual_transformation.get_state()
 
                 if state != {}:
-                    for key in state.keys():
+                    for key in state:
                         state[key] = SX.sym(virtual_key+'_'+key)
                         symbolic_state.append(state[key])
                         symbolic_keys.append([virtual_key, key])
@@ -253,7 +253,7 @@ def forward_kinematics(robot: Robot, endeffector):
     """
     transformation = identity_transformation()
     group_dict = robot.get_groups()
-    if endeffector not in group_dict.keys():
+    if endeffector not in group_dict:
         raise KeyError(
             "The endeffector must be a valid group name. Valid group names for this robot are: " +
             str(group_dict.keys()))

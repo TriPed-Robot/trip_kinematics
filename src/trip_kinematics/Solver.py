@@ -101,7 +101,7 @@ class SimpleInvKinSolver:
         for i, solver_state_value in enumerate(solver_state):
             outer_key = self._symbolic_keys[i][0]
             inner_key = self._symbolic_keys[i][1]
-            if outer_key not in virtual_state.keys():
+            if outer_key not in virtual_state:
                 virtual_state[outer_key] = {}
 
             virtual_state[outer_key][inner_key] = solver_state_value[0]
