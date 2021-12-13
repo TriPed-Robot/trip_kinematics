@@ -135,15 +135,13 @@ def get_transformations_for_joint(joint: ET.Element) -> List[List]:
     joint_transformations = []
 
     try:
-        assert name
-        assert type_
-        assert origin
+        assert name is not None
+        assert type_ is not None
+        assert origin is not None
         xyz_vals = origin.get('xyz')
         rpy_vals = origin.get('rpy')
-        assert xyz_vals
-        assert rpy_vals
-        axis = joint.find('axis')
-        assert axis is not None
+        assert xyz_vals is not None
+        assert rpy_vals is not None
     except AssertionError as e:
         raise ValueError('Error: Invalid URDF file ({})'.format(e))
 
@@ -155,7 +153,7 @@ def get_transformations_for_joint(joint: ET.Element) -> List[List]:
     if type_ in ['fixed', 'floating']:
         axis = None
     else:
-        axis = np.array(list(map(float, axis.split(' '))))
+        axis = np.array(list(map(float, joint.find('axis').get('xyz').split(' '))))
         axis = axis / np.linalg.norm(axis)
 
     # For each joint, define four transformations
