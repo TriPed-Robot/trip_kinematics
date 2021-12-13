@@ -41,8 +41,9 @@ class Robot:
                 # KinematicGroup expects root of virtual children to have itself as a parent
                 group.parent = str(group)
 
-                group = OpenKinematicGroup(name=str(group), virtual_chain=[group],
-                                           parent=self._group_dict[str(kinematic_chain[i-1])])
+                group = OpenKinematicGroup(name=str(group),
+                                           virtual_chain=[group],
+                                           parent=None)
 
                 # carefull this circumvents the usual checks for correct group and parent names!
                 group.children = group_children
