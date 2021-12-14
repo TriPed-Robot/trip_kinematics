@@ -8,7 +8,7 @@ from trip_kinematics.Transformation import Transformation
 
 
 def from_urdf(filename: str) -> List[Transformation]:
-    """Generates a list of :py:class`Transformations` describing a robot specified in a URDF file.
+    """Converts a robot specified in a URDF file into a list of :py:class`Transformation` objects.
 
     Args:
         filename (str): Path to URDF file.
@@ -47,8 +47,8 @@ def from_urdf(filename: str) -> List[Transformation]:
 
 
 def build_joint_tree_dict(joints: List[ET.Element]) -> Dict[str, Dict]:
-    """Creates a dictionary representing parent-child relationships between joints (can be used to
-    build a tree of joints).
+    """Creates a dictionary representing parent-child relationships between joints. Used by
+    from_urdf() to build a tree of joints.
 
     Args:
         joints (List[ET.Element]): List of <joint> tags from the URDF file.
@@ -112,11 +112,11 @@ def align_vectors(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 
 
 def get_transformations_for_joint(joint: ET.Element) -> List[List]:
-    """Generates the parameters for up to 4 transformations for the input joint. These correspond
-    to: 1. translation and 2. rotation (both taken from the origin tag of the URDF file), then
-    3. a rotation which ensures joint movement is aligned with the axes of the local coordinate
-    system, then 4. a transformation which represents joint movement (the only one with state
-    variables).
+    """Generates the parameters for the transformations for the input joint. One joint is
+    represented by up to four transformations. These are: 1. translation and 2. rotation (both taken
+    from the <origin> tag of the URDF file), then 3. a rotation which ensures joint movement is
+    aligned with the axes of the local coordinate system, then 4. a transformation which represents
+    joint movement (the only non-fixed transformation of the four).
 
     Args:
         joint (ET.Element): A <joint> tag in the URDF file.
