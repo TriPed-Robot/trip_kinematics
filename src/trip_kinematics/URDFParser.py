@@ -46,7 +46,7 @@ def from_urdf(filename: str) -> List[Transformation]:
     return transformations
 
 
-def align_vectors(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+def align_vectors(target: np.ndarray, to_align: np.ndarray) -> np.ndarray:
     """Generates a rotation matrix that makes b parallel to a.
 
     Args:
@@ -56,15 +56,15 @@ def align_vectors(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: 3x3 rotation matrix.
     """
-    a = a / np.linalg.norm(a)
-    b = b / np.linalg.norm(b)
+    target = target / np.linalg.norm(target)
+    to_align = to_align / np.linalg.norm(to_align)
 
     # if the vectors are parallel but in opposite directions, return a 180 degree rotation
-    if np.array_equal(a, -b):
+    if np.array_equal(target, -to_align):
         return -np.identity(3)
 
-    align_axis = np.cross(a, b)
-    cos_angle = np.dot(a, b)
+    align_axis = np.cross(target, to_align)
+    cos_angle = np.dot(target, to_align)
     k = 1 / (1 + cos_angle)
 
     result = np.array([[(align_axis[0] * align_axis[0] * k) + cos_angle,
@@ -142,8 +142,8 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
         rpy_vals = origin.get('rpy')
         assert xyz_vals is not None
         assert rpy_vals is not None
-    except AssertionError as e:
-        raise ValueError('Error: Invalid URDF file ({})'.format(e)) from e
+    except AssertionError as err:
+        raise ValueError(f'Error: Invalid URDF file ({err})') from err
 
     # Translation and rotation
     xyz = np.array(list(map(float, xyz_vals.split(' '))))
