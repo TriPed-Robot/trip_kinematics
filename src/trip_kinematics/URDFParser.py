@@ -24,7 +24,7 @@ def from_urdf(filename: str) -> List[Transformation]:
     joints = root.findall('joint')
     joint_name_to_transformations = {}
 
-    joint_tree_dict = build_joint_tree_dict(joints)
+    joint_tree_dict = _build_joint_tree_dict(joints)
 
     root_joints = [name for name, value in joint_tree_dict.items() if not value['parent']]
 
@@ -35,47 +35,15 @@ def from_urdf(filename: str) -> List[Transformation]:
         joint_tree_dict[name]['joint_index'] = i
 
     for joint in joints:
-        joint_name_to_transformations[joint.get('name')] = get_transformations_for_joint(joint)
+        joint_name_to_transformations[joint.get('name')] = _get_transformations_for_joint(joint)
 
     transformations = []
     for joint in root_joints:
-        transformations.extend(create_transformations_from_tree(joint,
+        transformations.extend(_create_transformations_from_tree(joint,
                                                                 joint_tree_dict,
                                                                 joint_name_to_transformations))
 
     return transformations
-
-
-def build_joint_tree_dict(joints: List[ET.Element]) -> Dict[str, Dict]:
-    """Creates a dictionary representing parent-child relationships between joints. Used by
-    from_urdf() to build a tree of joints.
-
-    Args:
-        joints (List[ET.Element]): List of <joint> tags from the URDF file.
-
-    Returns:
-        dict[str, Dict]: A dictionary representing parent-child relationships between joints.
-    """
-    # Keep track of parent and children links of joints
-    # and use that to search for the parent joint of each joint
-    joint_tree_dict = {
-        joint.get('name'): {
-            'child_link': joint.find('child').get('link'),
-            'parent_link': joint.find('parent').get('link')
-        } for joint in joints}
-
-    parent_link_to_joint = defaultdict(list)
-    child_link_to_joint = defaultdict(list)
-
-    for joint in joints:
-        parent_link_to_joint[joint.find('parent').get('link')].append(joint.get('name'))
-        child_link_to_joint[joint.find('child').get('link')].append(joint.get('name'))
-
-    for val in joint_tree_dict.values():
-        val['parent'] = child_link_to_joint[val['parent_link']]
-        val['child'] = parent_link_to_joint[val['child_link']]
-
-    return joint_tree_dict
 
 
 def align_vectors(a: np.ndarray, b: np.ndarray) -> np.ndarray:
@@ -111,7 +79,39 @@ def align_vectors(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     return result
 
 
-def get_transformations_for_joint(joint: ET.Element) -> List[List]:
+def _build_joint_tree_dict(joints: List[ET.Element]) -> Dict[str, Dict]:
+    """Creates a dictionary representing parent-child relationships between joints. Used by
+    from_urdf() to build a tree of joints.
+
+    Args:
+        joints (List[ET.Element]): List of <joint> tags from the URDF file.
+
+    Returns:
+        dict[str, Dict]: A dictionary representing parent-child relationships between joints.
+    """
+    # Keep track of parent and children links of joints
+    # and use that to search for the parent joint of each joint
+    joint_tree_dict = {
+        joint.get('name'): {
+            'child_link': joint.find('child').get('link'),
+            'parent_link': joint.find('parent').get('link')
+        } for joint in joints}
+
+    parent_link_to_joint = defaultdict(list)
+    child_link_to_joint = defaultdict(list)
+
+    for joint in joints:
+        parent_link_to_joint[joint.find('parent').get('link')].append(joint.get('name'))
+        child_link_to_joint[joint.find('child').get('link')].append(joint.get('name'))
+
+    for val in joint_tree_dict.values():
+        val['parent'] = child_link_to_joint[val['parent_link']]
+        val['child'] = parent_link_to_joint[val['child_link']]
+
+    return joint_tree_dict
+
+
+def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     """Generates the parameters for the transformations for the input joint. One joint is
     represented by up to four transformations. These are: 1. translation and 2. rotation (both taken
     from the <origin> tag of the URDF file), then 3. a rotation which ensures joint movement is
@@ -199,7 +199,7 @@ def get_transformations_for_joint(joint: ET.Element) -> List[List]:
     return joint_transformations
 
 
-def create_transformations_from_tree(joint: str,
+def _create_transformations_from_tree(joint: str,
                                      joint_tree_dict: Dict[str, Dict],
                                      joint_name_to_transformations: Dict[str, List],
                                      parent: Transformation = None) -> List[Transformation]:
@@ -235,7 +235,7 @@ def create_transformations_from_tree(joint: str,
     if joint_tree_dict[joint]['child']:
         for child in joint_tree_dict[joint]['child']:
             transformations_list.extend(
-                create_transformations_from_tree(child,
+                _create_transformations_from_tree(child,
                                                  joint_tree_dict,
                                                  joint_name_to_transformations,
                                                  parent)
