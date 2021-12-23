@@ -143,7 +143,7 @@ def get_transformations_for_joint(joint: ET.Element) -> List[List]:
         assert xyz_vals is not None
         assert rpy_vals is not None
     except AssertionError as e:
-        raise ValueError('Error: Invalid URDF file ({})'.format(e))
+        raise ValueError('Error: Invalid URDF file ({})'.format(e)) from e
 
     # Translation and rotation
     xyz = np.array(list(map(float, xyz_vals.split(' '))))
