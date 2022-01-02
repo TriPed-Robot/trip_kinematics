@@ -3,29 +3,30 @@ import os
 
 import kinpy as kp
 import numpy as np
-from trip_kinematics.URDFParser import align_vectors
+# from trip_kinematics.URDFParser import align_vectors
 import trip_kinematics.URDFParser
-from trip_kinematics.Robot import Robot, forward_kinematics
+from trip_kinematics.Robot import Robot
 
 
 class TestStates(unittest.TestCase):
     def test_simple_inverse_kinematics(self):
-        urdf_examples = os.path.join('tests', 'urdf_examples')
-        urdf_files = os.listdir(urdf_examples)
+        urdf_examples_dir = os.path.join('tests', 'urdf_examples')
+        urdf_examples_filenames = os.listdir(urdf_examples_dir)
 
-        for urdf_file in urdf_files:
-            full_path_to_file = os.path.join(urdf_examples, urdf_file)
-            chain_URDFParser = trip_kinematics.URDFParser.from_urdf(full_path_to_file)
+        for filename in urdf_examples_filenames:
+            path = os.path.join(urdf_examples_dir, filename)
 
-            try:
-                chain_kinpy = kp.build_chain_from_urdf(open(full_path_to_file).read())
-                robot = Robot(chain_URDFParser)
-                robot.set_actuated_state(state)
+            with open(path, encoding='utf8') as file:
+                try:
+                    chain_URDFParser = trip_kinematics.URDFParser.from_urdf(path)
+                    chain_kinpy = kp.build_chain_from_urdf(file.read())
+                    robot = Robot(chain_URDFParser)
+                    robot.set_actuated_state(state)
 
-            except KeyError:
-                # kinpy does not support planar or floating joints, don't run kinpy test
-                # ? URDFToCasadi instead?
-                pass
+                except KeyError:
+                    # kinpy does not support planar or floating joints, don't run kinpy test
+                    # ? URDFToCasadi instead?
+                    pass
 
         print('hi')
 
