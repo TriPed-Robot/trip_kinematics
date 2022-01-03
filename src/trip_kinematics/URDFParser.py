@@ -40,8 +40,8 @@ def from_urdf(filename: str) -> List[Transformation]:
     transformations = []
     for joint in root_joints:
         transformations.extend(_create_transformations_from_tree(joint,
-                                                                joint_tree_dict,
-                                                                joint_name_to_transformations))
+                                                                 joint_tree_dict,
+                                                                 joint_name_to_transformations))
 
     return transformations
 
@@ -164,7 +164,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     joint_transformations.extend([rot, tra])
 
     if axis is not None:
-        # align axis to x axis
+        # align axis to z axis
         align_transformation = align_vectors(np.array([0, 0, 1]), axis)
         align_eulers = \
             ScipyRotation.from_matrix(align_transformation).as_euler('xyz', degrees=False)
@@ -196,13 +196,24 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
 
     joint_transformations.append(mov)
 
+    if axis is not None:
+        # align axis to z axis
+        align_transformation = align_vectors(axis, np.array([0, 0, 1]))
+        align_eulers = \
+            ScipyRotation.from_matrix(align_transformation).as_euler('xyz', degrees=False)
+        sta = [name + '_unsta',
+               {'rx': align_eulers[0], 'ry': align_eulers[1], 'rz': align_eulers[2]},
+               []]
+
+        joint_transformations.append(sta)
+
     return joint_transformations
 
 
 def _create_transformations_from_tree(joint: str,
-                                     joint_tree_dict: Dict[str, Dict],
-                                     joint_name_to_transformations: Dict[str, List],
-                                     parent: Transformation = None) -> List[Transformation]:
+                                      joint_tree_dict: Dict[str, Dict],
+                                      joint_name_to_transformations: Dict[str, List],
+                                      parent: Transformation = None) -> List[Transformation]:
     """Recursively builds a tree of py:class`Transformation` objects, starting from the root and
     traversing the tree towards the children.
 
@@ -236,9 +247,9 @@ def _create_transformations_from_tree(joint: str,
         for child in joint_tree_dict[joint]['child']:
             transformations_list.extend(
                 _create_transformations_from_tree(child,
-                                                 joint_tree_dict,
-                                                 joint_name_to_transformations,
-                                                 parent)
+                                                  joint_tree_dict,
+                                                  joint_name_to_transformations,
+                                                  parent)
             )
 
     return transformations_list
