@@ -5,7 +5,18 @@ import kinpy as kp
 import numpy as np
 # from trip_kinematics.URDFParser import align_vectors
 import trip_kinematics.URDFParser
-from trip_kinematics.Robot import Robot
+import trip_kinematics.Robot
+
+
+def state_to_kinpy(state):
+    return state
+
+
+def state_to_trip(state):
+    return {
+        joint_name + '_mov_rz': value
+        for joint_name, value in state.items()
+    }
 
 
 class TestStates(unittest.TestCase):
@@ -14,14 +25,30 @@ class TestStates(unittest.TestCase):
         urdf_examples_filenames = os.listdir(urdf_examples_dir)
 
         for filename in urdf_examples_filenames:
-            path = os.path.join(urdf_examples_dir, filename)
+            full_path = os.path.join(urdf_examples_dir, filename)
 
-            with open(path, encoding='utf8') as file:
+            with open(full_path, encoding='utf8') as file:
                 try:
-                    chain_URDFParser = trip_kinematics.URDFParser.from_urdf(path)
+                    # setup kinpy chain
                     chain_kinpy = kp.build_chain_from_urdf(file.read())
-                    robot = Robot(chain_URDFParser)
-                    robot.set_actuated_state(state)
+                    state = {
+                        joint_name: 0
+                        for joint_name in chain_kinpy.get_joint_parameter_names()
+                    }
+                    chain_kinpy.forward_kinematics(state_to_kinpy(state))
+
+                    # setup TriP robot using the URDF parser
+                    chain_trip = trip_kinematics.URDFParser.from_urdf(full_path)
+                    robot = trip_kinematics.Robot(chain_trip)
+                    robot.set_actuated_state(state_to_trip(state))
+                    trip_kinematics.forward_kinematics(robot, 'elbow2_tra')
+
+                    forearm_kp = chain_kinpy.forward_kinematics(state_to_kinpy(state))['forearm']
+                    forearm_kp_rot_mat = trip_kinematics.Utility.quat_rotation_matrix(*forearm_kp.rot)
+                    forearm_kp_rot_hom = trip_kinematics.Utility.hom_rotation(forearm_kp_rot_mat)
+                    forearm_kp_tra_hom = trip_kinematics.Utility.hom_translation_matrix(*forearm_kp.pos)
+
+                    print(1)
 
                 except KeyError:
                     # kinpy does not support planar or floating joints, don't run kinpy test
