@@ -59,9 +59,9 @@ class TestStates(unittest.TestCase):
                     joints = root.findall('joint')
                     joint_tree_dict = trip_kinematics.URDFParser._build_joint_tree_dict(joints)
 
-                    for joint in joint_tree_dict.values():
+                    for joint, joint_dict in joint_tree_dict.items():
                         transf_kp = chain_kinpy.forward_kinematics(state_to_kinpy(state)) \
-                            [joint['child_link']]
+                            [joint_dict['child_link']]
 
                         transf_kp_hom = \
                             trip_kinematics.Utility.hom_translation_matrix(*transf_kp.pos) \
@@ -72,7 +72,7 @@ class TestStates(unittest.TestCase):
 
                         assert np.allclose(transf_kp_hom, transf_trip_hom)
 
-                        print(joint['child_link'])
+                        print(joint_dict['child_link'])
 
                     print(1)
 
