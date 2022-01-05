@@ -166,20 +166,26 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     if axis is not None:
         # Align movement axis with the z axis
         align_transformation = align_vectors(np.array([0, 0, 1]), axis)
-        align_eulers = \
-            ScipyRotation.from_matrix(align_transformation).as_euler('xyz', degrees=False)
+        align_quat = ScipyRotation.from_matrix(align_transformation).as_quat()
         sta = [name + '_sta',
-               {'rx': align_eulers[0], 'ry': align_eulers[1], 'rz': align_eulers[2]},
-               []]
+               {'qw': align_quat[3],
+                'qx': align_quat[0],
+                'qy': align_quat[1],
+                'qz': align_quat[2]},
+               [],
+               ]
 
         # After aligning with the z axis and adding motion of movable joint, reverse the effect
         # of alignment so that we are still in the correct coordinate system
         unalign_transformation = np.linalg.inv(align_transformation)
-        unalign_eulers = \
-            ScipyRotation.from_matrix(unalign_transformation).as_euler('xyz', degrees=False)
+        unalign_quat = ScipyRotation.from_matrix(unalign_transformation).as_quat()
         unsta = [name + '_unsta',
-                 {'rx': unalign_eulers[0], 'ry': unalign_eulers[1], 'rz': unalign_eulers[2]},
-                 []]
+                 {'qw': unalign_quat[3],
+                  'qx': unalign_quat[0],
+                  'qy': unalign_quat[1],
+                  'qz': unalign_quat[2]},
+                 [],
+                 ]
 
         joint_transformations.append(sta)
         # unsta needs to be appended after the movement of the movable joint, so leave it for later
@@ -255,6 +261,3 @@ def _create_transformations_from_tree(joint: str,
             )
 
     return transformations_list
-
-
-from_urdf('tests/urdf_examples/test.urdf')
