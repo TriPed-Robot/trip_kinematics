@@ -251,6 +251,10 @@ def _create_transformations_from_tree(joint: str,
             transformations_list.append(tmp)
             parent = tmp
 
+    tmp = Transformation(name=joint, values={}, parent=parent)
+    transformations_list.append(tmp)
+    parent = tmp
+
     if joint_tree_dict[joint]['child']:
         for child in joint_tree_dict[joint]['child']:
             transformations_list.extend(
