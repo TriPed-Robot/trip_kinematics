@@ -164,7 +164,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     joint_transformations.extend([rot, tra])
 
     if axis is not None:
-        # align axis to z axis
+        # Align movement axis with the z axis
         align_transformation = align_vectors(np.array([0, 0, 1]), axis)
         align_eulers = \
             ScipyRotation.from_matrix(align_transformation).as_euler('xyz', degrees=False)
@@ -172,7 +172,17 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
                {'rx': align_eulers[0], 'ry': align_eulers[1], 'rz': align_eulers[2]},
                []]
 
+        # After aligning with the z axis and adding motion of movable joint, reverse the effect
+        # of alignment so that we are still in the correct coordinate system
+        unalign_transformation = np.linalg.inv(align_transformation)
+        unalign_eulers = \
+            ScipyRotation.from_matrix(unalign_transformation).as_euler('xyz', degrees=False)
+        unsta = [name + '_unsta',
+                 {'rx': unalign_eulers[0], 'ry': unalign_eulers[1], 'rz': unalign_eulers[2]},
+                 []]
+
         joint_transformations.append(sta)
+        # unsta needs to be appended after the movement of the movable joint, so leave it for later
 
     if type_ in ['continuous', 'revolute']:  # TODO make sure that it always uses rz
         mov = [name + '_mov', {'rz': 0}, ['rz']]
@@ -197,15 +207,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     joint_transformations.append(mov)
 
     if axis is not None:
-        # align axis to z axis
-        align_transformation = align_vectors(axis, np.array([0, 0, 1]))
-        align_eulers = \
-            ScipyRotation.from_matrix(align_transformation).as_euler('xyz', degrees=False)
-        sta = [name + '_unsta',
-               {'rx': align_eulers[0], 'ry': align_eulers[1], 'rz': align_eulers[2]},
-               []]
-
-        joint_transformations.append(sta)
+        joint_transformations.append(unsta)
 
     return joint_transformations
 
@@ -253,3 +255,6 @@ def _create_transformations_from_tree(joint: str,
             )
 
     return transformations_list
+
+
+from_urdf('tests/urdf_examples/test.urdf')
