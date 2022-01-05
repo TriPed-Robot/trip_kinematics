@@ -27,7 +27,7 @@ def printy(i, robot):
 
 
 class TestStates(unittest.TestCase):
-    def test_simple_inverse_kinematics(self):
+    def test_all_urdf_files(self):
         # TODO remove later
         np.set_printoptions(precision=3, suppress=True)
 
