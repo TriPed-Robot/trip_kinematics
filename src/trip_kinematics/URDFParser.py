@@ -41,7 +41,9 @@ def from_urdf(filename: str) -> List[Transformation]:
     for joint in root_joints:
         transformations.extend(_create_transformations_from_tree(joint,
                                                                  joint_tree_dict,
-                                                                 joint_name_to_transformations))
+                                                                 joint_name_to_transformations,
+                                                                 None)
+                               )
 
     return transformations
 
@@ -221,7 +223,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
 def _create_transformations_from_tree(joint: str,
                                       joint_tree_dict: Dict[str, Dict],
                                       joint_name_to_transformations: Dict[str, List],
-                                      parent: Transformation = None) -> List[Transformation]:
+                                      parent: Transformation) -> List[Transformation]:
     """Recursively builds a tree of py:class`Transformation` objects, starting from the root and
     traversing the tree towards the children.
 
@@ -230,8 +232,8 @@ def _create_transformations_from_tree(joint: str,
         joint_tree_dict (Dict[str, Dict]): Represents the relationships between all joints.
         joint_name_to_transformations (Dict[str, List]): Contains the parameters for the
                                                          py:class`Transformation` objects.
-        parent (Transformation, optional): The parent of current joint. Defaults to None for the
-                                           root, is set recursively for its children.
+        parent (Transformation, optional): The parent of current joint. Should be None for the root,
+                                           is set recursively for its children.
 
     Returns:
         List[Transformation]: List of py:class`Transformation` objects for input node and all its
