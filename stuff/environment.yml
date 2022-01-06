@@ -10,7 +10,7 @@ dependencies:
 
   - pip:
     - casadi>=3.5.5
-    - TriP/src/
+    - ../src/
     # forwards & inverse kinematics, for testing
     - kinpy
     - pytest
