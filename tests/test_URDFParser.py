@@ -80,6 +80,29 @@ def run_test(path):
 
 class TestStates(unittest.TestCase):
 
+    # test of single fixed joint
+
+    # test of single continuous joint
+
+    # test of single revolute joint
+
+    # test of single prismatic joint
+
+    # test of fixed and revolute joints combined
+
+    # test of prismatic and continuous joints combined
+
+    # test of large tree
+    def test_large_tree_urdf(self):
+        urdf_examples_dir = os.path.join('tests', 'urdf_examples')
+        urdf_examples_filenames = os.listdir(urdf_examples_dir)
+        full_path = os.path.join(urdf_examples_dir, "large_tree_test.urdf")
+        run_test(full_path)
+
+    # test of multiple connections to "ground"
+
+    # test movement not aligned on single axis
+
     def test_all_urdf_files(self):
 
         urdf_examples_dir = os.path.join('tests', 'urdf_examples')
