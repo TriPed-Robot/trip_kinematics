@@ -10,14 +10,14 @@ import trip_kinematics.Robot
 
 
 def state_to_kinpy(state):
-    return state
+    return {
+        "_".join(joint_name.split("_")[:-2]) : value
+        for joint_name, value in state.items()
+    }
 
 
 def state_to_trip(state):
-    return {
-        joint_name + '_mov_rz': value
-        for joint_name, value in state.items()
-    }
+    return state
 
 
 def printy(i, robot):
@@ -39,20 +39,21 @@ class TestStates(unittest.TestCase):
 
             with open(full_path, encoding='utf8') as file:
                 try:
-                    # setup kinpy chain
-                    urdf_data_str = file.read()
-                    chain_kinpy = kp.build_chain_from_urdf(urdf_data_str)
-                    state = {
-                        joint_name: 0
-                        for joint_name in chain_kinpy.get_joint_parameter_names()
-                    }
-                    chain_kinpy.forward_kinematics(state_to_kinpy(state))
-
                     # setup TriP robot using the URDF parser
                     chain_trip = trip_kinematics.URDFParser.from_urdf(full_path)
                     robot = trip_kinematics.Robot(chain_trip)
-                    robot.set_actuated_state(state_to_trip(state))
 
+                    state = {
+                        joint_name: 0
+                        for joint_name in robot.get_actuated_state()
+                    }
+
+                    # setup kinpy chain
+                    urdf_data_str = file.read()
+                    chain_kinpy = kp.build_chain_from_urdf(urdf_data_str)
+
+                    chain_kinpy.forward_kinematics(state_to_kinpy(state))
+                    robot.set_actuated_state(state_to_trip(state))
 
                     tree = ET.parse(full_path)
                     root = tree.getroot()
