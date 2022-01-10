@@ -64,18 +64,20 @@ class TestStates(unittest.TestCase):
                         transf_kp = chain_kinpy.forward_kinematics(state_to_kinpy(state)) \
                             [joint_dict['child_link']]
 
-                        transf_kp_hom = \
+                        transf_kp_hom_pos = \
                             trip_kinematics.Utility.hom_translation_matrix(*transf_kp.pos) \
                             .astype('float64')
+                        transf_kp_hom_rot = \
+                            trip_kinematics.Utility.hom_rotation(trip_kinematics.Utility \
+                            .quat_rotation_matrix(*transf_kp.rot).astype('float64')) \
+                            .astype('float64')
+
+                        transf_kp_hom = transf_kp_hom_pos @ transf_kp_hom_rot
 
                         transf_trip_hom = \
                             trip_kinematics.forward_kinematics(robot, joint).astype('float64')
 
                         assert np.allclose(transf_kp_hom, transf_trip_hom)
-
-                        print(joint_dict['child_link'])
-
-                    print(1)
 
                 except KeyError:
                     print(
