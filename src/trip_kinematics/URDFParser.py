@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from typing import Dict, List
+from math import radians
 
 import numpy as np
 from scipy.spatial.transform import Rotation as ScipyRotation
@@ -139,13 +140,19 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     try:
         assert name is not None
         assert type_ is not None
-        assert origin is not None
-        xyz_vals = origin.get('xyz')
-        rpy_vals = origin.get('rpy')
-        assert xyz_vals is not None
-        assert rpy_vals is not None
     except AssertionError as err:
         raise ValueError(f'Error: Invalid URDF file ({err})') from err
+
+    if origin is None:
+        xyz_vals = '0 0 0'
+        rpy_vals = '0 0 0'
+    else:
+        xyz_vals = origin.get('xyz')
+        rpy_vals = origin.get('rpy')
+        if xyz_vals is None:
+            xyz_vals = '0 0 0'
+        if rpy_vals is None:
+            rpy_vals = '0 0 0'
 
     # Translation and rotation
     xyz = np.array(list(map(float, xyz_vals.split(' '))))
@@ -155,7 +162,12 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     if type_ in ['fixed', 'floating']:
         axis = None
     else:
-        axis = np.array(list(map(float, joint.find('axis').get('xyz').split(' '))))
+        axis = joint.find('axis')
+        if axis is None:
+            axis = '1 0 0'
+        else:
+            axis = axis.get('xyz')
+        axis = np.array(list(map(float, axis.split(' '))))
         axis = axis / np.linalg.norm(axis)
 
     # For each joint, define four transformations
