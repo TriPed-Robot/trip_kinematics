@@ -210,13 +210,15 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     elif type_ == 'prismatic':  # TODO is this also along the z axis
         mov = [name + '_mov', {'tz': 0}, ['tz']]
 
-    elif type_ == 'floating':  # TODO what do we really need to do here? do we need the sta
-        mov = [name + '_mov',
-               {'tx': 0, 'ty': 0, 'tz': 0, 'rx': 0, 'ry': 0, 'rz': 0},
-               ['tx', 'ty', 'tz', 'rx', 'ry', 'rz']]
-
-    elif type_ == 'planar':  # TODO are these the right axis?
-        mov = [name + '_mov', {'tx': 0, 'ty': 0}, ['tx', 'ty']]
+    # floating and planar are not implemented yet, but this is what they could look like in the future
+    
+    # elif type_ == 'floating':  # TODO what do we really need to do here? do we need the sta
+    #     mov = [name + '_mov',
+    #            {'tx': 0, 'ty': 0, 'tz': 0, 'rx': 0, 'ry': 0, 'rz': 0},
+    #            ['tx', 'ty', 'tz', 'rx', 'ry', 'rz']]
+    #
+    # elif type_ == 'planar':  # TODO are these the right axis?
+    #     mov = [name + '_mov', {'tx': 0, 'ty': 0}, ['tx', 'ty']]
 
     elif type_ == 'fixed':
         mov = [name + '_mov', {}, []]
