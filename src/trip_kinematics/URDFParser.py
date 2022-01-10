@@ -175,7 +175,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     tra = [name + '_tra', {'tx': xyz[0], 'ty': xyz[1], 'tz': xyz[2]}, []]
     rot = [name + '_rot', {'rx': rpy[0], 'ry': rpy[1], 'rz': rpy[2]}, []]
 
-    joint_transformations.extend([rot, tra])
+    joint_transformations.extend([tra, rot])
 
     if axis is not None:
         # Align movement axis with the z axis
