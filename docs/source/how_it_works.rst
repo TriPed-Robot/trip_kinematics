@@ -300,7 +300,7 @@ The full code for the excavator looks like this:
 .. literalinclude:: ../../src/trip_robots/excavator_rr.py
    :language: python
    :linenos:
-   :lines: 13-75
+   :lines: 1-75
 
 
 actuated state vs virtual state
