@@ -8,11 +8,13 @@ import numpy as np
 import trip_kinematics.URDFParser
 import trip_kinematics.Robot
 
+
 def state_to_kinpy(state):
     return {
-        "_".join(joint_name.split("_")[:-2]) : value
+        "_".join(joint_name.split("_")[:-2]): value
         for joint_name, value in state.items()
     }
+
 
 def state_to_trip(state):
     return state
@@ -24,19 +26,23 @@ def get_state(robot):
         for joint_name in robot.get_actuated_state()
     }
 
+
 def create_trip_robot(path):
     chain_trip = trip_kinematics.URDFParser.from_urdf(path)
     return trip_kinematics.Robot(chain_trip)
+
 
 def create_kinpy_chain(path):
     with open(path, encoding='utf8') as file:
         urdf_data_str = file.read()
         return kp.build_chain_from_urdf(urdf_data_str)
 
+
 def get_joint_tree_dict(path):
     tree = ET.parse(path)
     root = tree.getroot()
     joints = root.findall('joint')
+    # pylint: disable=protected-access
     return trip_kinematics.URDFParser._build_joint_tree_dict(joints)
 
 
@@ -58,15 +64,15 @@ def run_test(path):
 
     for joint, joint_dict in joint_tree_dict.items():
         # calculate homogenous matrix of kinpy forward kinematic for every joint
-        transf_kp = chain_kinpy.forward_kinematics(state_to_kinpy(state)) \
-            [joint_dict['child_link']]
+        transf_kp = chain_kinpy.forward_kinematics(state_to_kinpy(state))[joint_dict['child_link']]
 
         transf_kp_hom_pos = \
             trip_kinematics.Utility.hom_translation_matrix(*transf_kp.pos) \
             .astype('float64')
         transf_kp_hom_rot = \
-            trip_kinematics.Utility.hom_rotation(trip_kinematics.Utility \
-            .quat_rotation_matrix(*transf_kp.rot).astype('float64')) \
+            trip_kinematics.Utility.hom_rotation(
+                trip_kinematics.Utility.quat_rotation_matrix(*transf_kp.rot).astype('float64')
+            ) \
             .astype('float64')
 
         transf_kp_hom = transf_kp_hom_pos @ transf_kp_hom_rot
@@ -78,8 +84,8 @@ def run_test(path):
         # compare the two matrices and ensure they are close within reason
         assert np.allclose(transf_kp_hom, transf_trip_hom)
 
-class TestStates(unittest.TestCase):
 
+class TestStates(unittest.TestCase):
     # test of single fixed joint
 
     # test of single continuous joint
@@ -95,7 +101,6 @@ class TestStates(unittest.TestCase):
     # test of large tree
     def test_large_tree_urdf(self):
         urdf_examples_dir = os.path.join('tests', 'urdf_examples')
-        urdf_examples_filenames = os.listdir(urdf_examples_dir)
         full_path = os.path.join(urdf_examples_dir, "large_tree_test.urdf")
         run_test(full_path)
 
@@ -104,7 +109,6 @@ class TestStates(unittest.TestCase):
     # test movement not aligned on single axis
 
     def test_all_urdf_files(self):
-
         urdf_examples_dir = os.path.join('tests', 'urdf_examples')
         urdf_examples_filenames = os.listdir(urdf_examples_dir)
 
@@ -124,13 +128,9 @@ class TestStates(unittest.TestCase):
         ]
 
         for case in test_cases:
-            a, b = np.array(case[0]), np.array(case[1])
-            a = a / np.linalg.norm(a)
-            b = b / np.linalg.norm(b)
-            rotation_matrix = trip_kinematics.URDFParser.align_vectors(a, b)
-            aligned = b @ rotation_matrix
-            assert np.all(np.isclose(aligned, a))
-
-
-if __name__ == '__main__':
-    unittest.main()
+            target, to_align = np.array(case[0]), np.array(case[1])
+            target = target / np.linalg.norm(target)
+            to_align = to_align / np.linalg.norm(to_align)
+            rotation_matrix = trip_kinematics.URDFParser.align_vectors(target, to_align)
+            aligned = to_align @ rotation_matrix
+            assert np.all(np.isclose(aligned, target))

@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from typing import Dict, List
-from math import radians
 
 import numpy as np
 from scipy.spatial.transform import Rotation as ScipyRotation
@@ -204,20 +203,21 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
         joint_transformations.append(sta)
         # unsta needs to be appended after the movement of the movable joint, so leave it for later
 
-    if type_ in ['continuous', 'revolute']:  # TODO make sure that it always uses rz
+    if type_ in ['continuous', 'revolute']:
         mov = [name + '_mov', {'rz': 0}, ['rz']]
 
-    elif type_ == 'prismatic':  # TODO is this also along the z axis
+    elif type_ == 'prismatic':
         mov = [name + '_mov', {'tz': 0}, ['tz']]
 
-    # floating and planar are not implemented yet, but this is what they could look like in the future
-    
-    # elif type_ == 'floating':  # TODO what do we really need to do here? do we need the sta
+    # Floating and planar are not implemented yet
+    # but this is what they could look like in the future
+
+    # elif type_ == 'floating':
     #     mov = [name + '_mov',
     #            {'tx': 0, 'ty': 0, 'tz': 0, 'rx': 0, 'ry': 0, 'rz': 0},
     #            ['tx', 'ty', 'tz', 'rx', 'ry', 'rz']]
     #
-    # elif type_ == 'planar':  # TODO are these the right axis?
+    # elif type_ == 'planar':
     #     mov = [name + '_mov', {'tx': 0, 'ty': 0}, ['tx', 'ty']]
 
     elif type_ == 'fixed':
