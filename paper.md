@@ -47,7 +47,8 @@ This makes it easy for users to implement custom case-dependent mathematical sol
 
 # Statement of Need
 While a huge number of researchers use hybrid serial parallel systems such as @PISLA, @verne, or @berkley, most modern kinematics frameworks still lack support.
-Examples include openrave [@openrave] used in the moveit stack [@moveit] or the matlab robotics toolbox [@matlabrobot] which only supports serial mechanisms.
+Examples include openrave [@openrave] used in the moveit stack [@moveit], the matlab robotics toolbox [@matlabrobot], Klampt [@Klampt] or the inverse kinematics python library [@ikpy].
+While all these frameworks and libraries offer fast computation of forward and inverse kinematics they only support branching serial mechanisms.
 ​This lack of support often leaves developers with essentially two choices:
 
 Either shoehorn their hybrid robots into a framework not designed to handle them or be left to implement their own kinematic solvers.
