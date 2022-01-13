@@ -137,7 +137,6 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     joint_transformations = []
 
     try:
-        assert name is not None
         assert type_ is not None
     except AssertionError as err:
         raise ValueError(f'Error: Invalid URDF file ({err})') from err
