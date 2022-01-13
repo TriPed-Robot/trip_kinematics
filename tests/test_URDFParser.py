@@ -91,22 +91,36 @@ def run_test(path):
 
 class TestStates(unittest.TestCase):
     # test of single fixed joint
+    def test_one_fixed_urdf(self):
+        assert(run_test("one_fixed_joint.urdf"))
 
     # test of single continuous joint
+    def test_one_continuous_urdf(self):
+        assert(run_test("one_continuous_joint.urdf"))
 
     # test of single revolute joint
+    def test_one_revolute_urdf(self):
+        assert(run_test("one_revolute_joint.urdf"))
 
     # test of single prismatic joint
+    def test_one_prismatic_urdf(self):
+        assert(run_test("one_prismatic_joint.urdf"))
 
     # test of fixed and revolute joints combined
+    def test_fixed_into_revolute_urdf(self):
+        assert(run_test("fixed_to_revolute_joint.urdf"))
 
     # test of prismatic and continuous joints combined
+    def test_prismatic_into_continuous_urdf(self):
+        assert(run_test("prismatic_to_continuous_joint.urdf"))
 
     # test of large tree
     def test_large_tree_urdf(self):
         assert(run_test("large_tree_test.urdf"))
 
     # test of multiple connections to "ground"
+    def test_multi_ground_connections_urdf(self):
+        assert(run_test("test.urdf"))
 
     # test movement not aligned on single axis <- this is already done in other
     # tests, skipping for now
