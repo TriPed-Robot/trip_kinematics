@@ -9,14 +9,14 @@ from trip_kinematics import Utility, URDFParser, Robot
 import trip_kinematics
 
 
-def to_kp(state):
+def state_to_kp(state):
     return {
         "_".join(joint_name.split("_")[:-2]): value
         for joint_name, value in state.items()
     }
 
 
-def to_trip(state):
+def state_to_trip(state):
     return state
 
 
@@ -67,14 +67,14 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
         test_states.append(new_state)
 
     for state in test_states:
-        robot.set_actuated_state(to_trip(state))
-        chain_kinpy.forward_kinematics(to_kp(state))
+        robot.set_actuated_state(state_to_trip(state))
+        chain_kinpy.forward_kinematics(state_to_kp(state))
 
         # Calculate homogenous transformation matrices using both kinpy and TriP for every joint
         # and compare them. joint_dict contains info about connections to other joints.
         for joint, joint_dict in get_joint_tree_dict(path).items():
             # kinpy
-            transf_kp = chain_kinpy.forward_kinematics(to_kp(state))[joint_dict['child_link']]
+            transf_kp = chain_kinpy.forward_kinematics(state_to_kp(state))[joint_dict['child_link']]
             kp_rot_matrix = Utility.quat_rotation_matrix(*transf_kp.rot).astype('float64')
             transf_kp_hom_rot = Utility.hom_rotation(kp_rot_matrix).astype('float64')
             transf_kp_hom_pos = Utility.hom_translation_matrix(*transf_kp.pos).astype('float64')
@@ -86,27 +86,7 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
             assert np.allclose(transf_kp_hom, transf_trip_hom)
 
 
-urdf_examples_dir = os.path.join('tests', 'urdf_examples')
-
 class TestStates(unittest.TestCase):
-    def test_urdf_with_missing_joint_name(self):
-        full_path = os.path.join(urdf_examples_dir, 'missing_joint_name.urdf')
-        print(full_path)
-        with self.assertRaises(ValueError):
-            compare_urdf_trip_vs_kinpy(full_path)
-
-    def test_urdf_with_missing_joint_type(self):
-        full_path = os.path.join(urdf_examples_dir, 'missing_joint_type.urdf')
-        print(full_path)
-        with self.assertRaises(ValueError):
-            compare_urdf_trip_vs_kinpy(full_path)
-
-    def test_urdf_with_incorrect_joint_type(self):
-        full_path = os.path.join(urdf_examples_dir, 'incorrect_joint_type.urdf')
-        print(full_path)
-        with self.assertRaises(ValueError):
-            compare_urdf_trip_vs_kinpy(full_path)
-
     def test_all_urdf_files(self):
         paths = [
             "one_fixed_joint",                  # Single fixed joint
@@ -119,10 +99,22 @@ class TestStates(unittest.TestCase):
             "ground_to_many",                   # Multiple connections to "ground"
         ]
 
+        paths_errors = [
+            "missing_joint_name",
+            "missing_joint_type",
+            "incorrect_joint_type",
+        ]
+
+        urdf_examples_dir = os.path.join('tests', 'urdf_examples')
+
         for path in paths:
             full_path = os.path.join(urdf_examples_dir, path + '.urdf')
-            print(full_path)
             compare_urdf_trip_vs_kinpy(full_path)
+
+        for path in paths_errors:
+            full_path = os.path.join(urdf_examples_dir, path + '.urdf')
+            with self.assertRaises(ValueError):
+                compare_urdf_trip_vs_kinpy(full_path)
 
     def test_align_vectors(self):
         test_cases = [

@@ -61,7 +61,7 @@ def align_vectors(target: np.ndarray, to_align: np.ndarray) -> np.ndarray:
     target = target / np.linalg.norm(target)
     to_align = to_align / np.linalg.norm(to_align)
 
-    # if the vectors are parallel but in opposite directions, return a 180 degree rotation
+    # If the vectors are parallel but in opposite directions, return a 180 degree rotation
     if np.array_equal(target, -to_align):
         return -np.identity(3)
 
@@ -130,7 +130,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
         List[List]: A list of parameters for up to four py:class`Transformation` objects that
         describe the input joint.
     """
-    # read properties from urdf
+    # Read properties from urdf
     name = joint.get('name')
     type_ = joint.get('type')
     origin = joint.find('origin')
@@ -169,7 +169,6 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
         axis = axis / np.linalg.norm(axis)
 
     # For each joint, define four transformations
-    # ? (maybe the order should be swapped, depends on the urdf specification i think)
     tra = [name + '_tra', {'tx': xyz[0], 'ty': xyz[1], 'tz': xyz[2]}, []]
     rot_quat = ScipyRotation.from_euler('xyz', [rpy[0], rpy[1], rpy[2]], degrees=False).as_quat()
     rot = [name + '_rot',
