@@ -10,6 +10,7 @@ import trip_kinematics.Robot
 
 urdf_examples_dir = os.path.join('tests', 'urdf_examples')
 
+
 def state_to_kinpy(state):
     return {
         "_".join(joint_name.split("_")[:-2]): value
@@ -43,6 +44,7 @@ def get_joint_tree_dict(path):
     tree = ET.parse(path)
     root = tree.getroot()
     joints = root.findall('joint')
+
     # pylint: disable=protected-access
     return trip_kinematics.URDFParser._build_joint_tree_dict(joints)
 
@@ -90,46 +92,33 @@ def run_test(path):
 
 
 class TestStates(unittest.TestCase):
-    # test of single fixed joint
-    def test_one_fixed_urdf(self):
-        assert(run_test("one_fixed_joint.urdf"))
-
-    # test of single continuous joint
-    def test_one_continuous_urdf(self):
-        assert(run_test("one_continuous_joint.urdf"))
-
-    # test of single revolute joint
-    def test_one_revolute_urdf(self):
-        assert(run_test("one_revolute_joint.urdf"))
-
-    # test of single prismatic joint
-    def test_one_prismatic_urdf(self):
-        assert(run_test("one_prismatic_joint.urdf"))
-
-    # test of fixed and revolute joints combined
-    def test_fixed_into_revolute_urdf(self):
-        assert(run_test("fixed_to_revolute_joint.urdf"))
-
-    # test of prismatic and continuous joints combined
-    def test_prismatic_into_continuous_urdf(self):
-        assert(run_test("prismatic_to_continuous_joint.urdf"))
-
-    # test of large tree
-    def test_large_tree_urdf(self):
-        assert(run_test("large_tree_test.urdf"))
-
-    # test of multiple connections to "ground"
-    def test_multi_ground_connections_urdf(self):
-        assert(run_test("test.urdf"))
-
     # test movement not aligned on single axis <- this is already done in other
     # tests, skipping for now
 
     def test_all_urdf_files(self):
-        urdf_examples_filenames = os.listdir(urdf_examples_dir)
+        # test of single fixed joint
+        assert run_test("one_fixed_joint.urdf")
 
-        for filename in urdf_examples_filenames:
-            assert(run_test(filename))
+        # test of single continuous joint
+        assert run_test("one_continuous_joint.urdf")
+
+        # test of single revolute joint
+        assert run_test("one_revolute_joint.urdf")
+
+        # test of single prismatic joint
+        assert run_test("one_prismatic_joint.urdf")
+
+        # test of fixed and revolute joints combined
+        assert run_test("fixed_to_revolute_joint.urdf")
+
+        # test of prismatic and continuous joints combined
+        assert run_test("prismatic_to_continuous_joint.urdf")
+
+        # test of large tree
+        assert run_test("large_tree_test.urdf")
+
+        # test of multiple connections to "ground"
+        assert run_test("test.urdf")
 
     def test_align_vectors(self):
         test_cases = [
