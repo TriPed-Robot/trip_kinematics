@@ -8,6 +8,7 @@ import numpy as np
 import trip_kinematics.URDFParser
 import trip_kinematics.Robot
 
+urdf_examples_dir = os.path.join('tests', 'urdf_examples')
 
 def state_to_kinpy(state):
     return {
@@ -49,6 +50,7 @@ def get_joint_tree_dict(path):
 def run_test(path):
     # setup TriP robot using the URDF parser
     # this needs a try catch
+    path = os.path.join(urdf_examples_dir, path)
     robot = create_trip_robot(path)
     state = get_state(robot)
 
@@ -82,7 +84,9 @@ def run_test(path):
             trip_kinematics.forward_kinematics(robot, joint).astype('float64')
 
         # compare the two matrices and ensure they are close within reason
-        assert np.allclose(transf_kp_hom, transf_trip_hom)
+        if not np.allclose(transf_kp_hom, transf_trip_hom):
+            return False
+    return True
 
 
 class TestStates(unittest.TestCase):
@@ -100,21 +104,18 @@ class TestStates(unittest.TestCase):
 
     # test of large tree
     def test_large_tree_urdf(self):
-        urdf_examples_dir = os.path.join('tests', 'urdf_examples')
-        full_path = os.path.join(urdf_examples_dir, "large_tree_test.urdf")
-        run_test(full_path)
+        assert(run_test("large_tree_test.urdf"))
 
     # test of multiple connections to "ground"
 
-    # test movement not aligned on single axis
+    # test movement not aligned on single axis <- this is already done in other
+    # tests, skipping for now
 
     def test_all_urdf_files(self):
-        urdf_examples_dir = os.path.join('tests', 'urdf_examples')
         urdf_examples_filenames = os.listdir(urdf_examples_dir)
 
         for filename in urdf_examples_filenames:
-            full_path = os.path.join(urdf_examples_dir, filename)
-            run_test(full_path)
+            assert(run_test(filename))
 
     def test_align_vectors(self):
         test_cases = [
