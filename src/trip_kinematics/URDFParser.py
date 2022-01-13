@@ -172,7 +172,14 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     # For each joint, define four transformations
     # ? (maybe the order should be swapped, depends on the urdf specification i think)
     tra = [name + '_tra', {'tx': xyz[0], 'ty': xyz[1], 'tz': xyz[2]}, []]
-    rot = [name + '_rot', {'rx': rpy[0], 'ry': rpy[1], 'rz': rpy[2]}, []]
+    rot_quat = ScipyRotation.from_euler('xyz', [rpy[0], rpy[1], rpy[2]], degrees=False).as_quat()
+    rot = [name + '_rot',
+           {'qw': rot_quat[3],
+            'qx': rot_quat[0],
+            'qy': rot_quat[1],
+            'qz': rot_quat[2]},
+           [],
+           ]
 
     joint_transformations.extend([tra, rot])
 
