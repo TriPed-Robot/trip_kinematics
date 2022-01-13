@@ -86,7 +86,27 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
             assert np.allclose(transf_kp_hom, transf_trip_hom)
 
 
+urdf_examples_dir = os.path.join('tests', 'urdf_examples')
+
 class TestStates(unittest.TestCase):
+    def test_urdf_with_missing_joint_name(self):
+        full_path = os.path.join(urdf_examples_dir, 'missing_joint_name.urdf')
+        print(full_path)
+        with self.assertRaises(ValueError):
+            compare_urdf_trip_vs_kinpy(full_path)
+
+    def test_urdf_with_missing_joint_type(self):
+        full_path = os.path.join(urdf_examples_dir, 'missing_joint_type.urdf')
+        print(full_path)
+        with self.assertRaises(ValueError):
+            compare_urdf_trip_vs_kinpy(full_path)
+
+    def test_urdf_with_incorrect_joint_type(self):
+        full_path = os.path.join(urdf_examples_dir, 'incorrect_joint_type.urdf')
+        print(full_path)
+        with self.assertRaises(ValueError):
+            compare_urdf_trip_vs_kinpy(full_path)
+
     def test_all_urdf_files(self):
         paths = [
             "one_fixed_joint",                  # Single fixed joint
@@ -98,8 +118,6 @@ class TestStates(unittest.TestCase):
             "large_tree_test",                  # Large tree
             "ground_to_many",                   # Multiple connections to "ground"
         ]
-
-        urdf_examples_dir = os.path.join('tests', 'urdf_examples')
 
         for path in paths:
             full_path = os.path.join(urdf_examples_dir, path + '.urdf')
