@@ -163,7 +163,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     else:
         axis = joint.find('axis')
         if axis is None:
-            axis = '1 0 0'
+            axis = '0 0 1'
         else:
             axis = axis.get('xyz')
         axis = np.array(list(map(float, axis.split(' '))))
