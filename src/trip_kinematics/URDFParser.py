@@ -10,6 +10,9 @@ from trip_kinematics.Transformation import Transformation
 def from_urdf(filename: str) -> List[Transformation]:
     """Converts a robot specified in a URDF file into a list of :py:class`Transformation` objects.
 
+    If the <origin> tag does not specify xyz and rpy values or the tag is omitted, these default
+    to (0, 0, 0). <axis> defaults to (0, 0, 1).
+
     Args:
         filename (str): Path to URDF file.
 
@@ -115,10 +118,12 @@ def _build_joint_tree_dict(joints: List[ET.Element]) -> Dict[str, Dict]:
 
 def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     """Generates the parameters for the transformations for the input joint. One joint is
-    represented by up to four transformations. These are: 1. translation and 2. rotation (both taken
-    from the <origin> tag of the URDF file), then 3. a rotation which ensures joint movement is
-    aligned with the axes of the local coordinate system, then 4. a transformation which represents
-    joint movement (the only non-fixed transformation of the four).
+    represented by up to five transformations. These are:
+
+        1. origin translation and 2. origin rotation (both taken from the <origin> tag of the URDF),
+        3. a rotation that makes joint movement parallel to the z axis of the local coord. system,
+        4. the joint movement (the only non-fixed transformation of the five),
+        5. the inverse transformation of number 3.
 
     Args:
         joint (ET.Element): A <joint> tag in the URDF file.
@@ -136,11 +141,13 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     origin = joint.find('origin')
     joint_transformations = []
 
+    # File needs to specify a joint type for each joint
     try:
         assert type_ is not None
     except AssertionError as err:
         raise ValueError(f'Error: Invalid URDF file ({err})') from err
 
+    # Default values if origin rotation or translation are not specified
     if origin is None:
         xyz_vals = '0 0 0'
         rpy_vals = '0 0 0'
@@ -151,26 +158,30 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
             xyz_vals = '0 0 0'
         if rpy_vals is None:
             rpy_vals = '0 0 0'
+    origin_xyz = np.array(list(map(float, xyz_vals.split(' '))))
+    origin_rpy = np.array(list(map(float, rpy_vals.split(' '))))
 
-    # Translation and rotation
-    xyz = np.array(list(map(float, xyz_vals.split(' '))))
-    rpy = np.array(list(map(float, rpy_vals.split(' '))))
+    if type_ in ['fixed']:
+        axis = None     # Fixed joints have no axis
 
-    # Fixed and floating joints have no axis
-    if type_ in ['fixed', 'floating']:
-        axis = None
-    else:
+    elif type_ in ['continuous', 'revolute', 'prismatic']:
         axis = joint.find('axis')
+        # Default to (0, 0, 1) if the axis is unspecified. Note that there does not seem to be
+        # a standard default value for the axis. Maybe better to remove the default to prevent
+        # potential confusion?
         if axis is None:
             axis = '0 0 1'
         else:
             axis = axis.get('xyz')
         axis = np.array(list(map(float, axis.split(' '))))
-        axis = axis / np.linalg.norm(axis)
+        axis /= np.linalg.norm(axis)
 
-    # For each joint, define four transformations
-    tra = [name + '_tra', {'tx': xyz[0], 'ty': xyz[1], 'tz': xyz[2]}, []]
-    rot_quat = ScipyRotation.from_euler('xyz', [rpy[0], rpy[1], rpy[2]], degrees=False).as_quat()
+    # For each joint, define up to five transformations
+    # Transformation 1 (tra): defined by the translation of the origin
+    tra = [name + '_tra', {'tx': origin_xyz[0], 'ty': origin_xyz[1], 'tz': origin_xyz[2]}, []]
+
+    # Transformation 2 (rot): defined by the rotation of the origin
+    rot_quat = ScipyRotation.from_euler('xyz', [*origin_rpy], degrees=False).as_quat()
     rot = [name + '_rot',
            {'qw': rot_quat[3],
             'qx': rot_quat[0],
@@ -181,8 +192,10 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
 
     joint_transformations.extend([tra, rot])
 
-    if axis is not None:
-        # Align movement axis with the z axis
+    if axis is not None and not np.array_equal(axis, np.array([0, 0, 1])):
+        # Transformation 3 (sta): aligns the joint's axis of movement with the z axis of the
+        # coordinate system. Only necessary for movable joints (therefore axis is not None) if
+        # the axis is not already parallel to the z axis
         align_transformation = align_vectors(np.array([0, 0, 1]), axis)
         align_quat = ScipyRotation.from_matrix(align_transformation).as_quat()
         sta = [name + '_sta',
@@ -193,8 +206,9 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
                [],
                ]
 
-        # After aligning with the z axis and adding motion of movable joint, reverse the effect
-        # of alignment so that we are still in the correct coordinate system
+        # Transformation 5 (unsta): after aligning with the z axis and adding motion of movable
+        # joint, reverses the alignment so that we are still in the correct coordinate system.
+        # (Note that the movement of the joint is applied between sta and unsta)
         unalign_transformation = np.linalg.inv(align_transformation)
         unalign_quat = ScipyRotation.from_matrix(unalign_transformation).as_quat()
         unsta = [name + '_unsta',
@@ -206,34 +220,30 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
                  ]
 
         joint_transformations.append(sta)
-        # unsta needs to be appended after the movement of the movable joint, so leave it for later
+        # unsta will be appended after the joint movement transformation
 
+    # Transformation 4 (mov): represents the movement of the joint. This is the only transformation
+    # with state variables.
     if type_ in ['continuous', 'revolute']:
         mov = [name + '_mov', {'rz': 0}, ['rz']]
-
     elif type_ == 'prismatic':
         mov = [name + '_mov', {'tz': 0}, ['tz']]
-
-    # Floating and planar are not implemented yet
-    # but this is what they could look like in the future
-
+    # Commenting out floating and planar joints for now because we cannot test them by comparing
+    # against kinpy (since it does not support them). In theory this code should work, though.
     # elif type_ == 'floating':
     #     mov = [name + '_mov',
     #            {'tx': 0, 'ty': 0, 'tz': 0, 'rx': 0, 'ry': 0, 'rz': 0},
     #            ['tx', 'ty', 'tz', 'rx', 'ry', 'rz']]
-    #
     # elif type_ == 'planar':
     #     mov = [name + '_mov', {'tx': 0, 'ty': 0}, ['tx', 'ty']]
-
     elif type_ == 'fixed':
         mov = [name + '_mov', {}, []]
-
     else:
-        raise ValueError("unknown joint type \"" + type_ + "\"")
+        raise ValueError(f"Unsupported joint type {type_}")
 
     joint_transformations.append(mov)
 
-    if axis is not None:
+    if axis is not None and not np.array_equal(axis, np.array([0, 0, 1])):
         joint_transformations.append(unsta)
 
     return joint_transformations
@@ -286,3 +296,6 @@ def _create_transformations_from_tree(joint: str,
             )
 
     return transformations_list
+
+
+from_urdf(r'tests\urdf_examples\large_tree_test.urdf')
