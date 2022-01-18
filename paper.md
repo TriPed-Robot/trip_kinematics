@@ -56,6 +56,10 @@ Either shoehorn their hybrid robots into a framework not designed to handle them
 ​TriP is a lightweight and easy-to-use package directly modeling hybrid mechanisms and calculating their kinematics.
 Although TriP is fast for a python package it is not built for robust hard-real time control applications.
 Instead, it is aimed at researchers and engineers who quickly want to build kinematic models to test their mechanical designs.
+For this reason it also exposes a interface to the nonlinear optimization and algorithmic differentiation tool casadi [@casadi].
+This allows researchers to investigate the kinematic properties of their robots for example by using casadi to find singular configurations or compute manipulability ellipsoides.
+Similar to Moveit, TriP also enables researchers to build their own inverse kinematic solvers.
+
 
 # Overview
 
