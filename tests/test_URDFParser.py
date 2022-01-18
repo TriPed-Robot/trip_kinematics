@@ -5,8 +5,7 @@ import random
 
 import kinpy as kp
 import numpy as np
-from trip_kinematics import Utility, URDFParser, Robot
-import trip_kinematics
+from trip_kinematics import Utility, URDFParser, Robot, forward_kinematics as trip_forward_kinematics
 
 
 def state_to_kp(state):
@@ -141,7 +140,7 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
             transf_kp_hom = transf_kp_hom_pos @ transf_kp_hom_rot
 
             # TriP
-            transf_trip_hom = trip_kinematics.forward_kinematics(robot, joint).astype('float64')
+            transf_trip_hom = trip_forward_kinematics(robot, joint).astype('float64')
 
             assert np.allclose(transf_kp_hom, transf_trip_hom)
 
