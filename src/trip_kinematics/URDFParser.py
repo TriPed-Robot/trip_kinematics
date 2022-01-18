@@ -153,6 +153,14 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
         # assert type_ in ['fixed', 'continuous', 'revolute', 'prismatic', 'floating', 'planar']
     except AssertionError:
         raise ValueError(f"Unsupported joint type {type_}")
+
+    type_to_mov_dict = {
+        'fixed' : [{}, []],
+        'continuous': [{'rz':0}, ['rz']],
+        'revolute': [{'rz':0}, ['rz']],
+        'prismatic' : [{'tz':0}, ['tz']],
+    }
+
     # Default values if origin rotation or translation are not specified
     if origin is None:
         xyz_vals = '0 0 0'
@@ -230,10 +238,9 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
 
     # Transformation 4 (mov): represents the movement of the joint. This is the only transformation
     # with state variables.
-    if type_ in ['continuous', 'revolute']:
-        mov = [name + '_mov', {'rz': 0}, ['rz']]
-    elif type_ == 'prismatic':
-        mov = [name + '_mov', {'tz': 0}, ['tz']]
+
+    mov = [name + '_mov', *type_to_mov_dict[type_]]
+
     # Commenting out floating and planar joints for now because we cannot test them by comparing
     # against kinpy (since it does not support them). In theory this code should work, though.
     # elif type_ == 'floating':
@@ -242,8 +249,6 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     #            ['tx', 'ty', 'tz', 'rx', 'ry', 'rz']]
     # elif type_ == 'planar':
     #     mov = [name + '_mov', {'tx': 0, 'ty': 0}, ['tx', 'ty']]
-    elif type_ == 'fixed':
-        mov = [name + '_mov', {}, []]
 
     joint_transformations.append(mov)
 
