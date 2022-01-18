@@ -148,6 +148,11 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     except AssertionError as err:
         raise ValueError(f'Error: Invalid URDF file ({err})') from err
 
+    try:
+        assert type_ in ['fixed', 'continuous', 'revolute', 'prismatic']
+        # assert type_ in ['fixed', 'continuous', 'revolute', 'prismatic', 'floating', 'planar']
+    except AssertionError:
+        raise ValueError(f"Unsupported joint type {type_}")
     # Default values if origin rotation or translation are not specified
     if origin is None:
         xyz_vals = '0 0 0'
@@ -239,8 +244,6 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     #     mov = [name + '_mov', {'tx': 0, 'ty': 0}, ['tx', 'ty']]
     elif type_ == 'fixed':
         mov = [name + '_mov', {}, []]
-    else:
-        raise ValueError(f"Unsupported joint type {type_}")
 
     joint_transformations.append(mov)
 
