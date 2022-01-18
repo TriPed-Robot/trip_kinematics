@@ -279,14 +279,14 @@ def _create_transformations_from_tree(joint: str,
     """
     transformations_list = []
 
-    for trans in joint_name_to_transformations[joint]:
-        # trans[1] is the parametric description of the transformations
-        # If len(trans) > 2, then the transformation has state variables
-        is_nonzero = any(i != 0 for i in trans[1].values()) or len(trans[2]) > 0
+    for transformation in joint_name_to_transformations[joint]:
+        # transformation[1] is the parametric description of the transformations
+        # If len(transformation) > 2, then the transformation has state variables
+        is_nonzero = any(i != 0 for i in transformation[1].values()) or len(transformation[2]) > 0
         if is_nonzero:
-            tmp = Transformation(name=trans[0],
-                                 values=trans[1],
-                                 state_variables=trans[2],
+            tmp = Transformation(name=transformation[0],
+                                 values=transformation[1],
+                                 state_variables=transformation[2],
                                  parent=parent)
             transformations_list.append(tmp)
             parent = tmp
