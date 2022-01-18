@@ -123,7 +123,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
 
         1. origin translation and 2. origin rotation (both taken from the <origin> tag of the URDF),
         3. a rotation that makes joint movement parallel to the z axis of the local coord. system,
-        4. the joint movement (the only non-fixed transformation of the five),
+        4. the joint movement (the only dynamic transformation of the five),
         5. the inverse transformation of number 3.
 
     Args:
