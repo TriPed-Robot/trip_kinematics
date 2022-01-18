@@ -52,11 +52,12 @@ def from_urdf(filename: str) -> List[Transformation]:
 
 
 def align_vectors(target: np.ndarray, to_align: np.ndarray) -> np.ndarray:
-    """Generates a rotation matrix that makes b parallel to a.
+    """Generates target rotation matrix that makes to_align parallel to target.
+    The function was derived from https://gist.github.com/kevinmoran/b45980723e53edeb8a5a43c49f134724
 
     Args:
-        a (np.ndarray): 3D Vector.
-        b (np.ndarray): 3D Vector.
+        target (np.ndarray):   3D Vector.
+        to_align (np.ndarray): 3D Vector.
 
     Returns:
         np.ndarray: 3x3 rotation matrix.
