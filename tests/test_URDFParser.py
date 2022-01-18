@@ -10,6 +10,18 @@ import trip_kinematics
 
 
 def state_to_kp(state):
+    """The states in TriP are denoted with the '_mov' tag to indicate that it moves and for example
+    a '_tz' tag to indicate a translation along the z axis. As these are not used in kinpy the last
+    two tags are removed from the string to yield the proper state name
+
+    Args:
+        state (dict) : dictionary with the state name of each joint as it occurs in TriP as the key
+                       and a float as the value
+
+    Returns:
+        (dict) : the input dictionary where the keys are adjusted to the form that kinpy states use
+
+    """
     return {
         "_".join(joint_name.split("_")[:-2]): value
         for joint_name, value in state.items()
@@ -17,10 +29,31 @@ def state_to_kp(state):
 
 
 def state_to_trip(state):
+    """The function state_to_trip was added to have a uniform way of using the state between kinpy
+    and TriP in the tests
+
+    Args:
+        state (dict) : dictionary with the state name of each joint as it occurs in TriP as the key
+                       and a float as the value
+
+    Returns:
+        (dict) : the input dictionary where the keys are adjusted to the form that kinpy states use
+
+    """
     return state
 
 
 def initialize_state(robot):
+    """This takes a TriP robot and creates a dictionary where each key is a movable joint
+    and every value is 0
+
+    Args:
+        robot (Robot) : a TriP Robot
+
+    Returns:
+        (dict) : Foundation for the state dictionary
+
+    """
     return {
         joint_name: 0
         for joint_name in robot.get_actuated_state()
@@ -28,12 +61,30 @@ def initialize_state(robot):
 
 
 def create_kinpy_chain(path):
+    """Take a path to a URDF and have Kinpy return a chain that can be used to calculate the
+    forward kinematics
+
+    Args:
+        path (str) : path to a URDF file
+
+    Returns:
+        (Chain) : Kinpy Chain, needed to calculate forward kinematic as comparison
+
+    """
     with open(path, encoding='utf8') as file:
         urdf_data_str = file.read()
         return kp.build_chain_from_urdf(urdf_data_str)
 
 
 def get_joint_tree_dict(path):
+    """Take a path and return a dictionary representing parent-child relationships between joints.
+    Used to build a tree of joints.
+    Args:
+        path (str) : path to a URDF file
+
+    Returns:
+        dict[str, Dict] : A dictionary representing parent-child relationships between joints.
+    """
     tree = ET.parse(path)
     root = tree.getroot()
     joints = root.findall('joint')
@@ -43,6 +94,15 @@ def get_joint_tree_dict(path):
 
 
 def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
+    """Take a path and an int representing how many different random values should be compared
+    Creates the TriP Robot and Kinpy chain to then calculate the respective forward kinematics
+    and assert that they are equal to each other
+
+    Args:
+        path (str) : path to a URDF file
+        rng_states_count (int) : how many seeded random comparisons should be made defaults to 10
+
+    """
     # Setup TriP robot using the URDF parser
     try:
         robot = Robot(URDFParser.from_urdf(path))
