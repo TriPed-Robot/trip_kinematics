@@ -343,7 +343,7 @@ The solving of the closure equation can be performed by casadi, which TriP also 
 .. literalinclude:: ../../src/trip_robots/excavator_rr.py
    :language: python
    :linenos:
-   :lines: 78-143
+   :lines: 1-10,78-143
 
 .. _virtual_chain_reference_label:
 
