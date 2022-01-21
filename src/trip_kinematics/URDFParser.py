@@ -8,7 +8,7 @@ from trip_kinematics.Transformation import Transformation
 
 
 def from_urdf(filename: str) -> List[Transformation]:
-    """Converts a robot specified in a URDF file into a list of :py:class`Transformation` objects.
+    """Converts a robot specified in a URDF file into a list of :py:class:`Transformation` objects.
 
     If the <origin> tag does not specify xyz and rpy values or the tag is omitted, these default
     to (0, 0, 0). <axis> defaults to (0, 0, 1).
@@ -53,7 +53,13 @@ def from_urdf(filename: str) -> List[Transformation]:
 
 def align_vectors(target: np.ndarray, to_align: np.ndarray) -> np.ndarray:
     """Calculates a rotation matrix that rotates to_align so that it becomes parallel to target.
-    Derived from https://gist.github.com/kevinmoran/b45980723e53edeb8a5a43c49f134724.
+    Based on work by Íñigo Quílez and Kevin Moran. See:
+
+    "Avoiding Trigonometry", by Íñigo Quílez
+    https://iquilezles.org/www/articles/noacos/noacos.htm
+
+    "How to Calculate a Rotation Matrix to Align Vector A to Vector B in 3D", by Kevin Moran
+    https://gist.github.com/kevinmoran/b45980723e53edeb8a5a43c49f134724
 
     Args:
         target (np.ndarray): 3D Vector.
