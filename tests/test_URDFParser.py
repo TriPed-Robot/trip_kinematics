@@ -92,7 +92,7 @@ def get_joint_tree_dict(path):
     return URDFParser._build_joint_tree_dict(joints)
 
 
-def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
+def compare_urdf_trip_vs_kinpy(path, rng_states_count=10, atol=1e-08):
     """Reads a URDF file, converts it into a TriP robot and a kinpy kinematic chain, calculates
     forward kinematics for both, and checks whether the results are within a tolerance of each
     other. This is done first using the state where all joint positions are set to zero, then for
@@ -100,7 +100,9 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
 
     Args:
         path (str): Path to the URDF file to test.
-        rng_states_count (int): The number of randomized states. Defaults to 10.
+        rng_states_count (int, optional): The number of randomized states. Defaults to 10.
+        atol (float, optional): The absolute tolerance parameter for numpy :py:func:`allclose`.
+                       Defaults to 1e-08
 
     Raises:
         AssertionError: Results were not within tolerance of each other.
@@ -146,7 +148,7 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
             # TriP
             transf_trip_hom = trip_forward_kin(robot, joint).astype('float64')
 
-            assert np.allclose(transf_kp_hom, transf_trip_hom)
+            assert np.allclose(transf_kp_hom, transf_trip_hom, atol=atol)
 
 
 class TestStates(unittest.TestCase):
