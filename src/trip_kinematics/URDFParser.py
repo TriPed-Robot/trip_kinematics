@@ -87,7 +87,7 @@ def align_vectors(target: np.ndarray, to_align: np.ndarray) -> np.ndarray:
 
 def _build_joint_tree_dict(joints: List[ET.Element]) -> Dict[str, Dict]:
     """Creates a dictionary representing parent-child relationships between joints. Used by
-    from_urdf() to build a tree of joints.
+    :py:func:`from_urdf()` to build a tree of joints.
 
     Args:
         joints (List[ET.Element]): List of <joint> tags from the URDF file.
@@ -133,7 +133,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
         ValueError: Could not parse URDF file.
 
     Returns:
-        List[List]: A list of parameters for up to four py:class`Transformation` objects that
+        List[List]: A list of parameters for up to four py:class:`Transformation` objects that
         describe the input joint.
     """
     # Read properties from urdf
@@ -248,19 +248,19 @@ def _create_transformations_from_tree(joint: str,
                                       joint_tree_dict: Dict[str, Dict],
                                       joint_name_to_transformations: Dict[str, List],
                                       parent: Transformation) -> List[Transformation]:
-    """Recursively builds a tree of py:class`Transformation` objects, starting from the root and
+    """Recursively builds a tree of py:class:`Transformation` objects, starting from the root and
     traversing the tree towards the children.
 
     Args:
         joint (str): Name of the joint.
         joint_tree_dict (Dict[str, Dict]): Represents the relationships between all joints.
         joint_name_to_transformations (Dict[str, List]): Contains the parameters for the
-                                                         py:class`Transformation` objects.
+                                                         py:class:`Transformation` objects.
         parent (Transformation, optional): The parent of current joint. Should be None for the root,
                                            is set recursively for its children.
 
     Returns:
-        List[Transformation]: List of py:class`Transformation` objects for input node and all its
+        List[Transformation]: List of py:class:`Transformation` objects for input node and all its
                               descendants.
     """
     transformations_list = []

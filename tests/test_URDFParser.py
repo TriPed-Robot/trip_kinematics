@@ -44,7 +44,7 @@ def state_to_trip(state):
 
 def initialize_state(robot):
     """Creates a dictionary whose entries each correspond to a movable joint of the input
-    :py:class`Robot`, with all values (joint positions) set to 0.
+    :py:class:`Robot`, with all values (joint positions) set to 0.
 
     Args:
         robot (Robot): A TriP Robot.
