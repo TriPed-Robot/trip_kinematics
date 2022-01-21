@@ -52,11 +52,11 @@ def from_urdf(filename: str) -> List[Transformation]:
 
 
 def align_vectors(target: np.ndarray, to_align: np.ndarray) -> np.ndarray:
-    """Generates target rotation matrix that makes to_align parallel to target.
-    The function was derived from https://gist.github.com/kevinmoran/b45980723e53edeb8a5a43c49f134724
+    """Calculates a rotation matrix that rotates to_align so that it becomes parallel to target.
+    Derived from https://gist.github.com/kevinmoran/b45980723e53edeb8a5a43c49f134724.
 
     Args:
-        target (np.ndarray):   3D Vector.
+        target (np.ndarray): 3D Vector.
         to_align (np.ndarray): 3D Vector.
 
     Returns:
@@ -148,17 +148,14 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
     except AssertionError as err:
         raise ValueError(f'Error: Invalid URDF file ({err})') from err
 
-    try:
-        assert type_ in ['fixed', 'continuous', 'revolute', 'prismatic']
-        # assert type_ in ['fixed', 'continuous', 'revolute', 'prismatic', 'floating', 'planar']
-    except AssertionError:
+    if type_ not in ['fixed', 'continuous', 'revolute', 'prismatic']:
         raise ValueError(f"Unsupported joint type {type_}")
 
     type_to_mov_dict = {
-        'fixed' : [{}, []],
-        'continuous': [{'rz':0}, ['rz']],
-        'revolute': [{'rz':0}, ['rz']],
-        'prismatic' : [{'tz':0}, ['tz']],
+        'fixed': [{}, []],
+        'continuous': [{'rz': 0}, ['rz']],
+        'revolute': [{'rz': 0}, ['rz']],
+        'prismatic': [{'tz': 0}, ['tz']],
     }
 
     # Default values if origin rotation or translation are not specified
@@ -238,18 +235,7 @@ def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
 
     # Transformation 4 (mov): represents the movement of the joint. This is the only transformation
     # with state variables.
-
     mov = [name + '_mov', *type_to_mov_dict[type_]]
-
-    # Commenting out floating and planar joints for now because we cannot test them by comparing
-    # against kinpy (since it does not support them). In theory this code should work, though.
-    # elif type_ == 'floating':
-    #     mov = [name + '_mov',
-    #            {'tx': 0, 'ty': 0, 'tz': 0, 'rx': 0, 'ry': 0, 'rz': 0},
-    #            ['tx', 'ty', 'tz', 'rx', 'ry', 'rz']]
-    # elif type_ == 'planar':
-    #     mov = [name + '_mov', {'tx': 0, 'ty': 0}, ['tx', 'ty']]
-
     joint_transformations.append(mov)
 
     if axis is not None and not np.array_equal(axis, np.array([0, 0, 1])):

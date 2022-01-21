@@ -5,7 +5,7 @@ import random
 
 import kinpy as kp
 import numpy as np
-from trip_kinematics import Utility, URDFParser, Robot, forward_kinematics as trip_forward_kinematics
+from trip_kinematics import Utility, URDFParser, Robot, forward_kinematics as trip_forward_kin
 
 
 def state_to_kp(state):
@@ -14,11 +14,11 @@ def state_to_kp(state):
     two tags are removed from the string to yield the proper state name
 
     Args:
-        state (dict) : dictionary with the state name of each joint as it occurs in TriP as the key
-                       and a float as the value
+        state (dict): dictionary with the state name of each joint as it occurs in TriP as the key
+                      and a float as the value
 
     Returns:
-        (dict) : the input dictionary where the keys are adjusted to the form that kinpy states use
+        (dict): the input dictionary where the keys are adjusted to the form that kinpy states use
 
     """
     return {
@@ -32,25 +32,25 @@ def state_to_trip(state):
     and TriP in the tests
 
     Args:
-        state (dict) : dictionary with the state name of each joint as it occurs in TriP as the key
-                       and a float as the value
+        state (dict): dictionary with the state name of each joint as it occurs in TriP as the key
+                      and a float as the value
 
     Returns:
-        (dict) : the input dictionary where the keys are adjusted to the form that kinpy states use
+        (dict): the input dictionary where the keys are adjusted to the form that kinpy states use
 
     """
     return state
 
 
 def initialize_state(robot):
-    """This takes a TriP robot and creates a dictionary where each key is a movable joint
-    and every value is 0
+    """Creates a dictionary whose entries each correspond to a movable joint of the input
+    :py:class`Robot`, with all values (joint positions) set to 0.
 
     Args:
-        robot (Robot) : a TriP Robot
+        robot (Robot): A TriP Robot.
 
     Returns:
-        (dict) : Foundation for the state dictionary
+        (dict): Dictionary representing the robot's state, with all values initialized to zeros.
 
     """
     return {
@@ -60,14 +60,13 @@ def initialize_state(robot):
 
 
 def create_kinpy_chain(path):
-    """Take a path to a URDF and have Kinpy return a chain that can be used to calculate the
-    forward kinematics
+    """Takes a path to a URDF file and converts it into a kinpy kinematic chain.
 
     Args:
-        path (str) : path to a URDF file
+        path (str): Path to a URDF file.
 
     Returns:
-        (Chain) : Kinpy Chain, needed to calculate forward kinematic as comparison
+        (Chain): kinpy kinematic chain.
 
     """
     with open(path, encoding='utf8') as file:
@@ -76,13 +75,14 @@ def create_kinpy_chain(path):
 
 
 def get_joint_tree_dict(path):
-    """Take a path and return a dictionary representing parent-child relationships between joints.
-    Used to build a tree of joints.
+    """Calculates a dictionary representing parent-child relationships between joints from a URDF
+    file. Used to build a tree of joints.
+
     Args:
-        path (str) : path to a URDF file
+        path (str): Path to a URDF file.
 
     Returns:
-        dict[str, Dict] : A dictionary representing parent-child relationships between joints.
+        Dict[str, Dict]: Dictionary representing parent-child relationships between joints.
     """
     tree = ET.parse(path)
     root = tree.getroot()
@@ -93,13 +93,17 @@ def get_joint_tree_dict(path):
 
 
 def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
-    """Take a path and an int representing how many different random values should be compared
-    Creates the TriP Robot and Kinpy chain to then calculate the respective forward kinematics
-    and assert that they are equal to each other
+    """Reads a URDF file, converts it into a TriP robot and a kinpy kinematic chain, calculates
+    forward kinematics for both, and checks whether the results are within a tolerance of each
+    other. This is done first using the state where all joint positions are set to zero, then for
+    a number of states where all joint positions are generated randomly.
 
     Args:
-        path (str) : path to a URDF file
-        rng_states_count (int) : how many seeded random comparisons should be made defaults to 10
+        path (str): Path to the URDF file to test.
+        rng_states_count (int): The number of randomized states. Defaults to 10.
+
+    Raises:
+        AssertionError: Results were not within tolerance of each other.
 
     """
     # Setup TriP robot using the URDF parser
@@ -140,7 +144,7 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
             transf_kp_hom = transf_kp_hom_pos @ transf_kp_hom_rot
 
             # TriP
-            transf_trip_hom = trip_forward_kinematics(robot, joint).astype('float64')
+            transf_trip_hom = trip_forward_kin(robot, joint).astype('float64')
 
             assert np.allclose(transf_kp_hom, transf_trip_hom)
 
