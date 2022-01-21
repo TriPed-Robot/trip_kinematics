@@ -111,13 +111,17 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
         robot = Robot(URDFParser.from_urdf(path))
         state_init = initialize_state(robot)
     except ValueError as err:
-        raise ValueError(f'File {path} contains unsupported joint type ({err})') from err
+        raise ValueError(
+            f'File {path} is not valid. Unsupported joint type? (error was {err})'
+        ) from err
 
     # Setup kinpy chain
     try:
         chain_kinpy = create_kinpy_chain(path)
     except KeyError as err:
-        raise ValueError(f'File {path} contains unsupported joint type ({err})') from err
+        raise ValueError(
+            f'File {path} is not valid. Unsupported joint type? Missing tag? (error was {err})'
+        ) from err
 
     test_states = [state_init]
 
@@ -151,32 +155,37 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10):
 
 class TestStates(unittest.TestCase):
     def test_all_urdf_files(self):
-        paths = [
-            "one_fixed_joint",                  # Single fixed joint
-            "one_continuous_joint",             # Single continuous joint
-            "one_revolute_joint",               # Single revolute joint
-            "one_prismatic_joint",              # Single prismatic joint
-            "fixed_to_revolute_joint",          # Fixed and revolute joints combined
-            "prismatic_to_continuous_joint",    # Prismatic and continuous joints combined
-            "large_tree_test",                  # Large tree
-            "ground_to_many",                   # Multiple connections to "ground"
+        names = [
+            "one_fixed_joint",
+            "one_continuous_joint",
+            "one_revolute_joint",
+            "one_prismatic_joint",
+            "fixed_to_revolute_joint",
+            "prismatic_to_continuous_joint",
+            "large_tree_test",
+            "ground_to_many",
         ]
 
-        paths_errors = [
-            "missing_joint_name",
-            "missing_joint_type",
-            "incorrect_joint_type",
+        names_exceptions = [
+            # Valid XML, but not valid URDF robots
+            ("missing_joint_name", ValueError),
+            ("missing_joint_type", ValueError),
+            ("unsupported_joint_type", ValueError),
+
+            # Invalid XML
+            ("xml_invalid_mismatched_tag", ET.ParseError),
+            ("xml_invalid_invalid_token", ET.ParseError),
         ]
 
         urdf_examples_dir = os.path.join('tests', 'urdf_examples')
 
-        for path in paths:
-            full_path = os.path.join(urdf_examples_dir, path + '.urdf')
+        for name in names:
+            full_path = os.path.join(urdf_examples_dir, name + '.urdf')
             compare_urdf_trip_vs_kinpy(full_path)
 
-        for path in paths_errors:
-            full_path = os.path.join(urdf_examples_dir, path + '.urdf')
-            with self.assertRaises(ValueError):
+        for name, exception in names_exceptions:
+            full_path = os.path.join(urdf_examples_dir, 'invalid_urdf', name + '.urdf')
+            with self.assertRaises(exception):
                 compare_urdf_trip_vs_kinpy(full_path)
 
     def test_align_vectors(self):
