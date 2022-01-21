@@ -1,4 +1,4 @@
-<robot name="test_robot">
+<robot name="ground_to_many">
    <link name="ground">
       <visual>
          <geometry>
