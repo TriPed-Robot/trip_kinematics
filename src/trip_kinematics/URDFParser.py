@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 from collections import defaultdict
 from typing import Dict, List
 
@@ -85,7 +85,7 @@ def align_vectors(target: np.ndarray, to_align: np.ndarray) -> np.ndarray:
     return result
 
 
-def _build_joint_tree_dict(joints: List[ET.Element]) -> Dict[str, Dict]:
+def _build_joint_tree_dict(joints: List) -> Dict[str, Dict]:
     """Creates a dictionary representing parent-child relationships between joints. Used by
     :py:func:`from_urdf()` to build a tree of joints.
 
@@ -117,7 +117,7 @@ def _build_joint_tree_dict(joints: List[ET.Element]) -> Dict[str, Dict]:
     return joint_tree_dict
 
 
-def _get_transformations_for_joint(joint: ET.Element) -> List[List]:
+def _get_transformations_for_joint(joint) -> List[List]:
     """Generates the parameters for the transformations for the input joint. One joint is
     represented by up to five transformations. These are:
 
