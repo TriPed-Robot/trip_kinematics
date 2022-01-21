@@ -1,4 +1,4 @@
-<robot name="test_robot">
+<robot name="fixed_to_revolute_joint">
    <link name="ground">
       <visual>
          <geometry>

@@ -1,4 +1,4 @@
-<robot name="test_robot">
+<robot name="missing_joint_name">
    <link name="ground">
       <visual>
          <geometry>

@@ -1,4 +1,4 @@
-<robot name="test_robot">
+<robot name="large_tree_test">
    <link name="ground">
       <visual>
          <geometry>

@@ -1,4 +1,4 @@
-<robot name="test_robot">
+<robot name="one_prismatic_joint">
    <link name="ground">
       <visual>
          <geometry>
