@@ -2,6 +2,7 @@ import unittest
 import os
 import defusedxml.ElementTree as ET
 import random
+import json
 
 import kinpy as kp
 import numpy as np
@@ -21,13 +22,14 @@ def state_to_kp(state):
         (dict): the input dictionary where the keys are adjusted to the form that kinpy states use
 
     """
-    return {
-        "_".join(joint_name.split("_")[:-2]): value
-        for joint_name, value in state.items()
-    }
+    return state
+    # return {
+    #     "_".join(joint_name.split("_")[:-2]): value
+    #     for joint_name, value in state.items()
+    # }
 
 
-def state_to_trip(state):
+def state_to_trip(trip_state, kp_state):
     """The function state_to_trip was added to have a uniform way of using the state between kinpy
     and TriP in the tests
 
@@ -39,6 +41,13 @@ def state_to_trip(state):
         (dict): the input dictionary where the keys are adjusted to the form that kinpy states use
 
     """
+
+    # this now sets the trip states to be equal to the previously generated kinpy states
+    state = {
+        joint_name : kp_state["_".join(joint_name.split("_")[:-2])]
+        for joint_name in trip_state.keys()
+    }
+
     return state
 
 
@@ -125,34 +134,68 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10, atol=1e-08):
             f'File {path} is not valid. Unsupported joint type? Missing tag? (error was {err})'
         ) from err
 
-    test_states = [state_init]
+    path_json = path[:-4] + 'json'
+    with open(path_json) as json_file:
+        data = json.load(json_file)
+        # states = data[0]['state']
+        # transformations = data[0]['transformations']
+        # print(states)
+        # print("------")
+        # print(transformations)
 
-    for seed in range(rng_states_count):
-        random.seed(seed)
-        new_state = {
-            joint: random.uniform(-np.pi, np.pi)
-            for joint in state_init.keys()
-        }
-        test_states.append(new_state)
+        # go through every generated set of states and compare them to what trip calculates
+        for i, robot_position in enumerate(data):
+            # first set the state from the file to TriP
+            current_state = robot_position['state']
+            current_transformations = robot_position['transformations']
+            robot.set_actuated_state(state_to_trip(state_init, current_state))
 
-    for state in test_states:
-        robot.set_actuated_state(state_to_trip(state))
-        chain_kinpy.forward_kinematics(state_to_kp(state))
+            for joint, joint_dict in get_joint_tree_dict(path).items():
+                # kinpy
+                transf_kp = current_transformations[joint_dict['child_link']]
+                kp_rot_matrix = Utility.quat_rotation_matrix(*transf_kp["rot"]).astype('float64')
+                transf_kp_hom_rot = Utility.hom_rotation(kp_rot_matrix).astype('float64')
+                transf_kp_hom_pos = Utility.hom_translation_matrix(*transf_kp["pos"]).astype('float64')
+                transf_kp_hom = transf_kp_hom_pos @ transf_kp_hom_rot
 
-        # Calculate homogenous transformation matrices using both kinpy and TriP for every joint
-        # and compare them. joint_dict contains info about connections to other joints.
-        for joint, joint_dict in get_joint_tree_dict(path).items():
-            # kinpy
-            transf_kp = chain_kinpy.forward_kinematics(state_to_kp(state))[joint_dict['child_link']]
-            kp_rot_matrix = Utility.quat_rotation_matrix(*transf_kp.rot).astype('float64')
-            transf_kp_hom_rot = Utility.hom_rotation(kp_rot_matrix).astype('float64')
-            transf_kp_hom_pos = Utility.hom_translation_matrix(*transf_kp.pos).astype('float64')
-            transf_kp_hom = transf_kp_hom_pos @ transf_kp_hom_rot
+                # TriP
+                transf_trip_hom = trip_forward_kin(robot, joint).astype('float64')
+                print(joint, i)
+                print(transf_kp_hom)
+                print()
+                print(transf_trip_hom)
+                assert np.allclose(transf_kp_hom, transf_trip_hom, atol=atol)
 
-            # TriP
-            transf_trip_hom = trip_forward_kin(robot, joint).astype('float64')
 
-            assert np.allclose(transf_kp_hom, transf_trip_hom, atol=atol)
+
+    # test_states = [state_init]
+    #
+    # for seed in range(rng_states_count):
+    #     random.seed(seed)
+    #     new_state = {
+    #         joint: random.uniform(-np.pi, np.pi)
+    #         for joint in state_init.keys()
+    #     }
+    #     test_states.append(new_state)
+    #
+    # for state in test_states:
+    #     robot.set_actuated_state(state_to_trip(state))
+    #     chain_kinpy.forward_kinematics(state_to_kp(state))
+    #
+    #     # Calculate homogenous transformation matrices using both kinpy and TriP for every joint
+    #     # and compare them. joint_dict contains info about connections to other joints.
+    #     for joint, joint_dict in get_joint_tree_dict(path).items():
+    #         # kinpy
+    #         transf_kp = chain_kinpy.forward_kinematics(state_to_kp(state))[joint_dict['child_link']]
+    #         kp_rot_matrix = Utility.quat_rotation_matrix(*transf_kp.rot).astype('float64')
+    #         transf_kp_hom_rot = Utility.hom_rotation(kp_rot_matrix).astype('float64')
+    #         transf_kp_hom_pos = Utility.hom_translation_matrix(*transf_kp.pos).astype('float64')
+    #         transf_kp_hom = transf_kp_hom_pos @ transf_kp_hom_rot
+    #
+    #         # TriP
+    #         transf_trip_hom = trip_forward_kin(robot, joint).astype('float64')
+    #
+    #         assert np.allclose(transf_kp_hom, transf_trip_hom, atol=atol)
 
 
 class TestStates(unittest.TestCase):
@@ -209,3 +252,9 @@ class TestStates(unittest.TestCase):
             aligned = to_align @ rotation_matrix
 
             assert np.all(np.isclose(aligned, target))
+
+
+if __name__ == "__main__":
+    urdf_examples_dir = os.path.join('tests', 'urdf_examples')
+    path = os.path.join(urdf_examples_dir, 'large_tree_test' + '.urdf')
+    compare_urdf_trip_vs_kinpy(path)
