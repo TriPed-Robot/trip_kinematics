@@ -9,22 +9,6 @@ import numpy as np
 from trip_kinematics import Utility, URDFParser, Robot, forward_kinematics
 
 
-def state_to_kp(state):
-    """The states in TriP are denoted with the '_mov' tag to indicate that it moves and for example
-    a '_tz' tag to indicate a translation along the z axis. As these are not used in kinpy the last
-    two tags are removed from the string to yield the proper state name
-
-    Args:
-        state (dict): dictionary with the state name of each joint as it occurs in TriP as the key
-                      and a float as the value
-
-    Returns:
-        (dict): the input dictionary where the keys are adjusted to the form that kinpy states use
-
-    """
-    return state
-
-
 def state_to_trip(trip_state, kp_state):
     """The function state_to_trip was added to have a uniform way of using the state between kinpy
     and TriP in the tests
@@ -62,21 +46,6 @@ def initialize_state(robot):
         joint_name: 0
         for joint_name in robot.get_actuated_state()
     }
-
-
-def create_kinpy_chain(path):
-    """Takes a path to a URDF file and converts it into a kinpy kinematic chain.
-
-    Args:
-        path (str): Path to a URDF file.
-
-    Returns:
-        (Chain): kinpy kinematic chain.
-
-    """
-    with open(path, encoding='utf8') as file:
-        urdf_data_str = file.read()
-        return kp.build_chain_from_urdf(urdf_data_str)
 
 
 def get_joint_tree_dict(path):
