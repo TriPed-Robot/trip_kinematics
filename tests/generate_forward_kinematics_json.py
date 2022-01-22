@@ -1,29 +1,10 @@
 import os
-import defusedxml.ElementTree as ET
+import pathlib
 import random
 import json
 
 import kinpy as kp
 import numpy as np
-
-
-def state_to_kp(state):
-    """The states in TriP are denoted with the '_mov' tag to indicate that it moves and for example
-    a '_tz' tag to indicate a translation along the z axis. As these are not used in kinpy the last
-    two tags are removed from the string to yield the proper state name
-
-    Args:
-        state (dict): dictionary with the state name of each joint as it occurs in TriP as the key
-                      and a float as the value
-
-    Returns:
-        (dict): the input dictionary where the keys are adjusted to the form that kinpy states use
-
-    """
-    return {
-        "_".join(joint_name.split("_")[:-2]): value
-        for joint_name, value in state.items()
-    }
 
 
 def initialize_state(robot):
@@ -58,20 +39,13 @@ def create_kinpy_chain(path):
         return kp.build_chain_from_urdf(urdf_data_str)
 
 
-def compare_urdf_trip_vs_kinpy(path, rng_states_count=10, atol=1e-08):
-    """Reads a URDF file, converts it into a TriP robot and a kinpy kinematic chain, calculates
-    forward kinematics for both, and checks whether the results are within a tolerance of each
-    other. This is done first using the state where all joint positions are set to zero, then for
-    a number of states where all joint positions are generated randomly.
+def generate_forward_kinematics_json(path, rng_states_count=10):
+    """Calculates forward kinematics for the input URDF file using kinpy and saves these to a
+    JSON file.
 
     Args:
-        path (str): Path to the URDF file to test.
+        path (str): Path to the URDF file.
         rng_states_count (int, optional): The number of randomized states. Defaults to 10.
-        atol (float, optional): The absolute tolerance parameter for numpy :py:func:`allclose`.
-                                Defaults to 1e-08.
-
-    Raises:
-        AssertionError: Results were not within tolerance of each other.
 
     """
     # Setup kinpy chain
@@ -97,24 +71,29 @@ def compare_urdf_trip_vs_kinpy(path, rng_states_count=10, atol=1e-08):
         }
         test_states.append(new_state)
 
-    # Save forward kinematics for all states
+    # Save forward kinematics results and joint positions for all states
     forward_kinematics = [
         {
             'state': state,
             'transformations': {
-                link: {'rot': list(transform.rot), 'pos': list(transform.pos)}
-                for link, transform in chain_kinpy.forward_kinematics(state_to_kp(state)).items()
+                link: {'rot': list(transform.rot),
+                       'pos': list(transform.pos)}
+                for link, transform in chain_kinpy.forward_kinematics(state).items()
             }
         }
         for state in test_states
     ]
 
-    # Replace .urdf extension with .json
-    path_json = path[:-4] + 'json'
-
+    path_json = pathlib.Path(path).with_suffix('.json')
     with open(path_json, 'w', encoding='utf8') as file:
         json.dump(forward_kinematics, file, separators=(',', ':'))
 
 
 if __name__ == '__main__':
-    compare_urdf_trip_vs_kinpy('tests/urdf_examples/large_tree_test.urdf')
+    urdf_examples_dir = os.path.join('tests', 'urdf_examples')
+    # Iterate through files for which we compute forward kinematics. Skip subdirectories of
+    # urdf_examples_dir, because as of now, the only subdirectory contains (intentionally) broken
+    # URDFs. If that changes, change this too.
+    for entry in os.scandir(urdf_examples_dir):
+        if entry.is_file() and pathlib.Path(entry).suffix == '.urdf':
+            generate_forward_kinematics_json(entry.path)
