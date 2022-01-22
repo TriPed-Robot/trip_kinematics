@@ -1,4 +1,4 @@
-<robot name="missing_joint_name">
+<robot name="urdf_invalid_missing_joint_name">
    <link name="ground">
       <visual>
          <geometry>

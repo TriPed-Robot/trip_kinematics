@@ -160,9 +160,9 @@ class TestStates(unittest.TestCase):
 
         names_exceptions = [
             # Valid XML, but not valid URDF robots
-            ("missing_joint_name", ValueError),
-            ("missing_joint_type", ValueError),
-            ("unsupported_joint_type", ValueError),
+            ("urdf_invalid_missing_joint_name", ValueError),
+            ("urdf_invalid_missing_joint_type", ValueError),
+            ("urdf_invalid_unsupported_joint_type", ValueError),
 
             # Invalid XML
             ("xml_invalid_mismatched_tag", ET.ParseError),

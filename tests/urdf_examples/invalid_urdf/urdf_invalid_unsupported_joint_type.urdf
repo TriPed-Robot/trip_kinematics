@@ -1,4 +1,4 @@
-<robot name="unsupported_joint_type">
+<robot name="urdf_invalid_unsupported_joint_type">
    <link name="ground">
       <visual>
          <geometry>
