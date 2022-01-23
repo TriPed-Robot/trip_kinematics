@@ -9,6 +9,7 @@ from trip_kinematics import Utility, URDFParser, Robot, forward_kinematics
 
 
 precomputed_kinematics_dir_name = 'precomputed_kinematics'
+urdf_examples_dir = os.path.join('tests', 'urdf_examples')
 
 def urdf_path_to_json_path(path):
     path = pathlib.Path(path)

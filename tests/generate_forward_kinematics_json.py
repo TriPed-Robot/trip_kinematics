@@ -5,7 +5,11 @@ import json
 
 import kinpy as kp
 import numpy as np
-from test_URDFParser import urdf_path_to_json_path, precomputed_kinematics_dir_name
+from test_URDFParser import (
+    urdf_path_to_json_path,
+    precomputed_kinematics_dir_name,
+    urdf_examples_dir
+)
 
 
 def initialize_state(robot):
@@ -88,8 +92,7 @@ def generate_forward_kinematics_json(urdf_path, rng_states_count=10):
     return json.dumps(forward_kinematics, separators=(',', ':'))
 
 
-if __name__ == '__main__':
-    urdf_examples_dir = os.path.join('tests', 'urdf_examples')
+def main():
     precomputed_kinematics_dir = pathlib.Path(urdf_examples_dir) / precomputed_kinematics_dir_name
     precomputed_kinematics_dir.mkdir(exist_ok=True)
     # Iterate through files for which we compute forward kinematics. Skip subdirectories of
@@ -100,3 +103,7 @@ if __name__ == '__main__':
             with open(urdf_path_to_json_path(entry.path), 'w', encoding='utf8') as file:
                 forward_kinematics = generate_forward_kinematics_json(entry.path)
                 file.write(forward_kinematics)
+
+
+if __name__ == '__main__':
+    main()
