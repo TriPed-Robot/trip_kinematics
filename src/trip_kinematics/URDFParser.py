@@ -297,6 +297,3 @@ def _create_transformations_from_tree(joint: str,
             )
 
     return transformations_list
-
-
-from_urdf(r'tests\urdf_examples\large_tree_test.urdf')
