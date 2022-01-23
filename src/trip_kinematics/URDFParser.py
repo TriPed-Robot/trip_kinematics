@@ -27,15 +27,15 @@ def from_urdf(filename: str) -> List[Transformation]:
     joints = root.findall('joint')
     joint_name_to_transformations = {}
 
-    joint_tree_dict = _build_joint_tree_dict(joints)
+    joint_info = _build_joint_info(joints)
 
-    root_joints = [name for name, value in joint_tree_dict.items() if not value['parent']]
+    root_joints = [name for name, value in joint_info.items() if not value['parent']]
 
     for i, joint in enumerate(joints):
         name = joint.get('name')
         if not name:
             raise ValueError('Missing name field in URDF file')
-        joint_tree_dict[name]['joint_index'] = i
+        joint_info[name]['joint_index'] = i
 
     for joint in joints:
         joint_name_to_transformations[joint.get('name')] = _get_transformations_for_joint(joint)
@@ -43,7 +43,7 @@ def from_urdf(filename: str) -> List[Transformation]:
     transformations = []
     for joint in root_joints:
         transformations.extend(_create_transformations_from_tree(joint,
-                                                                 joint_tree_dict,
+                                                                 joint_info,
                                                                  joint_name_to_transformations,
                                                                  None)
                                )
@@ -91,7 +91,7 @@ def align_vectors(target: np.ndarray, to_align: np.ndarray) -> np.ndarray:
     return result
 
 
-def _build_joint_tree_dict(joints: List) -> Dict[str, Dict]:
+def _build_joint_info(joints: List) -> Dict[str, Dict]:
     """Creates a dictionary representing parent-child relationships between joints. Used by
     :py:func:`from_urdf()` to build a tree of joints.
 
@@ -103,7 +103,7 @@ def _build_joint_tree_dict(joints: List) -> Dict[str, Dict]:
     """
     # Keep track of parent and children links of joints
     # and use that to search for the parent joint of each joint
-    joint_tree_dict = {
+    joint_info = {
         joint.get('name'): {
             'child_link': joint.find('child').get('link'),
             'parent_link': joint.find('parent').get('link')
@@ -116,11 +116,11 @@ def _build_joint_tree_dict(joints: List) -> Dict[str, Dict]:
         parent_link_to_joint[joint.find('parent').get('link')].append(joint.get('name'))
         child_link_to_joint[joint.find('child').get('link')].append(joint.get('name'))
 
-    for val in joint_tree_dict.values():
+    for val in joint_info.values():
         val['parent'] = child_link_to_joint[val['parent_link']]
         val['child'] = parent_link_to_joint[val['child_link']]
 
-    return joint_tree_dict
+    return joint_info
 
 
 def _get_transformations_for_joint(joint) -> List[List]:
@@ -251,7 +251,7 @@ def _get_transformations_for_joint(joint) -> List[List]:
 
 
 def _create_transformations_from_tree(joint: str,
-                                      joint_tree_dict: Dict[str, Dict],
+                                      joint_info: Dict[str, Dict],
                                       joint_name_to_transformations: Dict[str, List],
                                       parent: Transformation) -> List[Transformation]:
     """Recursively builds a tree of py:class:`Transformation` objects, starting from the root and
@@ -259,7 +259,7 @@ def _create_transformations_from_tree(joint: str,
 
     Args:
         joint (str): Name of the joint.
-        joint_tree_dict (Dict[str, Dict]): Represents the relationships between all joints.
+        joint_info (Dict[str, Dict]): Represents the relationships between all joints.
         joint_name_to_transformations (Dict[str, List]): Contains the parameters for the
                                                          py:class:`Transformation` objects.
         parent (Transformation, optional): The parent of current joint. Should be None for the root,
@@ -287,11 +287,11 @@ def _create_transformations_from_tree(joint: str,
     transformations_list.append(tmp)
     parent = tmp
 
-    if joint_tree_dict[joint]['child']:
-        for child in joint_tree_dict[joint]['child']:
+    if joint_info[joint]['child']:
+        for child in joint_info[joint]['child']:
             transformations_list.extend(
                 _create_transformations_from_tree(child,
-                                                  joint_tree_dict,
+                                                  joint_info,
                                                   joint_name_to_transformations,
                                                   parent)
             )

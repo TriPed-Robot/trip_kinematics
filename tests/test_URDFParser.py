@@ -47,7 +47,7 @@ def initialize_state(robot):
     }
 
 
-def get_joint_tree_dict(path):
+def get_joint_info(path):
     """Calculates a dictionary representing parent-child relationships between joints from a URDF
     file. Used to build a tree of joints.
 
@@ -63,7 +63,7 @@ def get_joint_tree_dict(path):
     joints = root.findall('joint')
 
     # pylint: disable=protected-access
-    return URDFParser._build_joint_tree_dict(joints)
+    return URDFParser._build_joint_info(joints)
 
 
 def compare_urdf_trip_vs_json(path, atol=1e-08):
@@ -97,9 +97,9 @@ def compare_urdf_trip_vs_json(path, atol=1e-08):
             transformations = robot_position['transformations']
             robot.set_actuated_state(state_to_trip(state_init, state))
 
-            for joint, joint_dict in get_joint_tree_dict(path).items():
+            for joint, joint_info in get_joint_info(path).items():
                 # Convert position and quaternion rotation saved in JSON to homogenous matrix
-                pos_and_rot = transformations[joint_dict['child_link']]
+                pos_and_rot = transformations[joint_info['child_link']]
                 pos = pos_and_rot["pos"]
                 rot = pos_and_rot["rot"]
                 pos_homogenous = Utility.hom_translation_matrix(*pos).astype('float')
