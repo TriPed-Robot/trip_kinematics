@@ -154,7 +154,7 @@ def _get_transformations_for_joint(joint) -> List[List]:
     except AssertionError as err:
         raise ValueError(f'Error: Invalid URDF file ({err})') from err
 
-    if type_ not in ['fixed', 'continuous', 'revolute', 'prismatic']:
+    if type_ not in ['fixed', 'continuous', 'revolute', 'prismatic', 'floating', 'planar']:
         raise ValueError(f"Unsupported joint type {type_}")
 
     type_to_mov_dict = {
@@ -162,6 +162,8 @@ def _get_transformations_for_joint(joint) -> List[List]:
         'continuous': [{'rz': 0}, ['rz']],
         'revolute': [{'rz': 0}, ['rz']],
         'prismatic': [{'tz': 0}, ['tz']],
+        'floating' : [{}, []], # treating floating and planar as fixed until implemented
+        'planar' : [{}, []],
     }
 
     # Default values if origin rotation or translation are not specified
@@ -178,8 +180,9 @@ def _get_transformations_for_joint(joint) -> List[List]:
     origin_xyz = np.array(list(map(float, xyz_vals.split(' '))))
     origin_rpy = np.array(list(map(float, rpy_vals.split(' '))))
 
-    if type_ in ['fixed']:
+    if type_ in ['fixed', 'floating', 'planar']:
         axis = None     # Fixed joints have no axis
+        # floating and planar are added to have no axis as they are not yet implemented
 
     elif type_ in ['continuous', 'revolute', 'prismatic']:
         axis = joint.find('axis')
