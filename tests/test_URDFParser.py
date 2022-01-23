@@ -8,6 +8,15 @@ import numpy as np
 from trip_kinematics import Utility, URDFParser, Robot, forward_kinematics
 
 
+precomputed_kinematics_dir_name = 'precomputed_kinematics'
+
+def urdf_path_to_json_path(path):
+    path = pathlib.Path(path)
+    urdf_directory = path.parent
+    json_file_name = path.with_suffix('.json').name
+    return urdf_directory / precomputed_kinematics_dir_name / json_file_name
+
+
 def state_to_trip(trip_state, kp_state):
     """The function state_to_trip was added to have a uniform way of using the state between kinpy
     and TriP in the tests
@@ -66,13 +75,13 @@ def get_joint_info(path):
     return URDFParser._build_joint_info(joints)
 
 
-def compare_urdf_trip_vs_json(path, atol=1e-08):
+def compare_urdf_trip_vs_json(urdf_path, atol=1e-08):
     """Reads a URDF file, converts it into a TriP robot, calculates forward kinematics, and checks
     whether the results are close to those saved in a JSON file. The JSON file must have the
     same name as the URDF file, except the extension should be changed from .urdf to .json.
 
     Args:
-        path (str): Path to the URDF file to test.
+        urdf_path (str): Path to the URDF file to test.
         atol (float, optional): Absolute tolerance of the comparison; see numpy documentation for
                                 :py:func:`allclose`. Defaults to 1e-08.
 
@@ -82,22 +91,22 @@ def compare_urdf_trip_vs_json(path, atol=1e-08):
     """
     # Setup TriP robot using the URDF parser
     try:
-        robot = Robot(URDFParser.from_urdf(path))
+        robot = Robot(URDFParser.from_urdf(urdf_path))
         state_init = initialize_state(robot)
     except ValueError as err:
         raise ValueError(
-            f'File {path} is not valid. Unsupported joint type? (error was {err})'
+            f'File {urdf_path} is not valid. Unsupported joint type? (error was {err})'
         ) from err
 
-    path_json = pathlib.Path(path).with_suffix('.json')
-    with open(path_json, encoding='utf8') as json_file:
+    json_path = urdf_path_to_json_path(urdf_path)
+    with open(json_path, encoding='utf8') as json_file:
         for robot_position in json.load(json_file):
             # First set the state from the file to TriP
             state = robot_position['state']
             transformations = robot_position['transformations']
             robot.set_actuated_state(state_to_trip(state_init, state))
 
-            for joint, joint_info in get_joint_info(path).items():
+            for joint, joint_info in get_joint_info(urdf_path).items():
                 # Convert position and quaternion rotation saved in JSON to homogenous matrix
                 pos_and_rot = transformations[joint_info['child_link']]
                 pos = pos_and_rot["pos"]

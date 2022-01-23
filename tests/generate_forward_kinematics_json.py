@@ -5,6 +5,7 @@ import json
 
 import kinpy as kp
 import numpy as np
+from test_URDFParser import urdf_path_to_json_path, precomputed_kinematics_dir_name
 
 
 def initialize_state(robot):
@@ -39,7 +40,7 @@ def create_kinpy_chain(path):
         return kp.build_chain_from_urdf(urdf_data_str)
 
 
-def generate_forward_kinematics_json(path, rng_states_count=10):
+def generate_forward_kinematics_json(urdf_path, rng_states_count=10):
     """Calculates forward kinematics for the input URDF file using kinpy and saves these to a
     JSON file.
 
@@ -50,10 +51,10 @@ def generate_forward_kinematics_json(path, rng_states_count=10):
     """
     # Setup kinpy chain
     try:
-        chain_kinpy = create_kinpy_chain(path)
+        chain_kinpy = create_kinpy_chain(urdf_path)
     except KeyError as err:
         raise ValueError(
-            f'File {path} is not valid. Unsupported joint type? Missing tag? (error was {err})'
+            f'File {urdf_path} is not valid. Unsupported joint type? Missing tag? (error was {err})'
         ) from err
 
     # First state: initialize all joint values to zero
@@ -84,16 +85,18 @@ def generate_forward_kinematics_json(path, rng_states_count=10):
         for state in test_states
     ]
 
-    path_json = pathlib.Path(path).with_suffix('.json')
-    with open(path_json, 'w', encoding='utf8') as file:
-        json.dump(forward_kinematics, file, separators=(',', ':'))
+    return json.dumps(forward_kinematics, separators=(',', ':'))
 
 
 if __name__ == '__main__':
     urdf_examples_dir = os.path.join('tests', 'urdf_examples')
+    precomputed_kinematics_dir = pathlib.Path(urdf_examples_dir) / precomputed_kinematics_dir_name
+    precomputed_kinematics_dir.mkdir(exist_ok=True)
     # Iterate through files for which we compute forward kinematics. Skip subdirectories of
     # urdf_examples_dir, because as of now, the only subdirectory contains (intentionally) broken
     # URDFs. If that changes, change this too.
     for entry in os.scandir(urdf_examples_dir):
         if entry.is_file() and pathlib.Path(entry).suffix == '.urdf':
-            generate_forward_kinematics_json(entry.path)
+            with open(urdf_path_to_json_path(entry.path), 'w', encoding='utf8') as file:
+                forward_kinematics = generate_forward_kinematics_json(entry.path)
+                file.write(forward_kinematics)
