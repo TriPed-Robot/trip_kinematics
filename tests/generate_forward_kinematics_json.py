@@ -7,8 +7,8 @@ import kinpy as kp
 import numpy as np
 from test_URDFParser import (
     urdf_path_to_json_path,
-    precomputed_kinematics_dir_name,
-    urdf_examples_dir
+    PRECOMPUTED_KINEMATICS_DIR_NAME,
+    URDF_EXAMPLES_DIR
 )
 
 
@@ -93,12 +93,12 @@ def generate_forward_kinematics_json(urdf_path, rng_states_count=10):
 
 
 def main():
-    precomputed_kinematics_dir = pathlib.Path(urdf_examples_dir) / precomputed_kinematics_dir_name
+    precomputed_kinematics_dir = pathlib.Path(URDF_EXAMPLES_DIR) / PRECOMPUTED_KINEMATICS_DIR_NAME
     precomputed_kinematics_dir.mkdir(exist_ok=True)
     # Iterate through files for which we compute forward kinematics. Skip subdirectories of
     # urdf_examples_dir, because as of now, the only subdirectory contains (intentionally) broken
     # URDFs. If that changes, change this too.
-    for entry in os.scandir(urdf_examples_dir):
+    for entry in os.scandir(URDF_EXAMPLES_DIR):
         if entry.is_file() and pathlib.Path(entry).suffix == '.urdf':
             with open(urdf_path_to_json_path(entry.path), 'w', encoding='utf8') as file:
                 forward_kinematics = generate_forward_kinematics_json(entry.path)

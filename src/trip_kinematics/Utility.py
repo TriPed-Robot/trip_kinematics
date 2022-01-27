@@ -1,3 +1,4 @@
+from importlib_metadata import re
 import numpy as np
 from casadi import cos, sin
 
@@ -12,28 +13,50 @@ class Rotation:
     from_[representation] instead.
 
     """
+
     def __init__(self, quat):
         quat /= np.linalg.norm(quat)
 
-        self._w = quat[0]
-        self._x = quat[1]
-        self._y = quat[2]
-        self._z = quat[3]
+        self._xyzw = quat
 
     @classmethod
-    def from_quat(cls, wxyz):
-        """Creates a :py:class`Rotation` object from quaternions.
+    def from_quat(cls, xyzw, scalar_first=True):
+        """Creates a :py:class`Rotation` object from a quaternion.
 
         Args:
-            wxyz (np.array): Quaternion in (w, x, y, z) format.
+            xyzw (np.array): Quaternion.
+            scalar_first (bool, optional): Whether the quaternion is in scalar-first (w, x, y, z) or
+                                           scalar-last (x, y, z, w) format. Defaults to True.
 
         Returns:
-            [type]: [description]
+            Rotation: Rotation object.
+
         """
-        return cls(wxyz)
+        if scalar_first:
+            return cls(xyzw[[1, 2, 3, 0]])
+        return cls(xyzw)
 
     @classmethod
-    def from_euler(cls, rpy):
+    def from_euler(cls, seq, rpy, degrees=False):
+        """Creates a :py:class`Rotation` object from Euler angles.
+
+        Args:
+            seq (str): Included for compatibility with the SciPy API. Required to be set to 'xyz'.
+            rpy (np.array): Euler angles.
+            degrees (bool, optional): True for degrees and False for radians. Defaults to False.
+
+        Returns:
+            Rotation: Rotation object.
+
+        """
+        # pylint: disable=invalid-name
+
+        assert seq == 'xyz'
+        rpy = np.array(rpy)
+
+        if degrees:
+            rpy = rpy * (np.pi / 180)
+
         sin_r = np.sin(0.5 * rpy[0])
         cos_r = np.cos(0.5 * rpy[0])
         sin_p = np.sin(0.5 * rpy[1])
@@ -41,15 +64,28 @@ class Rotation:
         sin_y = np.sin(0.5 * rpy[2])
         cos_y = np.cos(0.5 * rpy[2])
 
-        w = cos_r * cos_p * cos_y + sin_r * sin_p * sin_y
         x = sin_r * cos_p * cos_y - cos_r * sin_p * sin_y
         y = cos_r * sin_p * cos_y + sin_r * cos_p * sin_y
         z = cos_r * cos_p * sin_y - sin_r * sin_p * cos_y
+        w = cos_r * cos_p * cos_y + sin_r * sin_p * sin_y
 
         return cls(np.array([x, y, z, w]))
 
     @classmethod
     def from_matrix(cls, matrix):
+        """Creates a :py:class`Rotation` object from a rotation matrix.
+
+        Uses a very similar algorithm to scipy.spatial.transform.Rotation.from_matrix().
+        See https://github.com/scipy/scipy/blob/22f66bbd83867459f1491abf01b860b5ef4e026e/
+        scipy/spatial/transform/_rotation.pyx
+
+        Args:
+            matrix (np.array): Rotation matrix.
+
+        Returns:
+            Rotation: Rotation object.
+
+        """
         diag1 = matrix[0, 0]
         diag2 = matrix[1, 1]
         diag3 = matrix[2, 2]
@@ -67,6 +103,7 @@ class Rotation:
             quat[j] = matrix[j, i] + matrix[i, j]
             quat[k] = matrix[k, i] + matrix[i, k]
             quat[3] = matrix[k, j] - matrix[j, k]
+
         else:
             quat[0] = matrix[2, 1] - matrix[1, 2]
             quat[1] = matrix[0, 2] - matrix[2, 0]
@@ -75,14 +112,29 @@ class Rotation:
 
         return cls(quat)
 
-    def as_quat(self):
-        return np.array([self._w, self._x, self._y, self._z])
+    def as_quat(self, scalar_first=True):
+        """Represents the object as a quaternion.
+
+        Args:
+            scalar_first (bool, optional): Represent the quaternion in scalar-first (w, x, y, z)
+                                           or scalar-last (x, y, z, w) format. Defaults to True.
+
+        Returns:
+            np.array: Quaternion.
+
+        """
+        if scalar_first:
+            return self._xyzw[[3, 0, 1, 2]]
+        return self._xyzw
 
     def __str__(self):
-        return f'''Rotation wxyz=({self._w:.3f}, {self._x:.3f}, {self._y:.3f}, {self._z:.3f})'''
+        return f'''Rotation xyzw={self._xyzw}'''
 
     def __repr__(self):
-        return f'''Rotation wxyz=({self._w:.3f}, {self._x:.3f}, {self._y:.3f}, {self._z:.3f})'''
+        return f'''Rotation xyzw={self._xyzw}'''
+
+
+print(1)
 
 
 def identity_transformation():
@@ -136,9 +188,9 @@ def quat_rotation_matrix(q_w, q_x, q_y, q_z) -> np.array:
         numpy.array: A 3x3 rotation matrix
     """
     return np.array([[1-2*(q_y**2+q_z**2), 2*(q_x*q_y-q_z*q_w), 2*(q_x*q_z + q_y*q_w)],
-                 [2*(q_x*q_y + q_z*q_w), 1-2 *
+                     [2*(q_x*q_y + q_z*q_w), 1-2 *
                      (q_x**2+q_z**2), 2*(q_y*q_z - q_x*q_w)],
-                 [2*(q_x*q_z-q_y*q_w), 2*(q_y*q_z+q_x*q_w), 1-2*(q_x**2+q_y**2)]], dtype=object)
+                     [2*(q_x*q_z-q_y*q_w), 2*(q_y*q_z+q_x*q_w), 1-2*(q_x**2+q_y**2)]], dtype=object)
 
 
 def x_axis_rotation_matrix(theta):
@@ -151,8 +203,8 @@ def x_axis_rotation_matrix(theta):
         numpy.array: A 3x3 rotation matrix
     """
     return np.array([[1, 0, 0],
-                  [0, cos(theta), -sin(theta)],
-                  [0, sin(theta), cos(theta)]], dtype=object)
+                     [0, cos(theta), -sin(theta)],
+                     [0, sin(theta), cos(theta)]], dtype=object)
 
 
 def y_axis_rotation_matrix(theta):
@@ -165,8 +217,8 @@ def y_axis_rotation_matrix(theta):
         numpy.array: A 3x3 rotation matrix
     """
     return np.array([[cos(theta), 0, sin(theta)],
-                  [0, 1, 0],
-                  [-sin(theta), 0, cos(theta)]], dtype=object)
+                     [0, 1, 0],
+                     [-sin(theta), 0, cos(theta)]], dtype=object)
 
 
 def z_axis_rotation_matrix(theta):
@@ -179,8 +231,8 @@ def z_axis_rotation_matrix(theta):
         numpy.array: A 3x3 rotation matrix
     """
     return np.array([[cos(theta), -sin(theta), 0],
-                  [sin(theta), cos(theta), 0],
-                  [0, 0, 1]], dtype=object)
+                     [sin(theta), cos(theta), 0],
+                     [0, 0, 1]], dtype=object)
 
 
 def get_rotation(matrix):

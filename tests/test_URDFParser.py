@@ -8,14 +8,25 @@ import numpy as np
 from trip_kinematics import Utility, URDFParser, Robot, forward_kinematics
 
 
-precomputed_kinematics_dir_name = 'precomputed_kinematics'
-urdf_examples_dir = os.path.join('tests', 'urdf_examples')
+PRECOMPUTED_KINEMATICS_DIR_NAME = 'precomputed_kinematics'
+URDF_EXAMPLES_DIR = os.path.join('tests', 'urdf_examples')
+
 
 def urdf_path_to_json_path(path):
+    """Returns a path to a JSON file with the same name as the input URDF file, within a
+    subdirectory of the same folder.
+
+    Args:
+        path (pathlib.Path): Path to a URDF file.
+
+    Returns:
+        pathlib.Path: Path to JSON file.
+
+    """
     path = pathlib.Path(path)
     urdf_directory = path.parent
     json_file_name = path.with_suffix('.json').name
-    return urdf_directory / precomputed_kinematics_dir_name / json_file_name
+    return urdf_directory / PRECOMPUTED_KINEMATICS_DIR_NAME / json_file_name
 
 
 def state_to_trip(trip_state, kp_state):
@@ -33,7 +44,7 @@ def state_to_trip(trip_state, kp_state):
 
     # this now sets the trip states to be equal to the previously generated kinpy states
     state = {
-        joint_name : kp_state["_".join(joint_name.split("_")[:-2])]
+        joint_name: kp_state["_".join(joint_name.split("_")[:-2])]
         for joint_name in trip_state.keys()
     }
 

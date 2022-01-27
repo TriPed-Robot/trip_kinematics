@@ -1,9 +1,10 @@
-import defusedxml.ElementTree as ET
 from collections import defaultdict
 from typing import Dict, List
 
+import defusedxml.ElementTree as ET
 import numpy as np
-from scipy.spatial.transform import Rotation as ScipyRotation
+from trip_kinematics.Utility import Rotation
+# from scipy.spatial.transform import Rotation as Rotation
 from trip_kinematics.Transformation import Transformation
 
 
@@ -162,8 +163,8 @@ def _get_transformations_for_joint(joint) -> List[List]:
         'continuous': [{'rz': 0}, ['rz']],
         'revolute': [{'rz': 0}, ['rz']],
         'prismatic': [{'tz': 0}, ['tz']],
-        'floating' : [{}, []], # treating floating and planar as fixed until implemented
-        'planar' : [{}, []],
+        'floating': [{}, []],  # treating floating and planar as fixed until implemented
+        'planar': [{}, []],
     }
 
     # Default values if origin rotation or translation are not specified
@@ -201,12 +202,12 @@ def _get_transformations_for_joint(joint) -> List[List]:
     tra = [name + '_tra', {'tx': origin_xyz[0], 'ty': origin_xyz[1], 'tz': origin_xyz[2]}, []]
 
     # Transformation 2 (rot): defined by the rotation of the origin
-    rot_quat = ScipyRotation.from_euler('xyz', [*origin_rpy], degrees=False).as_quat()
+    rot_quat = Rotation.from_euler('xyz', [*origin_rpy], degrees=False).as_quat()
     rot = [name + '_rot',
-           {'qw': rot_quat[3],
-            'qx': rot_quat[0],
-            'qy': rot_quat[1],
-            'qz': rot_quat[2]},
+           {'qw': rot_quat[0],
+            'qx': rot_quat[1],
+            'qy': rot_quat[2],
+            'qz': rot_quat[3]},
            [],
            ]
 
@@ -217,12 +218,12 @@ def _get_transformations_for_joint(joint) -> List[List]:
         # coordinate system. Only necessary for movable joints (therefore axis is not None) if
         # the axis is not already parallel to the z axis
         align_transformation = align_vectors(np.array([0, 0, 1]), axis)
-        align_quat = ScipyRotation.from_matrix(align_transformation).as_quat()
+        align_quat = Rotation.from_matrix(align_transformation).as_quat()
         sta = [name + '_sta',
-               {'qw': align_quat[3],
-                'qx': align_quat[0],
-                'qy': align_quat[1],
-                'qz': align_quat[2]},
+               {'qw': align_quat[0],
+                'qx': align_quat[1],
+                'qy': align_quat[2],
+                'qz': align_quat[3]},
                [],
                ]
 
@@ -230,12 +231,12 @@ def _get_transformations_for_joint(joint) -> List[List]:
         # joint, reverses the alignment so that we are still in the correct coordinate system.
         # (Note that the movement of the joint is applied between sta and unsta)
         unalign_transformation = np.linalg.inv(align_transformation)
-        unalign_quat = ScipyRotation.from_matrix(unalign_transformation).as_quat()
+        unalign_quat = Rotation.from_matrix(unalign_transformation).as_quat()
         unsta = [name + '_unsta',
-                 {'qw': unalign_quat[3],
-                  'qx': unalign_quat[0],
-                  'qy': unalign_quat[1],
-                  'qz': unalign_quat[2]},
+                 {'qw': unalign_quat[0],
+                  'qx': unalign_quat[1],
+                  'qy': unalign_quat[2],
+                  'qz': unalign_quat[3]},
                  [],
                  ]
 
