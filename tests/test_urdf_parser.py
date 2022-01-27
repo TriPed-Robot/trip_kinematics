@@ -5,7 +5,7 @@ import json
 
 import defusedxml.ElementTree as ET
 import numpy as np
-from trip_kinematics import Utility, URDFParser, Robot, forward_kinematics
+from trip_kinematics import Utility, Robot, forward_kinematics, urdf_parser
 
 
 PRECOMPUTED_KINEMATICS_DIR_NAME = 'precomputed_kinematics'
@@ -84,7 +84,7 @@ def get_joint_info(path):
     joints = root.findall('joint')
 
     # pylint: disable=protected-access
-    return URDFParser._build_joint_info(joints)
+    return urdf_parser._build_joint_info(joints)
 
 
 def compare_urdf_trip_vs_json(urdf_path, atol=1e-08):
@@ -103,7 +103,7 @@ def compare_urdf_trip_vs_json(urdf_path, atol=1e-08):
     """
     # Setup TriP robot using the URDF parser
     try:
-        robot = Robot(URDFParser.from_urdf(urdf_path))
+        robot = Robot(urdf_parser.from_urdf(urdf_path))
         state_init = initialize_state(robot)
     except ValueError as err:
         raise ValueError(
@@ -135,6 +135,16 @@ def compare_urdf_trip_vs_json(urdf_path, atol=1e-08):
 
 
 class TestStates(unittest.TestCase):
+    r"""Codiga really wants a docstring for this class. Have a cute ascii cat instead
+
+        |\__/,|   (`\
+      _.|o o  |_   ) )
+    -(((---(((--------
+
+    (https://www.asciiart.eu/animals/cats)
+
+    """
+
     def test_all_urdf_files(self):
         names = [
             "one_fixed_joint",
@@ -184,7 +194,7 @@ class TestStates(unittest.TestCase):
             target /= np.linalg.norm(target)
             to_align /= np.linalg.norm(to_align)
 
-            rotation_matrix = URDFParser.align_vectors(target, to_align)
+            rotation_matrix = urdf_parser.align_vectors(target, to_align)
             aligned = to_align @ rotation_matrix
 
             assert np.all(np.isclose(aligned, target))

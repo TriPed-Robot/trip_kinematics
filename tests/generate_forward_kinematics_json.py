@@ -5,7 +5,7 @@ import json
 
 import kinpy as kp
 import numpy as np
-from test_URDFParser import (
+from tests.test_urdf_parser import (
     urdf_path_to_json_path,
     PRECOMPUTED_KINEMATICS_DIR_NAME,
     URDF_EXAMPLES_DIR
