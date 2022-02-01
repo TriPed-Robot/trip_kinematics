@@ -4,9 +4,6 @@ import numpy as np
 from trip_kinematics.Utility import Rotation as R
 
 
-from scipy.spatial.transform import Rotation as RR
-
-
 class TestStates(unittest.TestCase):
     """Correct results were generated using scipy.spatial.transform.Rotation.
     """

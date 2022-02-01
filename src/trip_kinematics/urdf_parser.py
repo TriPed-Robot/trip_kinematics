@@ -4,7 +4,6 @@ from typing import Dict, List
 import defusedxml.ElementTree as ET
 import numpy as np
 from trip_kinematics.Utility import Rotation
-# from scipy.spatial.transform import Rotation as Rotation
 from trip_kinematics.Transformation import Transformation
 
 
