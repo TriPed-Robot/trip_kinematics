@@ -57,7 +57,7 @@ This leads to the following virtual open chain:
 .. literalinclude:: ../../src/trip_robots/triped_leg.py
    :language: python
    :linenos:
-   :lines: 157-162
+   :lines: 1-12,157-162
 
 And the corresponding transformations for the open chain:
 
