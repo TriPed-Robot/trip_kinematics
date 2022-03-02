@@ -30,10 +30,10 @@ Installing the latest release (recommended):
 pip install trip-kinematics
 ```
 
-Installing the lnewest version from source:
+Installing the newest version from source:
 ```
-git clone https://github.com/TriPed-Robot/TriP
-cd TriP
+git clone https://github.com/TriPed-Robot/trip_kinematics
+cd trip_kinematics
 pip install src/
 ```
 
