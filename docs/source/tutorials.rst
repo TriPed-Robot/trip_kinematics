@@ -66,6 +66,10 @@ And the corresponding transformations for the open chain:
    :linenos:
    :lines: 171-183
 
+.. warning::
+    Note that the second code block references the closed chain as its parent. Since this group is not yet build the code above will encounter errors.
+    In Practice the close chain group first has to be built. The correct order of this code can be seen [here](https://github.com/TriPed-Robot/trip_kinematics/blob/main/src/trip_robots/triped_leg.py).
+
 
 Note that both chains are made up of transformations without `state_variables`.
 Such transformations are 'static' and dont represent a joint.
