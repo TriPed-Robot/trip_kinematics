@@ -1,0 +1,177 @@
+<robot name="large_tree_test">
+   <link name="ground">
+      <visual>
+         <geometry>
+            <box size="0.1 0.1 0.1"/>
+         </geometry>
+         <material name="Cyan1">
+            <color rgba="0 0.9 0.9 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <link name="fix1">
+      <visual>
+         <origin xyz="0.5 0 0" rpy="0 0 0"/>
+         <geometry>
+            <box size="1 0.1 0.1"/>
+         </geometry>
+         <material name="Cyan1">
+            <color rgba="0 0.9 0.9 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <link name="cont1">
+      <visual>
+         <origin xyz="0.5 0 0" rpy="0 0 0"/>
+         <geometry>
+            <box size="1 0.1 0.085"/>
+         </geometry>
+         <material name="Cyan1">
+            <color rgba="0 0.9 0.9 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <link name="pris1">
+      <visual>
+         <origin xyz="0.5 0 0" rpy="0 0 0"/>
+         <geometry>
+            <box size="1 0.1 0.085"/>
+         </geometry>
+         <material name="Cyan1">
+            <color rgba="0 0.9 0.9 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <link name="fix2">
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <box size="0.15 0.15 0.15"/>
+         </geometry>
+         <material name="asdsadas">
+            <color rgba="1 0.2 0.2 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <link name="revo1">
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <box size="0.15 0.15 0.15"/>
+         </geometry>
+         <material name="asdsadas">
+            <color rgba="1 0.2 0.2 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <link name="revo2">
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <box size="0.15 0.15 0.15"/>
+         </geometry>
+         <material name="asdsadas">
+            <color rgba="1 0.2 0.2 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <link name="cont2">
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <box size="0.15 0.15 0.15"/>
+         </geometry>
+         <material name="asdsadas">
+            <color rgba="1 0.2 0.2 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <link name="fix3">
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <box size="0.15 0.15 0.15"/>
+         </geometry>
+         <material name="asdsadas">
+            <color rgba="1 0.2 0.2 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <link name="fix4">
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <box size="0.15 0.15 0.15"/>
+         </geometry>
+         <material name="asdsadas">
+            <color rgba="1 0.2 0.2 1.0"/>
+         </material>
+      </visual>
+   </link>
+
+   <joint name="base" type="fixed">
+      <parent link="ground"/>
+      <child link="fix1"/>
+      <origin xyz="1 0 0" rpy="0 0 1" />
+   </joint>
+
+   <joint name="fc" type="continuous">
+      <parent link="fix1"/>
+      <child link="cont1"/>
+      <origin xyz="0 1 0" rpy="0 0 0" />
+      <axis xyz="0 0 1" />
+   </joint>
+
+   <joint name="fp" type="prismatic">
+      <parent link="fix1"/>
+      <child link="pris1"/>
+      <origin xyz="1 0 0" rpy="0 1 0" />
+      <axis xyz="0 1 0" />
+   </joint>
+
+   <joint name="cf" type="fixed">
+      <parent link="cont1"/>
+      <child link="fix2"/>
+      <origin xyz="0 0 0.5" rpy="0.3 0 0" />
+   </joint>
+
+   <joint name="cr" type="revolute">
+      <parent link="cont1"/>
+      <child link="revo1"/>
+      <origin xyz="1 0 0" rpy="0 0.7 0" />
+      <axis xyz="0 1 0" />
+   </joint>
+
+   <joint name="pr" type="revolute">
+      <parent link="pris1"/>
+      <child link="revo2"/>
+      <origin xyz="0 0 0.3" rpy="0 0.3 0" />
+   </joint>
+
+   <joint name="pc" type="continuous">
+      <parent link="pris1"/>
+      <child link="cont2"/>
+      <origin xyz="0 0 1" rpy="0 0 0" />
+   </joint>
+
+   <joint name="pf" type="fixed">
+      <parent link="pris1"/>
+      <child link="fix3"/>
+      <origin xyz="1 0 0" rpy="0 0 0" />
+   </joint>
+
+   <joint name="rf" type="fixed">
+      <parent link="revo1"/>
+      <child link="fix4"/>
+      <origin xyz="1 0 0" rpy="0 0 0" />
+   </joint>
+</robot>
