@@ -24,7 +24,7 @@
         {
             "scheme": "doi", 
             "identifier": "10.5281/zenodo.5616306", 
-            "relation": "isVersionOf"
+            "relation": "isSourceOf"
         }
     ]
 }
