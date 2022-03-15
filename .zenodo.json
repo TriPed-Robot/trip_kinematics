@@ -1,0 +1,30 @@
+{
+    "description": "<p>Archived Release for the Journal of Open Source Software</p>", 
+    "license": "other-open", 
+    "title": "TriPed-Robot/trip_kinematics: JOSS Release", 
+    "version": "v1.0.3", 
+    "upload_type": "software", 
+    "publication_date": "2022-03-15", 
+    "creators": [
+        {
+            "affiliation": "Heidelberg University", 
+            "name": "Jan Baumg\u00e4rtner"
+        }, 
+        {
+            "name": "Torben Miller"
+        }
+    ], 
+    "access_right": "open", 
+    "related_identifiers": [
+        {
+            "scheme": "url", 
+            "identifier": "https://github.com/TriPed-Robot/trip_kinematics/tree/v1.0.3", 
+            "relation": "isSupplementTo"
+        }, 
+        {
+            "scheme": "doi", 
+            "identifier": "10.5281/zenodo.5616306", 
+            "relation": "isVersionOf"
+        }
+    ]
+}
