@@ -45,7 +45,7 @@ If you find this work useful please give credits to the authors by citing:
 
 * Baumgärtner et al., (2022). TriP: A Python package for the kinematic modeling of serial-parallel hybrid robots. Journal of Open Source Software, 7(71), 3967, https://doi.org/10.21105/joss.03967
 
-'''
+```
 @article{Baumgärtner2022,
   doi = {10.21105/joss.03967},
   url = {https://doi.org/10.21105/joss.03967},
@@ -58,8 +58,7 @@ If you find this work useful please give credits to the authors by citing:
   title = {TriP: A Python package for the kinematic modeling of serial-parallel hybrid robots},
   journal = {Journal of Open Source Software}
 }
-
-'''
+```
 
 
  
