@@ -88,7 +88,14 @@ class KinematicGroup():
         virtual_state = {}
         root = None
         endeffector = None
+        set_of_all_names = set()
         for transformation in virtual_chain:
+            current_trafo_name = transformation.get_name()
+            if current_trafo_name in set_of_all_names:
+                raise ValueError("The names of each Transformation must be unique, but the name " +
+                                 current_trafo_name+" is used at least twice")
+            else:
+                set_of_all_names.add(current_trafo_name)
             self._virtual_chain[str(transformation)] = transformation
             if transformation.get_state() != {}:
                 virtual_state[str(transformation)] = transformation.get_state()
