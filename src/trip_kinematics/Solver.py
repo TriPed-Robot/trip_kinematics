@@ -47,7 +47,7 @@ class SimpleInvKinSolver:
         Args:
             target (numpy.array): The target state of the endeffector.
                                   Either a 3 dimensional position or a 4x4 homogenous transformation
-            initial_tip ([type], optional): Initial state of the solver.
+            initial_tip ([type], optional): Initial state of the solver. 
                                             Defaults to None in which case zeros are used.
 
         Returns:
@@ -69,8 +69,11 @@ class SimpleInvKinSolver:
         Args:
             target (numpy.array): The target state of the endeffector.
                                   Either a 3 dimensional position or a 4x4 homogenous transformation
-            initial_tip ([type], optional): Initial state of the solver.
-                                            Defaults to None in which case zeros are used.
+            initial_tip (Dict[str,Dict[str, float]], optional): Initial state of the solver.
+                                                                In this case refers to a 
+                                                                virtual state.
+                                                                Defaults to None 
+                                                                in which case zeros are used.
             mapping_argument ([type], optional): Optional arguments for the virtual_to_actuated
                                                  mappings of the robot.
                                                  Defaults to None.
