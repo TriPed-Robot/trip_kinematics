@@ -153,8 +153,8 @@ The final TriPed robot can then be build using:
 
 
 
-How to Import a URDF File
-=========================
+Importing URDF Files
+====================
 The Universal Robot Description Format (URDF) is used to describe a variety of serial robot mechanisms.
 Trip includes a URDF parser that allows the importation of alist of transfomrations from a URDF file
 
