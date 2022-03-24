@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='trip_kinematics',
-    version='1.0.2',
+    version='1.0.3.1',
     author='Torben Miller, Jan Baumgärtner',
     license='MIT',
     description='...',
