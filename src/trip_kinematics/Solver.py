@@ -1,4 +1,3 @@
-from ntpath import join
 from typing import Dict
 from copy import deepcopy
 from casadi import SX, nlpsol, vertcat, gradient, Function
@@ -48,9 +47,9 @@ class SimpleInvKinSolver:
         Args:
             target (numpy.array): The target state of the endeffector.
                                   Either a 3 dimensional position or a 4x4 homogenous transformation
-            initial_tip ((Dict(str,Dict(str,float))), optional): Initial state of the solver 
-                                                                 as a virtual state. 
-                                                                 Defaults to None 
+            initial_tip ((Dict(str,Dict(str,float))), optional): Initial state of the solver
+                                                                 as a virtual state.
+                                                                 Defaults to None
                                                                  in which case zeros are used.
 
         Returns:
@@ -73,9 +72,9 @@ class SimpleInvKinSolver:
             target (numpy.array): The target state of the endeffector.
                                   Either a 3 dimensional position or a 4x4 homogenous transformation
             initial_tip (Dict[str,Dict[str, float]], optional): Initial state of the solver.
-                                                                In this case refers to a 
+                                                                In this case refers to a
                                                                 virtual state.
-                                                                Defaults to None 
+                                                                Defaults to None
                                                                 in which case zeros are used.
             mapping_argument ([type], optional): Optional arguments for the virtual_to_actuated
                                                  mappings of the robot.
@@ -143,19 +142,20 @@ class CCDSolver:
                                        Defaults to False.
         options (Dict, optional): A dictionary containing options for the CCD solver. Possible keys:
                                   stepsize:       the step length along the gradient
-                                  max_iterations: the maximum number of iterations 
+                                  max_iterations: the maximum number of iterations
                                                   before terminating
                                   precision:      the minimum amount of joint value change
                                                   before terminating
     """
 
-    def __init__(self, robot: Robot, endeffector: str, orientation=False, update_robot=False, options=None):
+    def __init__(self, robot: Robot, endeffector: str,
+                 orientation=False, update_robot=False, options=None):
 
         self.stepsize = 0.2
         self.max_iterations = 100000
         self.precision = 0.000001
 
-        if type(options) == Dict:
+        if isinstance(options, Dict):
             if 'stepsize' in options:
                 self.stepsize = options['stepsize']
             if 'max_iterations' in options:
@@ -188,9 +188,9 @@ class CCDSolver:
         Args:
             target (numpy.array): The target state of the endeffector.
                                   Either a 3 dimensional position or a 4x4 homogenous transformation
-            initial_tip ((Dict(str,Dict(str,float))), optional): Initial state of the solver 
-                                                                 as a virtual state. 
-                                                                 Defaults to None 
+            initial_tip ((Dict(str,Dict(str,float))), optional): Initial state of the solver
+                                                                 as a virtual state.
+                                                                 Defaults to None
                                                                  in which case zeros are used.
 
         Returns:
@@ -212,8 +212,7 @@ class CCDSolver:
 
             if all(abs(array(new_joint_values)-array(joint_values)) <= self.precision):
                 break
-            else:
-                joint_values = new_joint_values
+            joint_values = new_joint_values
         return self._solver_to_virtual_state(joint_values)
 
     def solve_actuated(self, target: array, initial_tip=None, mapping_argument=None):
@@ -222,9 +221,9 @@ class CCDSolver:
             target (numpy.array): The target state of the endeffector.
                                   Either a 3 dimensional position or a 4x4 homogenous transformation
             initial_tip (Dict[str,Dict[str, float]], optional): Initial state of the solver.
-                                                                In this case refers to a 
+                                                                In this case refers to a
                                                                 virtual state.
-                                                                Defaults to None 
+                                                                Defaults to None
                                                                 in which case zeros are used.
             mapping_argument ([type], optional): Optional arguments for the virtual_to_actuated
                                                  mappings of the robot.
