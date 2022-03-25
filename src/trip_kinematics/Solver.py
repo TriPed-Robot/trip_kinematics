@@ -160,16 +160,14 @@ class CCDSolver:
 
         # define gradient function for descent
         joint_symboles = vertcat(*symboles)
-        print(joint_symboles)
-        print(type(joint_symboles))
         objective_gradient = gradient(objective, joint_symboles)
         self.gradient_function = Function(
             'gradient', [joint_symboles, end_effector_pose], [objective_gradient])
 
     def solve_virtual(self, target: array, initial_tip=None):
-        stepsize = 0.1
+        stepsize = 0.2
         max_iterations = 100000
-        precision = 0.01
+        precision = 0.000001
         joint_values = [0]*len(self._symbolic_keys)
 
         for _ in range(max_iterations):
@@ -183,7 +181,6 @@ class CCDSolver:
                 break
             else:
                 joint_values = new_joint_values
-        print(joint_values)
         return self._solver_to_virtual_state(joint_values)
 
     def solve_actuated(self, target: array, initial_tip=None, mapping_argument=None):
