@@ -1,7 +1,10 @@
+from ntpath import join
+from pyclbr import Function
 from typing import Dict
 from copy import deepcopy
-from casadi import SX, nlpsol, vertcat
+from casadi import SX, nlpsol, vertcat, gradient, Function
 from numpy import array
+from numpy.linalg import norm
 
 from trip_kinematics.Robot import Robot
 
@@ -123,3 +126,61 @@ class SimpleInvKinSolver:
             solver_state.append(
                 virtual_state[key[0]][key[1]])
         return solver_state
+
+
+class CCDSolver:
+    """A Cyclical Coordinate Descent based Kinematic Solver Class that calculates
+       the inverse kinematics for a given endeffector.
+
+    Args:
+        robot (Robot): The Robot for which the kinematics should be calculated
+        endeffector (str): the name of the endeffector
+        orientation (bool, optional): Boolean flag deciding if inverse kinematics
+                                      targets also specify orientation.
+                                      Defaults to False.
+        update_robot (bool, optional): Boolean flag decding if the inverse kinematics should
+                                       immediately update the robot model.
+                                       Defaults to False.
+    """
+
+    def __init__(self, robot: Robot, endeffector: str, orientation=False, update_robot=False):
+
+        matrix, symboles, self._symbolic_keys = robot.get_symbolic_rep(
+            endeffector)
+        self.endeffector = endeffector
+        if update_robot:
+            self._robot = robot
+        else:
+            self._robot = deepcopy(robot)
+
+        if orientation is False:
+            end_effector_pose = SX.sym("end_effector_pos", 3)
+            objective = ((matrix[0, 3] - end_effector_pose[0])**2 +
+                         (matrix[1, 3] - end_effector_pose[1])**2 +
+                         (matrix[2, 3] - end_effector_pose[2])**2)
+
+        # define gradient function for descent
+        objective_gradient = gradient(objective, symboles)
+        self.gradient_function = Function(
+            'gradient', {symboles, end_effector_pose}, {objective})
+
+    def solve_virtual(self, target: array, initial_tip=None):
+        stepsize = 0.1
+        max_iterations = 1000
+        precision = 0.01
+        joint_values = [0]*len(self._symbolic_keys)
+
+        for _ in range(max_iterations):
+            new_joint_values = [0]*len(self._symbolic_keys)
+            for i in range(len(joint_values)):
+                new_joint_values[i] = joint_values[i] - stepsize * \
+                    self.gradient_function(joint_values, target)[i]
+
+            if norm(new_joint_values-joint_values) <= precision:
+                break
+            else:
+                joint_values = new_joint_values
+        return joint_values
+
+    def solve_actuated(self, target: array, initial_tip=None, mapping_argument=None):
+        pass
