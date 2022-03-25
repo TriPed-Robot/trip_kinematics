@@ -217,7 +217,30 @@ class CCDSolver:
         return self._solver_to_virtual_state(joint_values)
 
     def solve_actuated(self, target: array, initial_tip=None, mapping_argument=None):
-        pass
+        """Returns the actuated state needed for the endeffector to be in the target position
+        Args:
+            target (numpy.array): The target state of the endeffector.
+                                  Either a 3 dimensional position or a 4x4 homogenous transformation
+            initial_tip (Dict[str,Dict[str, float]], optional): Initial state of the solver.
+                                                                In this case refers to a 
+                                                                virtual state.
+                                                                Defaults to None 
+                                                                in which case zeros are used.
+            mapping_argument ([type], optional): Optional arguments for the virtual_to_actuated
+                                                 mappings of the robot.
+                                                 Defaults to None.
+
+        Returns:
+            Dict(str,float): The actuated state leading the endeffector to the target position.
+        """
+        virtual_state = self.solve_virtual(
+            target=target, initial_tip=initial_tip)
+        if mapping_argument is not None:
+            self._robot.pass_group_arg_v_to_a(mapping_argument)
+
+        self._robot.set_virtual_state(virtual_state)
+        actuated_state = self._robot.get_actuated_state()
+        return actuated_state
 
     def _solver_to_virtual_state(self, solver_state):
         """This function maps the solution of a casadi solver to the virtual state of a robot.
