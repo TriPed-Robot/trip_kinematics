@@ -1,5 +1,4 @@
 from ntpath import join
-from pyclbr import Function
 from typing import Dict
 from copy import deepcopy
 from casadi import SX, nlpsol, vertcat, gradient, Function
@@ -160,13 +159,16 @@ class CCDSolver:
                          (matrix[2, 3] - end_effector_pose[2])**2)
 
         # define gradient function for descent
-        objective_gradient = gradient(objective, symboles)
+        joint_symboles = vertcat(*symboles)
+        print(joint_symboles)
+        print(type(joint_symboles))
+        objective_gradient = gradient(objective, joint_symboles)
         self.gradient_function = Function(
-            'gradient', {symboles, end_effector_pose}, {objective})
+            'gradient', [joint_symboles, end_effector_pose], [objective_gradient])
 
     def solve_virtual(self, target: array, initial_tip=None):
         stepsize = 0.1
-        max_iterations = 1000
+        max_iterations = 100000
         precision = 0.01
         joint_values = [0]*len(self._symbolic_keys)
 
@@ -174,13 +176,35 @@ class CCDSolver:
             new_joint_values = [0]*len(self._symbolic_keys)
             for i in range(len(joint_values)):
                 new_joint_values[i] = joint_values[i] - stepsize * \
-                    self.gradient_function(joint_values, target)[i]
+                    float(self.gradient_function(
+                        joint_values, list(target))[i])
 
-            if norm(new_joint_values-joint_values) <= precision:
+            if norm(array(new_joint_values)-array(joint_values)) <= precision:
                 break
             else:
                 joint_values = new_joint_values
-        return joint_values
+        print(joint_values)
+        return self._solver_to_virtual_state(joint_values)
 
     def solve_actuated(self, target: array, initial_tip=None, mapping_argument=None):
         pass
+
+    def _solver_to_virtual_state(self, solver_state):
+        """This function maps the solution of a casadi solver to the virtual state of a robot.
+
+        Args:
+            solver_state ([type]): A solution of a nlp solver
+        Returns:
+            Dict[str,Dict[str, float]]: a :py:attr:`virtual_state` of a robot.
+        """
+        virtual_state = {}
+        # convert casadi DM to usable datatype
+        solver_state = array(solver_state)
+        for i, solver_state_value in enumerate(solver_state):
+            outer_key = self._symbolic_keys[i][0]
+            inner_key = self._symbolic_keys[i][1]
+            if outer_key not in virtual_state:
+                virtual_state[outer_key] = {}
+
+            virtual_state[outer_key][inner_key] = solver_state_value
+        return virtual_state
