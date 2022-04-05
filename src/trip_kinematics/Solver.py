@@ -1,9 +1,10 @@
 from typing import Dict
 from copy import deepcopy
-from casadi import SX, nlpsol, vertcat, gradient, Function
+from casadi import SX, nlpsol, vertcat, jacobian, Function
 from numpy import array, abs
 
-from trip_kinematics.Robot import Robot
+from trip_kinematics.Robot import Robot, forward_kinematics
+from trip_kinematics.Utility import get_translation
 
 
 class SimpleInvKinSolver:
@@ -172,16 +173,13 @@ class CCDSolver:
             self._robot = deepcopy(robot)
 
         if orientation is False:
-            end_effector_pose = SX.sym("end_effector_pos", 3)
-            objective = ((matrix[0, 3] - end_effector_pose[0])**2 +
-                         (matrix[1, 3] - end_effector_pose[1])**2 +
-                         (matrix[2, 3] - end_effector_pose[2])**2)
+            objective = vertcat(matrix[0, 3], matrix[1, 3], matrix[2, 3])
 
         # define gradient function for descent
         joint_symboles = vertcat(*symboles)
-        objective_gradient = gradient(objective, joint_symboles)
+        objective_gradient = jacobian(objective, joint_symboles)
         self.gradient_function = Function(
-            'gradient', [joint_symboles, end_effector_pose], [objective_gradient])
+            'gradient', [joint_symboles], [objective_gradient])
 
     def solve_virtual(self, target: array, initial_tip=None):
         """Returns the virtual state needed for the endeffector to be in the target position
@@ -203,12 +201,16 @@ class CCDSolver:
         else:
             joint_values = self._virtual_to_solver_state(initial_tip)
 
+        endeffector_pose = forward_kinematics(self._robot, self.endeffector)
+        endeffector_pos = get_translation(endeffector_pose)
         for _ in range(self.max_iterations):
             new_joint_values = [0]*len(self._symbolic_keys)
             for i in range(len(joint_values)):
+                print(self.gradient_function(joint_values))
+                print(endeffector_pos)
                 new_joint_values[i] = joint_values[i] - self.stepsize * \
-                    float(self.gradient_function(
-                        joint_values, list(target))[i])
+                    float(self.gradient_function(joint_values)
+                          [i])@(endeffector_pos-target)
 
             if all(abs(array(new_joint_values)-array(joint_values)) <= self.precision):
                 break
