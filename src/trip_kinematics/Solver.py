@@ -1,7 +1,8 @@
 from typing import Dict
 from copy import deepcopy
-from casadi import SX, nlpsol, vertcat, jacobian, Function
-from numpy import array, abs
+from casadi import SX, nlpsol, vertcat, jacobian, Function, pinv
+from numpy import array
+from numpy.linalg import norm
 
 from trip_kinematics.Robot import Robot, forward_kinematics
 from trip_kinematics.Utility import get_translation
@@ -128,9 +129,8 @@ class SimpleInvKinSolver:
         return solver_state
 
 
-class CCDSolver:
-    """A Cyclical Coordinate Descent based Kinematic Solver Class that calculates
-       the inverse kinematics for a given endeffector.
+class NewtonSolver:
+    """A Inverse Kinematic Solver based  on Newtons method.
 
     Args:
         robot (Robot): The Robot for which the kinematics should be calculated
@@ -141,7 +141,7 @@ class CCDSolver:
         update_robot (bool, optional): Boolean flag decding if the inverse kinematics should
                                        immediately update the robot model.
                                        Defaults to False.
-        options (Dict, optional): A dictionary containing options for the CCD solver. Possible keys:
+        options (Dict, optional): A dictionary containing options for the Newton solver. Possible keys:
                                   stepsize:       the step length along the gradient
                                   max_iterations: the maximum number of iterations
                                                   before terminating
@@ -152,9 +152,9 @@ class CCDSolver:
     def __init__(self, robot: Robot, endeffector: str,
                  orientation=False, update_robot=False, options=None):
 
-        self.stepsize = 0.2
-        self.max_iterations = 100000
-        self.precision = 0.000001
+        self.stepsize = 0.05
+        self.max_iterations = 1000
+        self.precision = 0.01
 
         if isinstance(options, Dict):
             if 'stepsize' in options:
@@ -167,6 +167,7 @@ class CCDSolver:
         matrix, symboles, self._symbolic_keys = robot.get_symbolic_rep(
             endeffector)
         self.endeffector = endeffector
+        self.orientation = orientation
         if update_robot:
             self._robot = robot
         else:
@@ -177,9 +178,10 @@ class CCDSolver:
 
         # define gradient function for descent
         joint_symboles = vertcat(*symboles)
-        objective_gradient = jacobian(objective, joint_symboles)
-        self.gradient_function = Function(
-            'gradient', [joint_symboles], [objective_gradient])
+        jacobi_matrix = jacobian(objective, joint_symboles)
+        self.p_inv_jacobian = Function(
+            'gradient', [joint_symboles], [pinv(jacobi_matrix)])
+        self.pose = Function('pose',[joint_symboles],[objective])
 
     def solve_virtual(self, target: array, initial_tip=None):
         """Returns the virtual state needed for the endeffector to be in the target position
@@ -201,21 +203,22 @@ class CCDSolver:
         else:
             joint_values = self._virtual_to_solver_state(initial_tip)
 
-        endeffector_pose = forward_kinematics(self._robot, self.endeffector)
-        endeffector_pos = get_translation(endeffector_pose)
+        
         for _ in range(self.max_iterations):
-            new_joint_values = [0]*len(self._symbolic_keys)
-            for i in range(len(joint_values)):
-                print(self.gradient_function(joint_values))
-                print(endeffector_pos)
-                new_joint_values[i] = joint_values[i] - self.stepsize * \
-                    float(self.gradient_function(joint_values)
-                          [i])@(endeffector_pos-target)
+            # compute error between current state and target
+            endeffector_pose = self.pose(joint_values)
+            pose_error = target-endeffector_pose
 
-            if all(abs(array(new_joint_values)-array(joint_values)) <= self.precision):
+            new_joint_values = [0]*len(self._symbolic_keys)
+            new_joint_values = joint_values + self.stepsize * \
+                (self.p_inv_jacobian(joint_values)
+                    @pose_error)
+
+            if norm(pose_error) <= self.precision:
                 break
             joint_values = new_joint_values
-        return self._solver_to_virtual_state(joint_values)
+        print(self._solver_to_virtual_state(array(joint_values)))
+        return self._solver_to_virtual_state(array(joint_values))
 
     def solve_actuated(self, target: array, initial_tip=None, mapping_argument=None):
         """Returns the actuated state needed for the endeffector to be in the target position
@@ -260,7 +263,7 @@ class CCDSolver:
             if outer_key not in virtual_state:
                 virtual_state[outer_key] = {}
 
-            virtual_state[outer_key][inner_key] = solver_state_value
+            virtual_state[outer_key][inner_key] = solver_state_value[0]
         return virtual_state
 
     def _virtual_to_solver_state(self, virtual_state: Dict[str, Dict[str, float]]):
@@ -269,7 +272,7 @@ class CCDSolver:
             virtual_state ( Dict(str,Dict(str,float))): A virtual state of the robot
 
         Returns:
-            [type]: A solution of the ccd solver
+            [type]: A solution of the Newton solver
         """
         solver_state = []
         for key in self._symbolic_keys:
