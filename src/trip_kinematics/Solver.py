@@ -279,6 +279,8 @@ class CCDSolver:
 
 class NewtonSolver:
     """A Inverse Kinematic Solver based  on Newtons method.
+       Note that newton solvers tend to be unstable arround singular configurations.
+       If the initial solver configuration [0,0,...,0] is a singularity supply a initial tip.
 
     Args:
         robot (Robot): The Robot for which the kinematics should be calculated
