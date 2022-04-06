@@ -3,7 +3,7 @@ import numpy as np
 import csv
 import os
 
-from trip_kinematics.Solver import SimpleInvKinSolver, NewtonSolver
+from trip_kinematics.Solver import SimpleInvKinSolver, NewtonSolver, CCDSolver
 from experiments.inverse_kinematic_experiment import inv_test
 from experiments.forward_kinematic_experiment import fwd_test
 
@@ -70,6 +70,11 @@ class TestStates(unittest.TestCase):
     def test_newton_inverse_kinematics(self):
         self.assertTrue(unit_test_inverse_kinematics(
             "triped", NewtonSolver, 0.03))
+
+    def test_ccd_inverse_kinematics(self):
+        self.assertTrue(unit_test_inverse_kinematics(
+            "triped", CCDSolver, 0.03))
+
 
     def test_forward_kinematics(self):
         self.assertTrue(unit_test_forward_kinematics("triped", 0.1))
