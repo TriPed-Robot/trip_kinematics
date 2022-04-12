@@ -411,7 +411,7 @@ class NewtonSolver:
             if outer_key not in virtual_state:
                 virtual_state[outer_key] = {}
 
-            virtual_state[outer_key][inner_key] = solver_state_value[0]
+            virtual_state[outer_key][inner_key] = float(solver_state_value)
         return virtual_state
 
     def _virtual_to_solver_state(self, virtual_state: Dict[str, Dict[str, float]]):
