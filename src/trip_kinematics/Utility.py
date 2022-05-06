@@ -1,4 +1,3 @@
-from importlib_metadata import re
 import numpy as np
 from casadi import cos, sin
 
